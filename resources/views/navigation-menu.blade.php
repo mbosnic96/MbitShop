@@ -37,7 +37,7 @@
                         <x-slot name="content">
                             <!-- Account Management -->
                             
-                            <x-dropdown-link href="{{ route('proizvodi') }}">
+                            <x-dropdown-link href="{{ route('products') }}">
                                 {{ __('Proizvodi') }}
                             </x-dropdown-link>
                             <div class="border-t border-gray-200"></div>
