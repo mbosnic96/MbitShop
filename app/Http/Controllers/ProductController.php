@@ -23,7 +23,8 @@ class ProductController extends Controller
     public function create()
     {
         $brands = DB::table('brands')->get();
-        return view('products.add-product', ['brands'=>$brands]);
+        $categories = DB::table('categories')->get();
+        return view('products.add-product', ['brands'=>$brands], ['categories'=>$categories]);
     }
 
     /**

@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use DB;
 
-class BrandController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
-        $brands = DB::table('brands')->get();
-        return view('brands.index', ['brands'=>$brands]);
+        $categories = DB::table('categories')->get();
+        return view('categories.index', ['categories'=>$categories]);
     }
 
     /**
@@ -24,7 +23,6 @@ class BrandController extends Controller
     public function create()
     {
         //
-        return view('brands.add-brand');
     }
 
     /**
@@ -32,21 +30,13 @@ class BrandController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name'=>'required|string|max:255',
-        ]);
-
-        DB::table('brands')->insert([
-            'name' => $request -> name,
-        ]);
-        
-        return redirect()->route('add-product');
+        //
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Brand $brand)
+    public function show(Category $category)
     {
         //
     }
@@ -54,7 +44,7 @@ class BrandController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Brand $brand)
+    public function edit(Category $category)
     {
         //
     }
@@ -62,7 +52,7 @@ class BrandController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Brand $brand)
+    public function update(Request $request, Category $category)
     {
         //
     }
@@ -70,7 +60,7 @@ class BrandController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Brand $brand)
+    public function destroy(Category $category)
     {
         //
     }
