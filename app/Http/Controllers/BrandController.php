@@ -40,7 +40,7 @@ class BrandController extends Controller
             'name' => $request -> name,
         ]);
         
-        return redirect()->route('add-product');
+        return redirect()->back();
     }
 
     /**

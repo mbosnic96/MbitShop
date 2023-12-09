@@ -37,6 +37,9 @@ Route::middleware([
 Route::get('products',[ProductController::class, 'index'])->name('products');
 Route::middleware(['auth:sanctum','verified'])->get('add-product',[ProductController::class,'create'])->name('add-product');
 Route::middleware(['auth:sanctum','verified'])->post('store-product',[ProductController::class,'store'])->name('store-product');
+Route::middleware(['auth:sanctum','verified'])->post('edit-product',[ProductController::class,'edit'])->name('edit-product');
+Route::middleware(['auth:sanctum','verified'])->post('delete-product',[ProductController::class,'delete'])->name('delete-product');
+Route::middleware(['auth:sanctum','verified'])->post('update-product',[ProductController::class,'update'])->name('update-product');
 
 Route::middleware(['auth:sanctum','verified'])->get('brands',[BrandController::class,'index'])->name('brands');
 Route::middleware(['auth:sanctum','verified'])->get('add-brand',[BrandController::class,'create'])->name('add-brand');

@@ -1,8 +1,8 @@
-<div id="customModal" class="modal">
+<div id="add-brand" class="modal">
     <form method="POST" action="{{ route('store-brand') }}">
         @csrf
         <div class="modal-content w-25">
-            <span class="close" onclick="closeModal()">&times;</span>
+            <span class="close" onclick="closeModal('add-brand')">&times;</span>
             <h2>Dodaj brend</h2>
             <div class="modal-body">
                 <div class="mb-4">
@@ -12,7 +12,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="closeModal()">Zatvori</button>
+                <button type="button" onclick="closeModal('add-brand')">Zatvori</button>
                 <button type="submit" class="bg-green-800 px-4 py-2 rounded-md text-light">Dodaj brend</button>
             </div>
         </div>
@@ -21,4 +21,4 @@
 
 
 
-<button onclick="openModal()" class="mt-3">Dodaj brend</button>
+<button onclick="openModal('add-brand')" class="mt-3 me-1">Dodaj brend</button>

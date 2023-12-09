@@ -22,7 +22,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('categories.add-category');
     }
 
     /**
@@ -30,7 +30,15 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name'=>'required|string|max:255',
+        ]);
+
+        DB::table('categories')->insert([
+            'name' => $request -> name,
+        ]);
+        
+        return redirect()->back();
     }
 
     /**
