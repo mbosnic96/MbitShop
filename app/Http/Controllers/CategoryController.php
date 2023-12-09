@@ -13,8 +13,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = DB::table('categories')->get();
-        return view('categories.index', ['categories'=>$categories]);
+        $categories = Category::all();
+        return view('categories.index', ['categories'=>$categories], compact('categories'));
     }
 
     /**
@@ -46,7 +46,10 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        // Eager load products for the category
+        $category = $category->load('products');
+
+        return view('categories.show', ['category' => $category]);
     }
 
     /**

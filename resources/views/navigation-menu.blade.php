@@ -35,19 +35,26 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <!-- Account Management -->
-                            
                             <x-dropdown-link href="{{ route('products') }}">
-                                {{ __('Proizvodi') }}
+                                {{ __('Svi Proizvodi') }}
                             </x-dropdown-link>
-                            <div class="border-t border-gray-200"></div>
-
                             
+                              @foreach($categories as $category)
+                                <div class="border-t border-gray-200"></div>
+                                <x-dropdown-link href="{{ route('categories-show', $category->id) }}">
+                                    {{ $category->name }}
+                                </x-dropdown-link>
+                             @endforeach
                         </x-slot>
+
+                         
+
+                      
+                      
                     </x-dropdown>
                 </div>
 
-                @if (Auth::check())
+                @if (Auth::check() && Auth::user()->role === 'admin')
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}

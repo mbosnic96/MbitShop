@@ -14,7 +14,7 @@ class Product extends Model
         'description',
         'price',
         'stock_quantity',
-        'brand_id',
+        'brand',
         'model',
         'processor',
         'ram_size',

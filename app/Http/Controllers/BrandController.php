@@ -14,8 +14,8 @@ class BrandController extends Controller
     public function index()
     {
         //
-        $brands = DB::table('brands')->get();
-        return view('brands.index', ['brands'=>$brands]);
+        $brands = Brand::all();
+        return view('brands.index', ['brands'=>$brands], compact('brands'));
     }
 
     /**
@@ -36,8 +36,8 @@ class BrandController extends Controller
             'name'=>'required|string|max:255',
         ]);
 
-        DB::table('brands')->insert([
-            'name' => $request -> name,
+      DB::table('brands')->insert([
+            'name' =>$request->input('brand'),
         ]);
         
         return redirect()->back();

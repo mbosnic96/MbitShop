@@ -35,6 +35,8 @@ class ProductController extends Controller
         $request->validate([
             'name'=>'required|string|max:255',
         ]);
+        $categoryId = $request->input('category');
+        $brandId = $request->input('brand');
 
         DB::table('products')->insert([
             'name' => $request -> name,
@@ -50,6 +52,8 @@ class ProductController extends Controller
             'operating_system' => $request -> operating_system,
             'category' => $request -> category,
             'image' => $request -> image,
+            'category_id' => $categoryId,
+            'brand_id' => $brandId,
         ]);
         return redirect()->route('products');
     }
@@ -70,10 +74,10 @@ class ProductController extends Controller
         $id = $request->id;
         $products = DB::table('products')->where('id',$id)->get();
 
-        $brands = DB::table('brands')->get();
-        $categories = DB::table('categories')->get();
+       // $brands = DB::table('brands')->get();
+       // $categories = DB::table('categories')->get();
 
-        return view('products.edit', ['products' => $products, 'brands' =>$brands, 'categories'=> $categories]);
+        return view('products.edit', ['products' => $products]);
     }
 
     /**
@@ -85,6 +89,9 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
+
+        $categoryId = $request->input('category');
+        $brandId = $request->input('brand');
 
         $update_query = DB::table('products')->where('id',$id)->update([
             'name' => $request -> name,
@@ -100,6 +107,8 @@ class ProductController extends Controller
             'operating_system' => $request -> operating_system,
             'category' => $request -> category,
             'image' => $request -> image,
+            'category_id' => $categoryId,
+            'brand_id' => $brandId,
         ]);
 
         return redirect()->route('products');
