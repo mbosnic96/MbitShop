@@ -37,7 +37,7 @@ class BrandController extends Controller
         ]);
 
       DB::table('brands')->insert([
-            'name' =>$request->input('brand'),
+            'name' => $request -> name,
         ]);
         
         return redirect()->back();
