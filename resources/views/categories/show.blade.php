@@ -5,11 +5,20 @@
             @foreach ($category->products as $product)
                 <div class="bg-white p-8 rounded-md shadow-md box">
                     <h2 class="text-xl font-semibold mb-2">{{ $product->name }}</h2>
-                    <img src="{{ $product->image ?? asset('../storage/MbitShopLogo.png') }}" alt="{{ $product->name }}" class="w-full object-contain mb-4 mx-auto">
+                    @php
+    $images = json_decode($product->image, true); // Decode the JSON string into an associative array
+@endphp
+
+@foreach($images as $key => $path)
+    <img src="{{ asset('storage/' . $path) }}" alt="{{ $key }}" class="product-image">
+@endforeach
+
+
+
                     
                    
                     <div class="flex flex-col mb-4 text-animated"> 
-                        <p class="text-gray-800 font-semibold">${{ $product->price }}</p>
+                        <p class="text-gray-800 font-semibold">{{ $product->price }} KM</p>
                     </div>
                     <div class="flex flex-col items-center space-x-4 box-hidden">
                         <div>
@@ -20,9 +29,7 @@
                             <p class="text-gray-600">Brand: {{ $brandName }}</p>
                             <p class="text-gray-600">Model: {{ $product->model }}</p>
                             <p class="text-gray-600">Procesor (Model/GHz): {{ $product->processor }}</p>
-                            @if($categoryName != 'Mobiteli')
-                                <p class="text-gray-600">RAM (GB): {{ $product->ram_size }}</p>
-                            @endif
+                            <p class="text-gray-600">RAM (GB): {{ $product->ram_size }}</p>
                             <p class="text-gray-600">Memorija (GB): {{ $product->storage }}</p>
                             <p class="text-gray-600">Grafička kartica: {{ $product->graphics_card }}</p>
                         </div>

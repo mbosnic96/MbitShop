@@ -38,6 +38,14 @@ class ProductController extends Controller
         $categoryId = $request->input('category');
         $brandId = $request->input('brand');
 
+          // Save files and store paths
+    $imagePaths = [];
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $file) {
+            $imagePaths[] = $file->store('products', 'local'); // Save in storage/app/products
+        }
+    }
+
         DB::table('products')->insert([
             'name' => $request -> name,
             'description' => $request -> description,
@@ -51,7 +59,7 @@ class ProductController extends Controller
             'graphics_card' => $request -> graphics_card,
             'operating_system' => $request -> operating_system,
             'category' => $request -> category,
-            'image' => $request -> image,
+            'image' => json_encode($imagePaths),
             'category_id' => $categoryId,
             'brand_id' => $brandId,
         ]);
@@ -89,30 +97,46 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
-
+    
         $categoryId = $request->input('category');
         $brandId = $request->input('brand');
-
-        $update_query = DB::table('products')->where('id',$id)->update([
-            'name' => $request -> name,
-            'description' => $request -> description,
-            'price' => $request -> price,
-            'stock_quantity' => $request -> stock_quantity,
-            'brand' => $request -> brand,
-            'model' => $request -> model,
-            'processor' => $request -> processor,
-            'ram_size' => $request -> ram_size,
-            'storage' => $request -> storage,
-            'graphics_card' => $request -> graphics_card,
-            'operating_system' => $request -> operating_system,
-            'category' => $request -> category,
-            'image' => $request -> image,
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                if ($file->isValid()) {
+                    // Store the file
+                    $imagePaths[] = $file->store('products', 'local');
+                } else {
+                    dd('File is not valid', $file);
+                }
+            }
+        } else {
+            dd('No files uploaded');
+        }
+        
+    
+        // Perform the update
+        DB::table('products')->where('id', $id)->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'stock_quantity' => $request->stock_quantity,
+            'brand' => $request->brand,
+            'model' => $request->model,
+            'processor' => $request->processor,
+            'ram_size' => $request->ram_size,
+            'storage' => $request->storage,
+            'graphics_card' => $request->graphics_card,
+            'operating_system' => $request->operating_system,
+            'category' => $request->category,
+            'image' => json_encode($imagePaths), // Save the updated image paths as JSON
             'category_id' => $categoryId,
             'brand_id' => $brandId,
         ]);
-
+    
         return redirect()->route('products');
     }
+    
 
     /**
      * Remove the specified resource from storage.
