@@ -1,5 +1,5 @@
 <div id="add-brand" class="modal">
-    <form method="POST" action="{{ route('store-brand') }}">
+    <form method="POST" action="{{ route('brands.store') }}">
         @csrf
         <div class="modal-content w-25">
             <span class="close" onclick="closeModal('add-brand')">&times;</span>

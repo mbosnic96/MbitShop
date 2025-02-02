@@ -5,7 +5,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('/') }}">
+                    <a href="{{ route('home') }}">
                         <x-application-mark />
                     </a>
                 </div>
@@ -13,7 +13,7 @@
                 <!-- Navigation Links -->
                
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{ route('/') }}" :active="request()->routeIs('/')">
+                    <x-nav-link href="{{ route('home') }}" :active="request()->routeIs('home')">
                         {{ __('Početna') }}
                     </x-nav-link>
                 </div>
@@ -35,7 +35,7 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <x-dropdown-link href="{{ route('products') }}">
+                            <x-dropdown-link href="{{ route('products.index') }}">
                                 {{ __('Svi Proizvodi') }}
                             </x-dropdown-link>
                             

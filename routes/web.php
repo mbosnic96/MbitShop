@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,51 +16,46 @@ use App\Http\Controllers\CategoryController;
 |
 */
 
-//landing - vidljivo svima
+// Landing - Visible to all
 Route::get('/', function () {
     return view('welcome');
-})->name('/');
+})->name('home');
 
-Route::get('/categories/{category}', [CategoryController::class, 'show'])
-    ->name('categories-show');
-// admin content
+// Category route (public)
+Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories-show');
+
+// Admin Routes - Protected by 'checkRole:admin' middleware
 Route::middleware(['checkRole:admin'])->group(function () {
-    Route::get('products',[ProductController::class, 'index'])->name('products');
-    Route::middleware(['auth:sanctum','verified'])->get('add-product',[ProductController::class,'create'])->name('add-product');
-    Route::middleware(['auth:sanctum','verified'])->post('store-product',[ProductController::class,'store'])->name('store-product');
-    Route::middleware(['auth:sanctum','verified'])->post('edit-product',[ProductController::class,'edit'])->name('edit-product');
-    Route::middleware(['auth:sanctum','verified'])->post('delete-product',[ProductController::class,'delete'])->name('delete-product');
-    Route::middleware(['auth:sanctum','verified'])->post('update-product',[ProductController::class,'update'])->name('update-product');
+    // Product Routes
+    Route::get('products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('add-product', [ProductController::class, 'create'])->name('products.create');
+    Route::post('store-product', [ProductController::class, 'store'])->name('products.store');
+    Route::get('show-product/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('edit-product/{product}', [ProductController::class, 'edit'])->name('products.edit');
+    Route::post('update-product/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::post('delete-product/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
-    Route::middleware(['auth:sanctum','verified'])->get('brands',[BrandController::class,'index'])->name('brands');
-    Route::middleware(['auth:sanctum','verified'])->get('add-brand',[BrandController::class,'create'])->name('add-brand');
-    Route::middleware(['auth:sanctum','verified'])->post('store-brand',[BrandController::class,'store'])->name('store-brand');
+    // Brand Routes
+    Route::get('brands', [BrandController::class, 'index'])->name('brands.index');
+    Route::get('add-brand', [BrandController::class, 'create'])->name('brands.create');
+    Route::post('store-brand', [BrandController::class, 'store'])->name('brands.store');
 
-    Route::middleware(['auth:sanctum','verified'])->get('categories',[CategoryController::class,'index'])->name('categories');
-    Route::middleware(['auth:sanctum','verified'])->get('add-category',[CategoryController::class,'create'])->name('add-category');
-    Route::middleware(['auth:sanctum','verified'])->post('store-category',[CategoryController::class,'store'])->name('store-category');
+    // Category Routes
+    Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('add-category', [CategoryController::class, 'create'])->name('categories.create');
+    Route::post('store-category', [CategoryController::class, 'store'])->name('categories.store');
 });
 
-//customer content
+// Customer Routes - Protected by 'checkRole:customer' middleware
 Route::middleware(['checkRole:customer'])->group(function () {
-    // Your customer routes go here
-   // Route::get('/customer', 'CustomerController@index');
-    
+    // Your customer routes can go here
+    // For example:
+    // Route::get('/customer', 'CustomerController@index');
 });
 
-
-
-
-Route::middleware([
-    'auth:sanctum',
-    'verified',
-])->group(function () {
+// Authenticated User Routes
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 });
-
-
-
-
-
