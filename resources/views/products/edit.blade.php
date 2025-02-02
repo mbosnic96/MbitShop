@@ -17,10 +17,11 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                @foreach($products as $product)
-                <form  method="POST" action="{{route('update-product')}}"  class="flex flex-col">
+                <form method="POST" action="{{ route('products.update', $product->id) }}" class="flex flex-col" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="id" value="{{$product->id}}">
+                    @method('POST') <!-- Add the method override for PUT -->
+
+                    <input type="hidden" name="id" value="{{ $product->id }}">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                     <div class="mb-4">
                         <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Naziv: (obavezno)</label>
@@ -33,7 +34,7 @@
                         <select name="brand" id="brand" class="form-select inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full">
                             <option selected="true" disabled>Odaberite proizvođača</option>
                             @foreach($brands as $brand)
-                            <option value="{{$brand->id}}" @if($product->brand == $brand->id) selected @endif>{{$brand->name}}</option>
+                            <option value="{{$brand->id}}" @if($product->brand_id == $brand->id) selected @endif>{{$brand->name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -43,7 +44,7 @@
                         <select name="category" id="category" class="form-select inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full">
                             <option selected="true" disabled>Odaberite kategoriju</option>
                             @foreach($categories as $category)
-                            <option value="{{$category->id}}"  @if($product->category == $category->id) selected @endif>{{$category->name}}</option>
+                            <option value="{{$category->id}}"  @if($product->category_id == $category->id) selected @endif>{{$category->name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -104,13 +105,18 @@
 
                     <div class="mb-4">
                         <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Slika:</label>
-                        <input name="image" type="file" id="image" value="{{$product->image}}" class="form-input inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full" accept="image/*">
+                        <input name="images[]" type="file" id="image" value="{{$product->image}}" class="form-input inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full" accept="image/*">
+                        @php
+                            $images = json_decode($product->image, true);
+                        @endphp
+                        @foreach($images as $image)
+                            <p>{{$image}}</p>
+                        @endforeach
                         @error('image') <span class="text-red-500">{{ $message }}</span>@enderror
                     </div>
                 </div>
                 <button type="submit" class="bg-blue-500 px-4 py-2 rounded-md self-end">Save</button>
                 </form>
-                @endforeach
             </div>
         </div>
     </div>
