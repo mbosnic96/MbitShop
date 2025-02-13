@@ -3,7 +3,7 @@
     <form method="POST" action="{{route('products.store')}}" method="POST" enctype="multipart/form-data">
     @csrf
         <div class="modal-content w-50">
-            <span class="close" data-modal="add-product">&times;</span>
+            <span class="close close-modal" data-modal="add-product">&times;</span>
             <h2>Dodaj proizvod</h2>
             <div class="modal-body">
             <div class="mb-4">
