@@ -54,10 +54,11 @@
 
         <!-- Name -->
         <div class="col-span-6 sm:col-span-4">
-            <x-label for="name" value="{{ __('Name') }}" />
+            <x-label for="name" value="{{ __('Ime') }}" />
             <x-input id="name" type="text" class="mt-1 block w-full" wire:model="state.name" required autocomplete="name" />
             <x-input-error for="name" class="mt-2" />
         </div>
+
 
         <!-- Email -->
         <div class="col-span-6 sm:col-span-4">
@@ -81,6 +82,37 @@
                 @endif
             @endif
         </div>
+
+        <!-- Country -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="country" value="{{ __('Država') }}" />
+            <x-input id="country" type="text" class="mt-1 block w-full" wire:model="state.country" required />
+            <x-input-error for="country" class="mt-2" />
+        </div>
+
+             <!-- City -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="city" value="{{ __('Grad') }}" />
+            <x-input id="city" type="text" class="mt-1 block w-full" wire:model="state.city" required />
+            <x-input-error for="city" class="mt-2" />
+        </div> 
+         <!-- Address -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="address" value="{{ __('Adresa') }}" />
+            <x-input id="address" type="text" class="mt-1 block w-full" wire:model="state.address" required />
+            <x-input-error for="address" class="mt-2" />
+        </div>
+
+
+
+        
+        <!-- Phone Number -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="phone_number" value="{{ __('Telefon') }}" />
+            <x-input id="phone_number" type="text" class="mt-1 block w-full" wire:model="state.phone_number" required />
+            <x-input-error for="phone_number" class="mt-2" />
+        </div>
+
     </x-slot>
 
     <x-slot name="actions">

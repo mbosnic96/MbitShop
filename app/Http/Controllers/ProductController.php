@@ -44,8 +44,10 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'stock_quantity' => 'required|integer',
         ]);
-
+    
         $categoryId = $request->input('category');
         $brandId = $request->input('brand');
         
@@ -60,38 +62,39 @@ class ProductController extends Controller
                 }
             }
         } else {
-            return redirect()->back()->withErrors(['image' => 'No files uploaded']);
+            // If no images are uploaded, set an empty array or null
+            $imagePaths = [];
         }
-
+    
+        // Create product with default values for optional fields
         Product::create([
             'name' => $request->name,
-            'description' => $request->description,
+            'description' => $request->description ?? '', // Set empty string if not provided
             'price' => $request->price,
             'stock_quantity' => $request->stock_quantity,
-            'brand' => $request->brand,
-            'model' => $request->model,
-            'processor' => $request->processor,
-            'ram_size' => $request->ram_size,
-            'storage' => $request->storage,
-            'graphics_card' => $request->graphics_card,
-            'operating_system' => $request->operating_system,
-            'category' => $request->category,
-            'image' => json_encode($imagePaths),
+            'brand' => $request->brand ?? '', // Set empty string if not provided
+            'model' => $request->model ?? '', // Set empty string if not provided
+            'processor' => $request->processor ?? '', // Set empty string if not provided
+            'ram_size' => $request->ram_size ?: null, // Set empty string if not provided
+            'storage' => $request->storage ?: null,  // Set empty string if not provided
+            'graphics_card' => $request->graphics_card ?? '', // Set empty string if not provided
+            'operating_system' => $request->operating_system ?? '', // Set empty string if not provided
+            'category' => $request->category ?? '', // Set empty string if not provided
+            'image' => json_encode($imagePaths), // Store image paths or empty array
             'category_id' => $categoryId,
             'brand_id' => $brandId,
         ]);
-
-        return redirect()->route('products.index');
+    
+        return redirect()->back()->with('message', 'Proizvod uspješno dodan!');
     }
+    
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
     {
-        $product = Product::find($id);
-        $brands = Brand::all();
-        return view('products.edit', compact('product', 'brands'));
+        
     }
     
 
@@ -102,8 +105,10 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'stock_quantity' => 'required|integer',
         ]);
-
+    
         $categoryId = $request->input('category');
         $brandId = $request->input('brand');
         
@@ -118,33 +123,35 @@ class ProductController extends Controller
                 }
             }
         } else {
-            // If no new image, we can leave the imagePaths empty, or just use old ones
+            // If no new image, we retain the old image paths
             $product = Product::findOrFail($id);
-            $imagePaths = json_decode($product->image); // Retain old image paths
+            $imagePaths = json_decode($product->image, true); // Retain old image paths
         }
-
+    
         // Perform the update
         $product = Product::findOrFail($id);
         $product->update([
             'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-            'stock_quantity' => $request->stock_quantity,
-            'brand' => $request->brand,
-            'model' => $request->model,
-            'processor' => $request->processor,
-            'ram_size' => $request->ram_size,
-            'storage' => $request->storage,
-            'graphics_card' => $request->graphics_card,
-            'operating_system' => $request->operating_system,
-            'category' => $request->category,
-            'image' => json_encode($imagePaths),
+            'description' => $request->description ?? '', // Set empty string if not provided
+            'price' => $request->price ?? 0, // Default to 0 if not provided
+            'stock_quantity' => $request->stock_quantity ?? 0, // Default to 0 if not provided
+            'brand' => $request->brand ?? '', // Set empty string if not provided
+            'model' => $request->model ?? '', // Set empty string if not provided
+            'processor' => $request->processor ?? '', // Set empty string if not provided
+            'ram_size' => $request->ram_size ?: null, // Set to null if not provided or empty string
+            'storage' => $request->storage ?: null, // Set to null if not provided or empty string
+            'graphics_card' => $request->graphics_card ?? '', // Set empty string if not provided
+            'operating_system' => $request->operating_system ?? '', // Set empty string if not provided
+            'category' => $request->category ?? '', // Set empty string if not provided
+            'image' => json_encode($imagePaths), // Store image paths or empty array
             'category_id' => $categoryId,
             'brand_id' => $brandId,
         ]);
-
-        return redirect()->route('products.index');
+    
+        
+        return redirect()->back()->with('message', 'Proizvod uspješno dodan!');
     }
+    
 
     /**
      * Remove the specified resource from storage.

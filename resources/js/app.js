@@ -1,18 +1,86 @@
 import './bootstrap';
 
-// modal.js
 document.addEventListener('DOMContentLoaded', function () {
+    // Listen for button clicks with the class 'open-modal'
+    document.querySelectorAll('.open-modal').forEach(button => {
+        button.addEventListener('click', function () {
+            const modalId = button.getAttribute('data-modal-id');  // Get modal ID from button
+            const productData = JSON.parse(this.getAttribute('data-all')) ?? ''; // Parse JSON
+            console.log(productData);
+
+            // Example: Show the brand and category in the modal
+            openModal(modalId, productData); // Open modal with full product data
+        });
+    });
+
     // Function to open the modal
-    window.openModal = function (modalId) {
+    window.openModal = function (modalId, data) {
         var modal = document.getElementById(modalId);
         var modalContent = modal.querySelector('.modal-content');
-
         if (modal && modalContent) {
+            // Populate form fields dynamically
+            Object.keys(data).forEach(key => {
+                let inputField = modal.querySelector(`[name="${key}"]`);
+                if (inputField) {
+                    inputField.value = data[key] ?? '';  // Set value for each form field
+                }
+            });
+            if(data.brand || data.category){
+            if (data.brand) {
+                const brandSelect = modal.querySelector('[name="brand"]');
+                if (brandSelect) {
+                    // Set the selected option for the brand
+                    brandSelect.value = data.brand.id; // Dynamically set the brand ID
+                }
+            }
+    
+            // Dynamically populate the 'category' field if 'category' exists in data
+            if (data.category) {
+                const categorySelect = modal.querySelector('[name="category"]');
+                if (categorySelect) {
+                    // Set the selected option for the category
+                    categorySelect.value = data.category.id; // Dynamically set the category ID
+                }
+            }
+
+            const images = JSON.parse(data.image);
+            console.log(images);
+            // Get the container to display images
+            const imageContainer = document.getElementById('uploaded-images');
+            
+            // Dynamically create <img> elements for each image
+            images.forEach(image => {
+                const imgElement = document.createElement('img');
+                imgElement.src = '/storage/' + image;  // Assuming images are stored in the public disk
+                imgElement.alt = image;
+                imgElement.classList.add('h-50', 'max-w-full', 'rounded-lg');
+                imageContainer.appendChild(imgElement);
+            });
+        }
+    
+
+            // Update form action dynamically for editing
+            let form = modal.querySelector('form');
+            if (form && data.id) {
+                let actionUrl = form.getAttribute('action').replace(':id', data.id);
+                form.setAttribute('action', actionUrl);
+            } else {
+                form.setAttribute('action', form.getAttribute('action').replace(':id', ''));
+            }
+
             modal.classList.add('show');
             modalContent.classList.add('show');
             document.body.classList.add('modal-open');
         }
     };
+
+    // Close modal event listener
+    document.querySelectorAll('.close-modal').forEach(button => {
+        button.addEventListener('click', function () {
+            const modalId = button.getAttribute('data-modal');  // Get modal ID from button
+            closeModal(modalId);
+        });
+    });
 
     // Function to close the modal
     window.closeModal = function (modalId) {
@@ -23,15 +91,70 @@ document.addEventListener('DOMContentLoaded', function () {
             modal.classList.remove('show');
             modalContent.classList.remove('show');
             document.body.classList.remove('modal-open');
+
+            // Clear modal content on close
+            clearModal(modal);
         }
     };
 
-    // Close the modal if the overlay is clicked
-    window.addEventListener('click', function (event) {
-        var modalId = event.target.dataset.modalId;
+    // Function to clear modal data (reset fields and remove images)
+    function clearModal(modal) {
+        // Clear all input fields in the modal
+        modal.querySelectorAll('input, select').forEach(input => {
+            input.value = ''; // Reset field value
+        });
 
-        if (modalId) {
+        // Clear any dynamically added images
+        const imageContainer = modal.querySelector('#uploaded-images');
+        if (imageContainer) {
+            imageContainer.innerHTML = ''; // Remove all images from container
+        }
+    }
+
+    // Close modal event listener
+    document.querySelectorAll('.close-modal').forEach(button => {
+        button.addEventListener('click', function () {
+            const modalId = button.getAttribute('data-modal');  // Get modal ID from button
             closeModal(modalId);
+        });
+    });
+
+    
+    // Auto-hide session message after 3 seconds
+    const message = document.getElementById('session-message');
+    if (message) {
+        setTimeout(() => {
+            message.style.display = 'none';
+        }, 3000);
+    }
+
+    
+
+    const dropdown = document.querySelector('.custom-dropdown');
+    const dropdownHeader = dropdown.querySelector('.dropdown-header');
+    const dropdownContent = dropdown.querySelector('.dropdown-content');
+
+    // Toggle dropdown visibility
+    dropdownHeader.addEventListener('click', function () {
+        dropdown.classList.toggle('active');
+    });
+
+    // Toggle child categories visibility
+    dropdownContent.addEventListener('click', function (e) {
+        if (e.target.classList.contains('toggle')) {
+            const parentCategory = e.target.closest('.parent-category');
+            parentCategory.classList.toggle('active');
+            const childCategories = parentCategory.querySelector('.child-categories');
+            childCategories.style.display = childCategories.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Handle child category selection
+        if (e.target.classList.contains('child-category')) {
+            const selectedValue = e.target.getAttribute('data-value');
+            const selectedText = e.target.textContent;
+            dropdownHeader.querySelector('span').textContent = selectedText;
+            dropdown.classList.remove('active');
+            console.log('Selected Value:', selectedValue); // You can use this value as needed
         }
     });
 });

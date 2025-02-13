@@ -22,15 +22,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('*', function ($view) {
-            $categories = Category::all();
+        View::composer('navigation-menu', function ($view) {
+            $categories = Category::orderBy('position', 'asc')->get()->groupBy('parent_id');
             $view->with('categories', $categories);
         });
 
-        View::composer('*', function ($view) {
-            $brands = Brand::all();
-            $view->with('brands', $brands);
-        });
+       
     }
 
 }

@@ -1,26 +1,9 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Uredi Proizvod') }}
-        </h2>
-
-        <div class="mt-3">
-        <h4 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Toolbar') }}
-        </h4>
-
-            <x-add-brand></x-add-brand>
-            <x-add-category></x-add-category>
-        </div>
-    </x-slot>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <form method="POST" action="{{ route('products.update', $product->id) }}" class="flex flex-col" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('products.update', ':id') }}" class="flex flex-col" enctype="multipart/form-data">
                     @csrf
-                    @method('POST') <!-- Add the method override for PUT -->
-
                     <input type="hidden" name="id" value="{{ $product->id }}">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                     <div class="mb-4">

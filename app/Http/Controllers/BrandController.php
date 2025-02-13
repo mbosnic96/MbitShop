@@ -14,8 +14,8 @@ class BrandController extends Controller
     public function index()
     {
         //
-        $brands = Brand::all();
-        return view('brands.index', ['brands'=>$brands], compact('brands'));
+        $brands = Brand::paginate(3);
+        return view('brands.index', compact('brands'));
     }
 
     /**
@@ -32,16 +32,18 @@ class BrandController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name'=>'required|string|max:255',
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
         ]);
-
-      DB::table('brands')->insert([
-            'name' => $request -> name,
+    
+        // Create a new brand using Eloquent
+        Brand::create([
+            'name' => trim($validatedData['name']),
         ]);
-        
-        return redirect()->back();
+    
+        return redirect()->back()->with('message', 'Brend uspešno dodat!');
     }
+    
 
     /**
      * Display the specified resource.
@@ -56,22 +58,30 @@ class BrandController extends Controller
      */
     public function edit(Brand $brand)
     {
-        //
+        return response()->json($brand);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, Brand $brand)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        
+        $brand->update([
+            'name' => $request->name,
+        ]);
+    
+        return redirect()->back()->with('message', 'Brend uspješno izmjenjen!');
     }
+    
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Brand $brand)
+    public function destroy($id)
     {
-        //
+        $brand = Brand::findOrFail($id);
+        $brand->delete();
+        return redirect()->back()->with('message', 'Brend uspješno obrisan!');
     }
 }

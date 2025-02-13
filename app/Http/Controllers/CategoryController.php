@@ -13,8 +13,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
-        return view('categories.index', ['categories'=>$categories], compact('categories'));
+      
+        $categories = Category::orderBy('name')->get()->groupBy('parent_id');
+        
+        return view('categories.index',compact('categories'));
     }
 
     /**
@@ -36,6 +38,8 @@ class CategoryController extends Controller
 
         DB::table('categories')->insert([
             'name' => $request -> name,
+            'parent_id' => $request -> parent_id ?? null,
+            'position' => $request -> position ?? 0,
         ]);
         
         return redirect()->back();
@@ -57,22 +61,34 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return response()->json($category);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, Category $category)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        
+        $category->update([
+            'name' => $request->name,
+            'parent_id' => $request -> parent_id ?? null,
+            'position' => $request -> position ?? 0,
+        ]);
+    
+        return redirect()->back()->with('message', 'Kategorija uspješno izmjenjena!');
     }
+    
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        //
+        $category = Category::findOrFail($id);
+        $category->delete();
+
+        
+        return redirect()->back()->with('message', 'Kategorija uspješno obrisana!');
     }
 }
