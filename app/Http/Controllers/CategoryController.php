@@ -29,10 +29,11 @@ class CategoryController extends Controller
         $ram_sizes = $allProducts->pluck('ram_size')->unique()->map(fn($value) => (int) $value)->sort();
         $graphics = $allProducts->pluck('graphics_card')->unique();
         $screenSizes = $allProducts->pluck('screen_size')->unique();
+        $selectedCategoryId = $id;
     
         return view('categories.show', compact(
             'categories', 'products', 'brands', 'processors', 'storages', 'ram_sizes', 
-            'allCategories', 'graphics', 'screenSizes'
+            'allCategories', 'graphics', 'screenSizes','selectedCategoryId'
         ));
     }
 
@@ -74,20 +75,44 @@ class CategoryController extends Controller
     
         // Filter by Price Range
         if ($request->filled('price')) {
-            [$min, $max] = explode('-', $request->price);
-            $query->whereBetween('price', [(float) $min, (float) $max]);
+            \Log::debug('Price:', ['price' => $request->price]);
+        
+            // Check if the price is an array and if it has more than one value
+            if (is_array($request->price)) {
+                // If only one value, use that for both min and max
+                if (count($request->price) == 1) {
+                    $min = $max = (float) $request->price[0];
+                } else {
+                    // If two values are passed, explode the range
+                    [$min, $max] = explode('-', $request->price[0]);
+                    $min = (float) $min;
+                    $max = (float) $max;
+                }
+            } else {
+                // If price is not an array, process it as a string with a dash (e.g., "2500-5000")
+                [$min, $max] = explode('-', $request->price);
+                $min = (float) $min;
+                $max = (float) $max;
+            }
+        
+            // Apply the price range filter
+            $query->whereBetween('price', [$min, $max]);
+        }
+        
+        
+        if ($request->filled('screen_size')) {
+            $screenSize = (int) $request->screen_size;
+            $query->where('screen_size', $screenSize);
         }
     
-        // Filter by Screen Size Range
-        if ($request->filled('screen_size')) {
-            [$minScreen, $maxScreen] = explode('-', $request->screen_size);
-            $query->whereBetween('screen_size', [(float) $minScreen, (float) $maxScreen]);
-        }
+        
     
         // Execute the query and return the results
-        $filteredProducts = $query->get();
-    
-        return response()->json($filteredProducts); // Return filtered products as JSON
+        $products = $query->get();
+
+        // Return the products as JSON
+        return response()->json($products);
+// Return filtered products as JSON
     }
     
     
