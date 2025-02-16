@@ -29,83 +29,92 @@ class CategoryController extends Controller
         $ram_sizes = $allProducts->pluck('ram_size')->unique()->map(fn($value) => (int) $value)->sort();
         $graphics = $allProducts->pluck('graphics_card')->unique();
         $screenSizes = $allProducts->pluck('screen_size')->unique();
-    
-        // Pass the selected category ID to the view
         $selectedCategoryId = $id;
     
         return view('categories.show', compact(
             'categories', 'products', 'brands', 'processors', 'storages', 'ram_sizes', 
-            'allCategories', 'graphics', 'screenSizes', 'selectedCategoryId'
+            'allCategories', 'graphics', 'screenSizes','selectedCategoryId'
         ));
     }
 
-  
-        public function search(Request $request)
-        {
-            // Validate the request
-            $request->validate([
-                'category' => 'nullable|integer',
-                'brand' => 'nullable|array',
-                'brand.*' => 'integer',
-                'processor' => 'nullable|string',
-                'ram' => 'nullable|integer',
-                'hdd' => 'nullable|integer',
-                'graphics_card' => 'nullable|string',
-                'price' => 'nullable|string',
-                'screen_size' => 'nullable|array',
-                'screen_size.*' => 'numeric',
-            ]);
-    
-            try {
-                $query = Product::query();
-    
-                // Apply filters
-                $query->when($request->filled('category'), function ($query) use ($request) {
-                    $query->where('category_id', $request->category);
-                });
-    
-                $query->when($request->filled('brand'), function ($query) use ($request) {
-                    $query->whereIn('brand_id', $request->brand);
-                });
-    
-                $query->when($request->filled('processor'), function ($query) use ($request) {
-                    $query->where('processor', $request->processor);
-                });
-    
-                $query->when($request->filled('ram'), function ($query) use ($request) {
-                    $query->where('ram_size', $request->ram);
-                });
-    
-                $query->when($request->filled('hdd'), function ($query) use ($request) {
-                    $query->where('storage', $request->hdd);
-                });
-    
-                $query->when($request->filled('graphics_card'), function ($query) use ($request) {
-                    $query->where('graphics_card', $request->graphics_card);
-                });
-    
-                $query->when($request->filled('price'), function ($query) use ($request) {
-                    $priceRange = explode('-', $request->price);
-                    if (count($priceRange) === 2) {
-                        [$min, $max] = array_map('floatval', $priceRange);
-                        $query->whereBetween('price', [$min, $max]);
-                    }
-                });
-    
-                $query->when($request->filled('screen_size'), function ($query) use ($request) {
-                    $query->whereIn('screen_size', $request->screen_size);
-                });
-    
-                $filteredProducts = $query->get();
-    
-                return response()->json($filteredProducts);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'error' => true,
-                    'message' => $e->getMessage(),
-                ], 500);
-            }
+    public function search(Request $request)
+    {
+        $query = Product::query();
+        
+        // Filter by Category
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
         }
+    
+        // Filter by Brand (Array of IDs)
+        if ($request->filled('brand')) {
+            $query->whereIn('brand_id', (array) $request->brand);
+        }
+    
+        // Filter by Processor
+        if ($request->filled('processor')) {
+            $query->where('processor', 'LIKE', '%' . $request->processor . '%');
+        }
+    
+        // Filter by RAM size
+        if ($request->filled('ram')) {
+            $ramSize = (int) $request->ram;
+            $query->where('ram_size', $ramSize);
+        }
+    
+        // Filter by HDD size
+        if ($request->filled('hdd')) {
+            $hddSize = (int) $request->hdd;
+            $query->where('storage', $hddSize);
+        }
+    
+        // Filter by Graphics Card
+        if ($request->filled('graphics_card')) {
+            $query->where('graphics_card', 'LIKE', '%' . $request->graphics_card . '%');
+        }
+    
+        // Filter by Price Range
+        if ($request->filled('price')) {
+            \Log::debug('Price:', ['price' => $request->price]);
+        
+            // Check if the price is an array and if it has more than one value
+            if (is_array($request->price)) {
+                // If only one value, use that for both min and max
+                if (count($request->price) == 1) {
+                    $min = $max = (float) $request->price[0];
+                } else {
+                    // If two values are passed, explode the range
+                    [$min, $max] = explode('-', $request->price[0]);
+                    $min = (float) $min;
+                    $max = (float) $max;
+                }
+            } else {
+                // If price is not an array, process it as a string with a dash (e.g., "2500-5000")
+                [$min, $max] = explode('-', $request->price);
+                $min = (float) $min;
+                $max = (float) $max;
+            }
+        
+            // Apply the price range filter
+            $query->whereBetween('price', [$min, $max]);
+        }
+        
+        
+        if ($request->filled('screen_size')) {
+            $screenSize = (int) $request->screen_size;
+            $query->where('screen_size', $screenSize);
+        }
+    
+        
+    
+        // Execute the query and return the results
+        $products = $query->get();
+
+        // Return the products as JSON
+        return response()->json($products);
+// Return filtered products as JSON
+    }
+    
     
 
     
