@@ -5,7 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
-use Laravel\Jetstream\Jetstream;
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,12 +23,16 @@ Route::get('/', function () {
 })->name('home');
 
 // Category route (public)
-Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories-show');
+Route::get('categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+Route::post('/search', [CategoryController::class, 'search']);
+
 
 // Admin Routes - Protected by 'checkRole:admin' middleware
 Route::middleware(['checkRole:admin'])->group(function () {
     // Product Routes
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('users.index');
+    Route::get('dashboard/users', [DashboardController::class, 'index'])->name('users.index');
+    Route::delete('dashboard/users/delete/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
     Route::get('dashboard/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('add-product', [ProductController::class, 'create'])->name('products.create');
     Route::post('store-product', [ProductController::class, 'store'])->name('products.store');
@@ -72,8 +76,4 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 });
 
 
-Route::middleware(['auth', 'checkRole:admin'])->group(function () {
-    Route::get('/user/delete', function () {
-        return view('auth.register');
-    })->name('users.destroy');
-});
+

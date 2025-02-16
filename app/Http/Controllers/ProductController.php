@@ -10,11 +10,7 @@ use DB;
 
 class ProductController extends Controller
 {
-    public function show($id)
-{
-    $product = Product::with(['brand', 'category'])->findOrFail($id);
-    return view('categories.show', compact('products'));
-}
+
 
     /**
      * Display a listing of the resource.
