@@ -15,7 +15,8 @@
                 <div id="brand-section" class="hidden">
                     @foreach ($brands as $brand)
                         <div class="flex items-center mb-2">
-                            <input type="checkbox" id="brand_{{ $brand->id }}" class="filter-checkbox" data-filter="brand" value="{{ $brand->id }}">
+                            <input type="checkbox" id="brand_{{ $brand->id }}" class="filter-checkbox" data-filter="brand"
+                                value="{{ $brand->id }}">
                             <label for="brand_{{ $brand->id }}" class="ml-2">{{ $brand->name }}</label>
                         </div>
                     @endforeach
@@ -45,7 +46,8 @@
                 <div id="ram-section" class="hidden">
                     @foreach ($ram_sizes as $ram_size)
                         <div class="flex items-center mb-2">
-                            <input type="checkbox" id="ram_{{ $ram_size }}" class="filter-checkbox" data-filter="ram" value="{{ $ram_size }}">
+                            <input type="checkbox" id="ram_{{ $ram_size }}" class="filter-checkbox" data-filter="ram"
+                                value="{{ $ram_size }}">
                             <label for="ram_{{ $ram_size }}" class="ml-2">{{ $ram_size }} GB</label>
                         </div>
                     @endforeach
@@ -60,7 +62,8 @@
                 <div id="hdd-section" class="hidden">
                     @foreach ($storages as $storage)
                         <div class="flex items-center mb-2">
-                            <input type="checkbox" id="hdd_{{ $storage }}" class="filter-checkbox" data-filter="hdd" value="{{ $storage }}">
+                            <input type="checkbox" id="hdd_{{ $storage }}" class="filter-checkbox" data-filter="hdd"
+                                value="{{ $storage }}">
                             <label for="hdd_{{ $storage }}" class="ml-2">{{ $storage }} GB</label>
                         </div>
                     @endforeach
@@ -74,7 +77,8 @@
                 <div id="screen_size-section" class="hidden">
                     @foreach ($screenSizes as $size)
                         <div class="flex items-center mb-2">
-                            <input type="checkbox" id="screen_size_{{ $size }}" class="filter-checkbox" data-filter="screen_size" value="{{ $size }}">
+                            <input type="checkbox" id="screen_size_{{ $size }}" class="filter-checkbox"
+                                data-filter="screen_size" value="{{ $size }}">
                             <label for="screen_size_{{ $size }}" class="ml-2">{{ $size }}"</label>
                         </div>
                     @endforeach
@@ -83,13 +87,15 @@
 
             <!-- Collapsible Graphics Card Filter -->
             <div class="mb-4">
-                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none" data-section="graphics_card">
+                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none"
+                    data-section="graphics_card">
                     Graphics Card ▼
                 </button>
                 <div id="graphics_card-section" class="hidden">
                     @foreach ($graphics as $graphics_card)
                         <div class="flex items-center mb-2">
-                            <input type="checkbox" id="graphics_card_{{ $graphics_card }}" class="filter-checkbox" data-filter="graphics_card" value="{{ $graphics_card }}">
+                            <input type="checkbox" id="graphics_card_{{ $graphics_card }}" class="filter-checkbox"
+                                data-filter="graphics_card" value="{{ $graphics_card }}">
                             <label for="graphics_card_{{ $graphics_card }}" class="ml-2">{{ $graphics_card }}</label>
                         </div>
                     @endforeach
@@ -102,7 +108,8 @@
                     Price ▼
                 </button>
                 <div id="price-section" class="hidden">
-                    <input type="range" id="price-range" min="0" max="5000" step="10" class="w-full" data-filter="price">
+                    <input type="range" id="price-range" min="0" max="5000" step="10" class="w-full"
+                        data-filter="price">
                     <div class="flex justify-between text-sm mt-2">
                         <span>0 KM</span>
                         <span id="price-value">5000 KM</span>
@@ -115,38 +122,40 @@
         <div id="product-list" class="w-3/4 ml-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach ($products as $product)
-                    <div class="bg-white p-8 rounded-md shadow-md box">
-                        <h2 class="text-xl font-semibold mb-2">{{ $product->name }}</h2>
-                        @php
-                           $images = json_decode($product->image, true);
-                           $firstImage = !empty($images) && isset($images[0]) ? asset('storage/' . $images[0]) : asset('storage/MbitShopLogo.png');
-                        @endphp
+                                <div class="bg-white p-4 rounded-md shadow-md box">
+                                    <div>
+                                        <h2 class="text-xl font-semibold mb-2">{{ $product->name }}</h2>
+                                        @php
+                                            $images = json_decode($product->image, true);
+                                            $firstImage = !empty($images) && isset($images[0]) ? asset('storage/' . $images[0]) : asset('storage/MbitShopLogo.png');
+                                        @endphp
 
-                        <img src="{{ $firstImage }}" alt="{{  $product->name  }}" class="product-image">
+                                        <img src="{{ $firstImage }}" alt="{{  $product->name  }}" class="h-48 w-96 object-cover">
 
-                        <div class="flex flex-col mb-0 text-animated"> 
-                            <p class="text-gray-800 font-semibold">{{ $product->price ?? '' }} KM</p>
-                        </div>
-                        
-                            <div>
-                                @if($product->brand && $product->brand->name || $product->model )
-                                    <p class="text-gray-800"> {{ $product->brand->name }}  |  {{ $product->model }}</p>
-                                @endif
+                                        <div class="flex flex-col mb-0 text-animated">
+                                            <p class="text-gray-800 font-semibold">{{ $product->price ?? '' }} KM</p>
+                                        </div>
 
-                                @if($product->processor)
-                                    <p class="text-gray-600">{{ $product->processor }}</p>
-                                @endif
+                                        <div>
+                                            @if($product->brand && $product->brand->name || $product->model)
+                                                <p class="text-gray-800"> {{ $product->brand->name }} | {{ $product->model }}</p>
+                                            @endif
 
-                                @if($product->ram_size ||  $product->storage)
-                                    <p class="text-gray-600"> {{ $product->ram_size }} |  {{ $product->storage }}</p>
-                                @endif
+                                            @if($product->processor)
+                                                <p class="text-gray-600">{{ $product->processor }}</p>
+                                            @endif
 
-                            </div>
+                                            @if($product->ram_size || $product->storage)
+                                                <p class="text-gray-600"> {{ $product->ram_size }} | {{ $product->storage }}</p>
+                                            @endif
 
-                        <div class="flex items-center justify-center mt-4">
-                            <button class="bg-blue-500 text-white px-4 py-2 rounded">Vidi detaljno</button>
-                        </div>
-                    </div>
+                                        </div>
+
+                                        <div class="flex items-center justify-center mt-4">
+                                           <!-- <button class="bg-blue-500 text-white px-4 py-2 rounded">Vidi detaljno</button> -->
+                                        </div>
+                                    </div>
+                                </div>
                 @endforeach
             </div>
         </div>
@@ -194,33 +203,39 @@
                 dropdown.addEventListener('change', fetchFilteredProducts);
             });
 
-            priceRange.addEventListener('input', function() {
+            priceRange.addEventListener('input', function () {
                 priceValue.textContent = `${this.value} KM`;
                 fetchFilteredProducts();
             });
 
             function getFilters() {
-            const filters = {};
-            document.querySelectorAll('.filter-checkbox:checked').forEach(input => {
-                const filterName = input.getAttribute('data-filter');
-                const filterValue = input.value;
-                if (!filters[filterName]) filters[filterName] = [];
-                filters[filterName].push(filterValue);
-            });
-            document.querySelectorAll('.filter-dropdown').forEach(input => {
-                const filterName = input.getAttribute('data-filter');
-                const filterValue = input.value;
-                if (filterValue) {
-                    filters[filterName] = filterValue;
+                const filters = {};
+                const selectedCategory = document.getElementById('selected-category').value;
+                document.querySelectorAll('.filter-checkbox:checked').forEach(input => {
+                    const filterName = input.getAttribute('data-filter');
+                    const filterValue = input.value;
+                    if (!filters[filterName]) filters[filterName] = [];
+                    filters[filterName].push(filterValue);
+                });
+                document.querySelectorAll('.filter-dropdown').forEach(input => {
+                    const filterName = input.getAttribute('data-filter');
+                    const filterValue = input.value;
+                    if (filterValue) {
+                        filters[filterName] = filterValue;
+                    }
+                });
+                console.log("Filters before sending:", filters);
+                if (Object.keys(filters).length === 0 && selectedCategory) {
+                    filters['category'] = selectedCategory;
                 }
-            });
+                return filters;
+            }
 
-            return filters;
-        }
 
-function fetchFilteredProducts() {
+
+            function fetchFilteredProducts() {
                 const filters = getFilters();
-
+                console.log("Active Filters:", filters); // Debugging
                 fetch('/search', {
                     method: 'POST',
                     headers: {
@@ -229,11 +244,11 @@ function fetchFilteredProducts() {
                     },
                     body: JSON.stringify(filters)
                 })
-                .then(response => response.json())
-                .then(products => {
-                    updateProductList(products);
-                })
-                .catch(error => console.error('Fetch Error:', error));
+                    .then(response => response.json())
+                    .then(products => {
+                        updateProductList(products);
+                    })
+                    .catch(error => console.error('Fetch Error:', error));
             }
 
 
@@ -251,24 +266,25 @@ function fetchFilteredProducts() {
                     let firstImage = images.length ? `/storage/${images[0]}` : '/storage/MbitShopLogo.png';
 
                     let productHTML = `
-                        <div class="bg-white p-8 rounded-md shadow-md">
+                        <div class="bg-white p-4 rounded-md shadow-md box">
+                        <div>
                             <h2 class="text-xl font-semibold mb-2">${product.name}</h2>
-                            <img src="${firstImage}" alt="${product.name}" class="product-image">
+                            <img src="${firstImage}" alt="${product.name}" class="h-48 w-96 object-cover">
 
                             <div class="flex flex-col mb-0"> 
                                 <p class="text-gray-800 font-semibold">${product.price || ''} KM</p>
                             </div>
 
                             <div>
-                                ${(product.brand && product.brand.name) || product.model ? 
-                                    `<p class="text-gray-600">
+                                ${(product.brand && product.brand.name) || product.model ?
+                            `<p class="text-gray-600">
                                         ${product.brand && product.brand.name ? product.brand.name : ''}
                                         ${product.brand && product.brand.name && product.model ? ' | ' : ''}
                                         ${product.model ? product.model : ''}
                                     </p>` : ''}
 
-                                ${product.ram_size || product.storage ? 
-                                    `<p class="text-gray-600">
+                                ${product.ram_size || product.storage ?
+                            `<p class="text-gray-600">
                                         ${product.ram_size ? product.ram_size : ''}
                                         ${product.ram_size && product.storage ? ' | ' : ''}
                                         ${product.storage ? product.storage : ''}
@@ -276,7 +292,8 @@ function fetchFilteredProducts() {
 
                             </div>
                             <div class="flex items-center justify-center mt-4">
-                                <button class="bg-blue-500 text-white px-4 py-2 rounded">Vidi detaljno</button>
+                             <!--   <button class="bg-blue-500 text-white px-4 py-2 rounded">Vidi detaljno</button> -->
+                            </div>
                             </div>
                         </div>
                     `;
