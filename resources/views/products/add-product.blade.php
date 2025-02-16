@@ -1,12 +1,12 @@
-<!-- Add Category Modal -->
+
 <div id="add-product" class="modal">
     <form method="POST" action="{{route('products.store')}}" method="POST" enctype="multipart/form-data">
-    @csrf
+        @csrf
         <div class="modal-content w-50">
             <span class="close close-modal" data-modal="add-product">&times;</span>
             <h2>Dodaj proizvod</h2>
             <div class="modal-body">
-            <div class="mb-4">
+                <div class="mb-4">
                     <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Naziv: (obavezno)</label>
                     <input name="name" type="text" id="name"
                         class="form-input inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full" required>
@@ -31,34 +31,38 @@
                     <div>
                         <label for="category" class="block text-gray-700 text-sm font-bold mb-2">Kategorija:
                             (obavezno)</label>
-                            <div class="custom-dropdown">
-    <div class="dropdown-header">
-        <span>Odaberite kategoriju</span>
-        <i class="fas fa-angle-down"></i>
-    </div>
-    <div class="dropdown-content">
-        @foreach($categories as $category)
-            @if($category->parent_id === null)
-                <div class="parent-category">
-                    <div class="parent-header toggle">
-                        <span>{{ $category->name }}</span>
-                        <i class="fa fa-angle-down toggle-icon"></i>
+                        <div class="custom-dropdown">
+                            <div class="dropdown-header">
+                                <span>{{ $selectedCategory->name ?? 'Odaberite kategoriju' }}</span>
+                                <i class="fa fa-angle-down"></i>
+                            </div>
+                            <div class="dropdown-content hidden">
+                                @foreach($categories as $category)
+                                    @if($category->parent_id === null)
+                                        <div class="parent-category">
+                                            <div class="parent-header toggle">
+                                                <span>{{ $category->name }}</span>
+                                                <i class="fa fa-angle-down toggle-icon"></i>
+                                            </div>
+                                            <div class="child-categories hidden">
+                                                @foreach($categories as $child)
+                                                    @if($child->parent_id === $category->id)
+                                                        <div class="child-category" data-value="{{ $child->id }}">
+                                                            {{ $child->name }}
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                        <input type="hidden" name="category" value="{{$child->id  }}">
+
                     </div>
-                    <div class="child-categories">
-                       
-                        @foreach($categories as $child)
-                            @if($child->parent_id === $category->id)
-                                <div class="child-category" data-value="{{ $child->id }}">{{ $child->name }}</div>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        @endforeach
-    </div>
-</div>
-                        @error('category') <span class="text-red-500">{{ $message }}</span>@enderror
-                    </div>
+
+
                 </div>
                 <!-- Description Field -->
                 <div>
@@ -146,7 +150,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" data-modal="add-product" class="px-4 py-2 bg-gray-600 text-white rounded-md close-modal">Zatvori</button>
+                <button type="button" data-modal="add-product"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-md close-modal">Zatvori</button>
                 <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Dodaj proizvod</button>
             </div>
         </div>
@@ -154,6 +159,5 @@
 </div>
 
 <!-- Button to open Add Category Modal -->
-<button class="my-2 my-2 px-4 py-2 bg-green-500 text-white rounded open-modal" data-modal-id="add-product">Dodaj proizvod</button>
-
-
+<button class="my-2 my-2 px-4 py-2 bg-green-500 text-white rounded open-modal" data-modal-id="add-product">Dodaj
+    proizvod</button>

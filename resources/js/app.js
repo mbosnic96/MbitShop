@@ -1,6 +1,7 @@
 import './bootstrap';
 
 document.addEventListener('DOMContentLoaded', function () {
+    
     // Listen for button clicks with the class 'open-modal'
     document.querySelectorAll('.open-modal').forEach(button => {
         button.addEventListener('click', function () {
@@ -36,10 +37,14 @@ document.addEventListener('DOMContentLoaded', function () {
     
             // Dynamically populate the 'category' field if 'category' exists in data
             if (data.category) {
-                const categorySelect = modal.querySelector('[name="category"]');
-                if (categorySelect) {
-                    // Set the selected option for the category
-                    categorySelect.value = data.category.id; // Dynamically set the category ID
+                const categoryInput = modal.querySelector('[name="category"]');
+                const categoryDisplay = modal.querySelector('.dropdown-header span');
+
+                if (categoryInput) {
+                    categoryInput.value = data.category.id;
+                }
+                if (categoryDisplay) {
+                    categoryDisplay.textContent = data.category.name;
                 }
             }
 
@@ -128,33 +133,52 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 3000);
     }
 
+
     
 
-    const dropdown = document.querySelector('.custom-dropdown');
-    const dropdownHeader = dropdown.querySelector('.dropdown-header');
-    const dropdownContent = dropdown.querySelector('.dropdown-content');
-
-    // Toggle dropdown visibility
-    dropdownHeader.addEventListener('click', function () {
-        dropdown.classList.toggle('active');
+    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        const dropdownHeader = dropdown.querySelector('.dropdown-header');
+        const dropdownContent = dropdown.querySelector('.dropdown-content');
+        const categoryInput = dropdown.closest('form').querySelector('input[name="category"]');
+    
+        // Toggle dropdown visibility
+        dropdownHeader.addEventListener('click', function () {
+            dropdown.classList.toggle('active');
+        });
+    
+        // Handle dropdown interactions
+        dropdownContent.addEventListener('click', function (e) {
+            if (e.target.classList.contains('toggle')) {
+                const parentCategory = e.target.closest('.parent-category');
+                parentCategory.classList.toggle('active');
+                const childCategories = parentCategory.querySelector('.child-categories');
+                childCategories.style.display = childCategories.style.display === 'block' ? 'none' : 'block';
+            }
+    
+            // Handle child category selection
+            if (e.target.classList.contains('child-category')) {
+                const selectedValue = e.target.getAttribute('data-value');
+                const selectedText = e.target.textContent;
+    
+                dropdownHeader.querySelector('span').textContent = selectedText;
+                dropdown.classList.remove('active');
+    
+                // Ensure hidden input field gets updated correctly
+                if (categoryInput) {
+                    categoryInput.value = selectedValue;
+                    console.log('Updated Category:', categoryInput.value); // Debugging
+                } else {
+                    console.error('Hidden input for category not found!');
+                }
+            }
+        });
     });
+    
 
-    // Toggle child categories visibility
-    dropdownContent.addEventListener('click', function (e) {
-        if (e.target.classList.contains('toggle')) {
-            const parentCategory = e.target.closest('.parent-category');
-            parentCategory.classList.toggle('active');
-            const childCategories = parentCategory.querySelector('.child-categories');
-            childCategories.style.display = childCategories.style.display === 'block' ? 'none' : 'block';
-        }
-
-        // Handle child category selection
-        if (e.target.classList.contains('child-category')) {
-            const selectedValue = e.target.getAttribute('data-value');
-            const selectedText = e.target.textContent;
-            dropdownHeader.querySelector('span').textContent = selectedText;
-            dropdown.classList.remove('active');
-            console.log('Selected Value:', selectedValue); // You can use this value as needed
-        }
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const categoryInput = this.querySelector('input[name="category"]');
+        console.log('Final Category Value Before Submission:', categoryInput.value);
     });
+    
+    
 });

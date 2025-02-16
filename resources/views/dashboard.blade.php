@@ -1,56 +1,40 @@
 <x-app-layout>
-<div class="flex h-screen">
-    @include('dashboard.sidebar')
-    @include('dashboard.tabs')
+<div class="w-1/4 bg-gray-800 text-white p-4 h-screen">
+    <div class="flex items-center mb-6">
+        <img src="{{ Auth::user()->profile_photo_url }}" alt="Profile Photo" class="rounded-full w-12 h-12 mr-4">
+        <div>
+            <p class="text-lg">{{ Auth::user()->name }}</p>
+            <p class="text-sm">{{ Auth::user()->email }}</p>
+        </div>
+    </div>
+    <div class="px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+        <ul class="space-y-4">
+            <li>
+                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
+                    Dashboard
+                </x-responsive-nav-link>
+            </li>
+            <li>
+                <x-responsive-nav-link href="{{ route('products.index') }}"  :active="request()->routeIs('products.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
+                    Products
+                </x-responsive-nav-link>
+            </li>
+            <li>
+                <x-responsive-nav-link href="{{ route('brands.index') }}"  :active="request()->routeIs('brands.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
+                    Brands
+                </x-responsive-nav-link>
+            </li>
+            <li>
+                <x-responsive-nav-link href="{{ route('categories.index') }}"  :active="request()->routeIs('categories.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
+                    Categories
+                </x-nav-link>
+            </li>
+            <li>
+                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')"  class="p-2 text-gray-800 rounded-lg dark:text-white active:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
+                    Users
+                </x-responsive-nav-links>
+            </li>
+        </ul>
+    </div>
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-pane');
-
-        // Retrieve the last active tab from localStorage
-        let activeTab = localStorage.getItem("activeTab") || "tad-dashboard"; // Default tab
-
-        // Function to activate a tab
-        function activateTab(tab) {
-            // Update localStorage
-            localStorage.setItem("activeTab", tab);
-            // Remove active styles from all buttons
-            tabButtons.forEach(button => {
-                button.classList.remove('bg-gray-900');
-                button.classList.add('bg-gray-800');
-            });
-
-            // Add active styles to the clicked tab
-            tabButtons.forEach(button => {
-                if (button.textContent.toLowerCase() === tab) {
-                    button.classList.add('bg-gray-900');
-                    button.classList.remove('bg-gray-800');
-                }
-            });
-
-            // Hide all tab contents
-            tabContents.forEach(content => content.classList.add('hidden'));
-
-            // Show the selected tab content
-            const activeContent = document.getElementById(`tab-${tab}`);
-            if (activeContent) {
-                activeContent.classList.remove('hidden');
-            }
-        }
-
-        // Set the correct tab on page load
-        activateTab(activeTab);
-
-        // Add event listeners to tab buttons
-        tabButtons.forEach(button => {
-            button.addEventListener('click', (event) => {
-                let selectedTab = event.target.textContent.toLowerCase();
-                activateTab(selectedTab);
-            });
-        });
-    });
-</script>
-
 </x-app-layout>

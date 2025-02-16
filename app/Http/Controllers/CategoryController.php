@@ -14,7 +14,8 @@ class CategoryController extends Controller
     public function index()
     {
       
-        $categories = Category::orderBy('name')->get()->groupBy('parent_id');
+       
+    $categories = Category::orderBy('name')->paginate(10); // Uklonjen groupBy()
         
         return view('categories.index',compact('categories'));
     }

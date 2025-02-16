@@ -21,8 +21,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['brand', 'category'])->get();
-        return view('products.index', compact('products'));
+        $products = Product::with(['brand', 'category'])->paginate(10);
+        $brands = Brand::all();
+        $categories = Category::all();
+        return view('products.index', compact('products', 'brands','categories'));
     }
 
 
@@ -32,9 +34,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $brands = Brand::all();
-        $categories = Category::all();
-        return view('products.add-product', compact('brands', 'categories'));
+       
     }
 
     /**
@@ -147,7 +147,7 @@ class ProductController extends Controller
             'category_id' => $categoryId,
             'brand_id' => $brandId,
         ]);
-    
+   //    dd($request->all()); 
         
         return redirect()->back()->with('message', 'Proizvod uspješno dodan!');
     }

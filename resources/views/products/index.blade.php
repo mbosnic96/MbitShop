@@ -1,6 +1,10 @@
-<div class="tab-pane hidden" id="tab-products">
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+<x-app-layout>
+    
+<div class="flex">
+    @include('dashboard.sidebar')
+    <div class="flex-1 p-6">
+    <!-- Tabs -->
+    <div class="flex flex-col py-6">
             <div>
                 <!-- Livewire Modal -->
                 @include('products.add-product')
@@ -15,5 +19,6 @@
     ]" />
             </div>
         </div> <!-- Closing max-w-7xl -->
-    </div> <!-- Closing py-12 -->
+    </div> <!-- Closing py-12 --></div>
 </div> <!-- Closing tab-pane -->
+</x-app-layout>
