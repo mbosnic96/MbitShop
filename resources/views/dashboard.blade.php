@@ -30,7 +30,7 @@
                 </x-nav-link>
             </li>
             <li>
-                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')"  class="p-2 text-gray-800 rounded-lg dark:text-white active:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
+                <x-responsive-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.index')"  class="p-2 text-gray-800 rounded-lg dark:text-white active:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
                     Users
                 </x-responsive-nav-links>
             </li>

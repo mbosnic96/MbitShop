@@ -19,7 +19,9 @@
                             class="form-select inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full">
                             <option selected value="">Odaberite kategoriju (nema)</option>
                             @foreach($categories as $category)
+                            @if($category->parent_id === null)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endif
                             @endforeach
                         </select>
                         @error('category') <span class="text-red-500">{{ $message }}</span>@enderror
