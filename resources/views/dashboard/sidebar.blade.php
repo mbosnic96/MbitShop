@@ -15,22 +15,22 @@
             </li>
             <li>
                 <x-responsive-nav-link href="{{ route('products.index') }}"  :active="request()->routeIs('products.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
-                    Products
+                    Artikli
                 </x-responsive-nav-link>
             </li>
             <li>
                 <x-responsive-nav-link href="{{ route('brands.index') }}"  :active="request()->routeIs('brands.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
-                    Brands
+                    Brendovi
                 </x-responsive-nav-link>
             </li>
             <li>
                 <x-responsive-nav-link href="{{ route('categories.index') }}"  :active="request()->routeIs('categories.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
-                    Categories
+                    Kategorije
                 </x-nav-link>
             </li>
             <li>
                 <x-responsive-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.index')"  class="p-2 text-gray-800 rounded-lg dark:text-white active:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
-                    Users
+                    Korisnici
                 </x-responsive-nav-links>
             </li>
         </ul>

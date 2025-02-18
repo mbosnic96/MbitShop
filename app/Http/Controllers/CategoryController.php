@@ -13,43 +13,43 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function show($id)
-    {
-        $categories = Category::with(['products', 'children.products'])->findOrFail($id);
-        $allCategories = Category::all();
-        $brands = Brand::all();
+    public function show($slug)
+{
+    $category = Category::where('slug', $slug)->firstOrFail(); // Get category by slug
+    $categories = Category::with(['products', 'children.products'])->findOrFail($category->id);
+    $allCategories = Category::all();
+    $brands = Brand::all();
+
+    // Getting all products from this category and its children
+    $products = $categories->products->merge($categories->children->flatMap(function ($child) {
+        return $child->products;
+    }));
+    $allProducts = Product::all();
+    $processors = $allProducts->pluck('processor')->unique();
+    $storages = $allProducts->pluck('storage')->unique()->map(fn($value) => (int) $value)->sort();
+    $ram_sizes = $allProducts->pluck('ram_size')->unique()->map(fn($value) => (int) $value)->sort();
+    $graphics = $allProducts->pluck('graphics_card')->unique();
+    $screenSizes = $allProducts->pluck('screen_size')->unique();
+    $selectedCategoryId = $category->id;
+
+    return view('categories.show', compact(
+        'category', 'products', 'brands', 'processors', 'storages', 'ram_sizes', 
+        'allCategories', 'graphics', 'screenSizes', 'selectedCategoryId'
+    ));
+}
+
     
-        // Getting all products from this category and its children
-        $products = $categories->products->merge($categories->children->flatMap(function ($child) {
-            return $child->products;
-        }));
-        $allProducts = Product::all();
-        $processors = $allProducts->pluck('processor')->unique();
-        $storages = $allProducts->pluck('storage')->unique()->map(fn($value) => (int) $value)->sort();
-        $ram_sizes = $allProducts->pluck('ram_size')->unique()->map(fn($value) => (int) $value)->sort();
-        $graphics = $allProducts->pluck('graphics_card')->unique();
-        $screenSizes = $allProducts->pluck('screen_size')->unique();
-        $selectedCategoryId = $id;
-    
-        return view('categories.show', compact(
-            'categories', 'products', 'brands', 'processors', 'storages', 'ram_sizes', 
-            'allCategories', 'graphics', 'screenSizes','selectedCategoryId'
-        ));
-    }
 
     public function search(Request $request)
     {
         $query = Product::query();
     
-        // Filter by Category (Including Child Categories)
+        // Ensure Category is always applied
         if ($request->filled('category')) {
             $categoryId = $request->category;
-    
-            // Get selected category and its children
             $category = Category::with('children')->find($categoryId);
     
             if ($category) {
-                // Get IDs of the selected category and all its children
                 $categoryIds = $category->children->pluck('id')->toArray();
                 $categoryIds[] = $category->id; // Include the parent category
     
@@ -57,57 +57,42 @@ class CategoryController extends Controller
             }
         }
     
-        // Filter by Brand (Array of IDs)
+        // Apply filters
         if ($request->filled('brand')) {
-            $query->whereIn('brand_id', (array) $request->brand);
+            $brands = is_array($request->brand) ? $request->brand : explode(',', $request->brand);
+            $query->whereIn('brand_id', $brands);
         }
-    
-        // Filter by Processor
         if ($request->filled('processor')) {
-            $query->where('processor', 'LIKE', '%' . $request->processor . '%');
+            $processors = is_array($request->processor) ? $request->processor : explode(',', $request->processor);
+            $query->whereIn('processor', $processors);
         }
-    
-        // Filter by RAM size
         if ($request->filled('ram')) {
-            $ramSize = (int) $request->ram;
-            $query->where('ram_size', $ramSize);
+            $ramSizes = is_array($request->ram) ? array_map('intval', $request->ram) : [(int) $request->ram];
+            $query->whereIn('ram_size', $ramSizes);
         }
-    
-        // Filter by HDD size
         if ($request->filled('hdd')) {
-            $hddSize = (int) $request->hdd;
-            $query->where('storage', $hddSize);
+            $hddSizes = is_array($request->hdd) ? array_map('intval', $request->hdd) : [(int) $request->hdd];
+            $query->whereIn('storage', $hddSizes);
         }
-    
-        // Filter by Graphics Card
         if ($request->filled('graphics_card')) {
-            $query->where('graphics_card', 'LIKE', '%' . $request->graphics_card . '%');
+            $graphicsCards = is_array($request->graphics_card) ? $request->graphics_card : explode(',', $request->graphics_card);
+            $query->whereIn('graphics_card', $graphicsCards);
         }
-    
-        // Filter by Price Range
         if ($request->filled('price')) {
-            \Log::debug('Price:', ['price' => $request->price]);
-    
-            if (is_array($request->price) && count($request->price) > 0) {
-                [$min, $max] = explode('-', $request->price[0]);
-            } else {
-                [$min, $max] = explode('-', $request->price);
-            }
-    
-            $query->whereBetween('price', [(float)$min, (float)$max]);
+            [$min, $max] = explode('-', is_array($request->price) ? $request->price[0] : $request->price);
+            $query->whereBetween('price', [(float) $min, (float) $max]);
         }
-    
-        // Filter by Screen Size
         if ($request->filled('screen_size')) {
-            $screenSize = (int) $request->screen_size;
-            $query->where('screen_size', $screenSize);
+            $screenSizes = is_array($request->screen_size) ? array_map('intval', $request->screen_size) : [(int) $request->screen_size];
+            $query->whereIn('screen_size', $screenSizes);
         }
     
-        // Execute the query and return results
-        $products = $query->get();
+        // Fetch products with brand
+        $products = $query->with('brand')->get(); // Ensure brand is included
     
         return response()->json($products);
     }
+    
     
     
     
@@ -137,15 +122,24 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'=>'required|string|max:255',
+            'name' => 'required|string|max:255',
         ]);
-
+    
+        // Generate the slug
+        $slug = strtolower(str_replace(' ', '-', $request->name));
+       // Check if the slug already exists in the database
+    if (Category::where('slug', $slug)->exists()) {
+        return redirect()->back()->withErrors(['slug' => 'The slug already exists.']);
+    }
+    
+        // Insert into the categories table
         DB::table('categories')->insert([
-            'name' => $request -> name,
-            'parent_id' => $request -> parent_id ?? null,
-            'position' => $request -> position ?? 0,
+            'name' => $request->name,
+            'slug' => $slug,  
+            'parent_id' => $request->parent_id ?? null,
+            'position' => $request->position ?? 0,
         ]);
-        
+    
         return redirect()->back();
     }
 
@@ -166,13 +160,22 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
-        
+    
+        // Generate the slug
+        $slug = strtolower(str_replace(' ', '-', $request->name));
+    
+        // Ensure uniqueness of the slug (if needed)
+        if (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+            return redirect()->back()->withErrors(['slug' => 'The slug already exists.']);
+        }
+    
+        // Update the category
         $category->update([
             'name' => $request->name,
-            'parent_id' => $request -> parent_id ?? null,
-            'position' => $request -> position ?? 0,
+            'slug' => $slug,  
+            'parent_id' => $request->parent_id ?? null,
+            'position' => $request->position ?? 0,
         ]);
-    
         return redirect()->back()->with('message', 'Kategorija uspješno izmjenjena!');
     }
     

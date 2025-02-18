@@ -23,7 +23,7 @@ Route::get('/', function () {
 })->name('home');
 
 // Category route (public)
-Route::get('categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::post('/search', [CategoryController::class, 'search']);
 
 
@@ -36,7 +36,7 @@ Route::middleware(['checkRole:admin'])->group(function () {
     Route::get('dashboard/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('add-product', [ProductController::class, 'create'])->name('products.create');
     Route::post('store-product', [ProductController::class, 'store'])->name('products.store');
-    Route::get('show-product/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('product/{slug}', [ProductController::class, 'show'])->name('products.show');
     Route::get('edit-product/{product}', [ProductController::class, 'edit'])->name('products.edit');
     Route::post('update-product/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('delete-product/{product}', [ProductController::class, 'destroy'])->name('products.destroy');

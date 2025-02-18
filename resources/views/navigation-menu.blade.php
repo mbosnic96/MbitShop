@@ -26,18 +26,18 @@
         <div class="hidden sm:flex sm:items-center sm:ms-10 relative" x-data="{ open: false }">
             <x-dropdown align="left" width="48">
                 <x-slot name="trigger">
-                    <x-nav-link href="{{ route('categories.show', $mainCategory->id) }}" @click.prevent="!open">
+                    <x-nav-link href="{{ route('categories.show', $mainCategory->slug) }}" @click.prevent="!open">
                         {{ $mainCategory->name }} <i class="ms-2 fa fa-angle-down"></i>
                     </x-nav-link>
                 </x-slot>
 
                 <x-slot name="content" x-show="open" @click.away="open = false">
-                        <x-dropdown-link href="{{ route('categories.show', $mainCategory->id) }}">
-                           Sve iz: {{ $mainCategory->name }}
-                        </x-dropdown-link>
+                    <x-dropdown-link href="{{ route('categories.show', $mainCategory->slug) }}">
+                        Sve iz: {{ $mainCategory->name }}
+                    </x-dropdown-link>
 
-                    @foreach($categories[$mainCategory->id] as $subcategory)
-                        <x-dropdown-link href="{{ route('categories.show', $subcategory->id) }}">
+                    @foreach($categories[$mainCategory->id] ?? [] as $subcategory)
+                        <x-dropdown-link href="{{ route('categories.show', $subcategory->slug) }}">
                             {{ $subcategory->name }}
                         </x-dropdown-link>
                     @endforeach
@@ -47,12 +47,13 @@
     @else
         <!-- Single Category Link (No Dropdown) -->
         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-            <x-nav-link href="{{ route('categories.show', $mainCategory->id) }}">
+            <x-nav-link href="{{ route('categories.show', $mainCategory->slug) }}">
                 {{ $mainCategory->name }}
             </x-nav-link>
         </div>
     @endif
 @endforeach
+
 
 
                 @if (Auth::check() && Auth::user()->role === 'admin')

@@ -1,4 +1,9 @@
 import './bootstrap';
+// resources/js/app.js
+import Swal from 'sweetalert2';
+
+window.Swal = Swal;  // Make SweetAlert2 globally available
+
 
 document.addEventListener('DOMContentLoaded', function () {
     
