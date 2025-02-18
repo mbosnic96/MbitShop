@@ -40,10 +40,21 @@ class CategoryController extends Controller
     public function search(Request $request)
     {
         $query = Product::query();
-        
-        // Filter by Category
+    
+        // Filter by Category (Including Child Categories)
         if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
+            $categoryId = $request->category;
+    
+            // Get selected category and its children
+            $category = Category::with('children')->find($categoryId);
+    
+            if ($category) {
+                // Get IDs of the selected category and all its children
+                $categoryIds = $category->children->pluck('id')->toArray();
+                $categoryIds[] = $category->id; // Include the parent category
+    
+                $query->whereIn('category_id', $categoryIds);
+            }
         }
     
         // Filter by Brand (Array of IDs)
@@ -76,44 +87,28 @@ class CategoryController extends Controller
         // Filter by Price Range
         if ($request->filled('price')) {
             \Log::debug('Price:', ['price' => $request->price]);
-        
-            // Check if the price is an array and if it has more than one value
-            if (is_array($request->price)) {
-                // If only one value, use that for both min and max
-                if (count($request->price) == 1) {
-                    $min = $max = (float) $request->price[0];
-                } else {
-                    // If two values are passed, explode the range
-                    [$min, $max] = explode('-', $request->price[0]);
-                    $min = (float) $min;
-                    $max = (float) $max;
-                }
+    
+            if (is_array($request->price) && count($request->price) > 0) {
+                [$min, $max] = explode('-', $request->price[0]);
             } else {
-                // If price is not an array, process it as a string with a dash (e.g., "2500-5000")
                 [$min, $max] = explode('-', $request->price);
-                $min = (float) $min;
-                $max = (float) $max;
             }
-        
-            // Apply the price range filter
-            $query->whereBetween('price', [$min, $max]);
+    
+            $query->whereBetween('price', [(float)$min, (float)$max]);
         }
-        
-        
+    
+        // Filter by Screen Size
         if ($request->filled('screen_size')) {
             $screenSize = (int) $request->screen_size;
             $query->where('screen_size', $screenSize);
         }
     
-        
-    
-        // Execute the query and return the results
+        // Execute the query and return results
         $products = $query->get();
-
-        // Return the products as JSON
+    
         return response()->json($products);
-// Return filtered products as JSON
     }
+    
     
     
 

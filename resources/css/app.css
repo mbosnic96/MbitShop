@@ -91,10 +91,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Add smooth transitions */
     position: relative;
 }
-.box img{
-    width: 300px;
-    height: 300px;
-}
+
 
 .box:hover {
     transform: scale(1.02);
