@@ -6,7 +6,8 @@ use App\Models\Product;
 use App\Models\Brand;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use DB;
+use Illuminate\Support\Str;
+
 
 class ProductController extends Controller
 {
@@ -46,6 +47,9 @@ class ProductController extends Controller
     
         $categoryId = $request->input('category');
         $brandId = $request->input('brand');
+        $slug = strtolower(str_replace(' ', '-', $request->name));
+        $slug .= '-' . Str::random(4); // Generates a random string of 4 characters
+
         
         // Handle image uploading
         $imagePaths = [];
@@ -65,6 +69,7 @@ class ProductController extends Controller
         // Create product with default values for optional fields
         Product::create([
             'name' => $request->name,
+            'slug' => $slug,
             'description' => $request->description ?? '', // Set empty string if not provided
             'price' => $request->price,
             'stock_quantity' => $request->stock_quantity,
@@ -107,6 +112,9 @@ class ProductController extends Controller
     
         $categoryId = $request->input('category');
         $brandId = $request->input('brand');
+        $slug = strtolower(str_replace(' ', '-', $request->name));
+        $slug .= '-' . Str::random(4); // Generates a random string of 4 characters
+
         
         // Handle image uploading (optional)
         $imagePaths = [];
@@ -128,6 +136,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product->update([
             'name' => $request->name,
+            'slug' => $slug,
             'description' => $request->description ?? '', // Set empty string if not provided
             'price' => $request->price ?? 0, // Default to 0 if not provided
             'stock_quantity' => $request->stock_quantity ?? 0, // Default to 0 if not provided
