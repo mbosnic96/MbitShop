@@ -8,6 +8,13 @@
     display: none;
 }
 .bg-yellow-500{background-color: #FACC15; }
+.main-color-bg{
+    background-image: url('../../public/storage/banner.webp');
+    background-size: cover;
+}
+.main-color{
+    color: #1c532a;
+}
 .bg-yellow-600{background-color: #CA8A04; }
 /* custom modal */
 .modal {

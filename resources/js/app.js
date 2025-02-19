@@ -77,6 +77,10 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 form.setAttribute('action', form.getAttribute('action').replace(':id', ''));
             }
+            document.querySelector('form').addEventListener('submit', function (e) {
+                const categoryInput = this.querySelector('input[name="category"]');
+                console.log('Final Category Value Before Submission:', categoryInput.value);
+            });
 
             modal.classList.add('show');
             modalContent.classList.add('show');
@@ -179,11 +183,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
     
-
-    document.querySelector('form').addEventListener('submit', function (e) {
-        const categoryInput = this.querySelector('input[name="category"]');
-        console.log('Final Category Value Before Submission:', categoryInput.value);
-    });
-    
+  
     
 });

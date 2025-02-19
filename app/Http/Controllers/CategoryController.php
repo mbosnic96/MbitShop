@@ -14,29 +14,32 @@ class CategoryController extends Controller
      * Display a listing of the resource.
      */
     public function show($slug)
-{
-    $category = Category::where('slug', $slug)->firstOrFail(); // Get category by slug
-    $categories = Category::with(['products', 'children.products'])->findOrFail($category->id);
-    $allCategories = Category::all();
-    $brands = Brand::all();
-
-    // Getting all products from this category and its children
-    $products = $categories->products->merge($categories->children->flatMap(function ($child) {
-        return $child->products;
-    }));
-    $allProducts = Product::all();
-    $processors = $allProducts->pluck('processor')->unique();
-    $storages = $allProducts->pluck('storage')->unique()->map(fn($value) => (int) $value)->sort();
-    $ram_sizes = $allProducts->pluck('ram_size')->unique()->map(fn($value) => (int) $value)->sort();
-    $graphics = $allProducts->pluck('graphics_card')->unique();
-    $screenSizes = $allProducts->pluck('screen_size')->unique();
-    $selectedCategoryId = $category->id;
-
-    return view('categories.show', compact(
-        'category', 'products', 'brands', 'processors', 'storages', 'ram_sizes', 
-        'allCategories', 'graphics', 'screenSizes', 'selectedCategoryId'
-    ));
-}
+    {
+        $category = Category::where('slug', $slug)->firstOrFail(); // Get category by slug
+        $category->load(['products', 'children.products']); // Load relationships
+        $allCategories = Category::all();
+        $brands = Brand::all();
+    
+        $products = Product::whereIn('category_id', function ($query) use ($category) {
+            $query->select('id')->from('categories')
+                  ->where('id', $category->id)
+                  ->orWhereIn('id', $category->children->pluck('id'));
+        })->paginate(2); // Paginate with 10 products per page
+    
+        $allProducts = Product::select('processor', 'storage', 'ram_size', 'graphics_card', 'screen_size')->get();
+        $processors = $allProducts->pluck('processor')->unique();
+        $storages = $allProducts->pluck('storage')->unique()->map(fn($value) => (int) $value)->sort();
+        $ram_sizes = $allProducts->pluck('ram_size')->unique()->map(fn($value) => (int) $value)->sort();
+        $graphics = $allProducts->pluck('graphics_card')->unique();
+        $screenSizes = $allProducts->pluck('screen_size')->unique();
+        $selectedCategoryId = $category->id;
+    
+        return view('categories.show', compact(
+            'category', 'products', 'brands', 'processors', 'storages', 'ram_sizes', 
+            'allCategories', 'graphics', 'screenSizes', 'selectedCategoryId'
+        ));
+    }
+    
 
     
 
@@ -78,14 +81,36 @@ class CategoryController extends Controller
             $graphicsCards = is_array($request->graphics_card) ? $request->graphics_card : explode(',', $request->graphics_card);
             $query->whereIn('graphics_card', $graphicsCards);
         }
-        if ($request->filled('price')) {
-            [$min, $max] = explode('-', is_array($request->price) ? $request->price[0] : $request->price);
+        if ($request->filled('price') && is_array($request->price) && count($request->price) === 2) {
+            [$min, $max] = $request->price;
             $query->whereBetween('price', [(float) $min, (float) $max]);
         }
+        
         if ($request->filled('screen_size')) {
             $screenSizes = is_array($request->screen_size) ? array_map('intval', $request->screen_size) : [(int) $request->screen_size];
             $query->whereIn('screen_size', $screenSizes);
         }
+        if ($request->filled('search')) {
+            $searchTerms = explode(' ', $request->search); // Razbijamo pretragu na reči
+        
+            $query->where(function ($q) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $searchTerm = '%' . $term . '%';
+                    $q->orWhere('name', 'LIKE', $searchTerm)
+                      ->orWhere('description', 'LIKE', $searchTerm)
+                      ->orWhere('model', 'LIKE', $searchTerm)
+                      ->orWhereHas('brand', function ($q) use ($searchTerm) { 
+                          $q->where('name', 'LIKE', $searchTerm);
+                      }) 
+                      ->orWhereHas('category', function ($q) use ($searchTerm) { 
+                          $q->where('name', 'LIKE', $searchTerm);
+                      });
+                }
+            });
+        }
+        
+        
+        
     
         // Fetch products with brand
         $products = $query->with('brand')->get(); // Ensure brand is included
