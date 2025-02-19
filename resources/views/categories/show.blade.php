@@ -190,7 +190,8 @@
             </div>
             <div class="mt-4">
         <!-- Pagination Links -->
-        {{ $products->links() }}
+       {{ $products->appends(request()->query())->links() }}
+
     </div>
         </div>
     </div>
