@@ -11,124 +11,134 @@
                 </div>
 
                 <!-- Navigation Links -->
-               
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link href="{{ route('home') }}" :active="request()->routeIs('home')">
                         {{ __('Početna') }}
                     </x-nav-link>
                 </div>
 
-              
-
                 @foreach($categories[null] ?? [] as $mainCategory)
-    @if(isset($categories[$mainCategory->id]) && count($categories[$mainCategory->id]) > 0)
-        <!-- Category Dropdown -->
-        <div class="hidden sm:flex sm:items-center sm:ms-10 relative" x-data="{ open: false }">
-            <x-dropdown align="left" width="48">
-                <x-slot name="trigger">
-                    <x-nav-link href="{{ route('categories.show', $mainCategory->slug) }}" @click.prevent="!open">
-                        {{ $mainCategory->name }} <i class="ms-2 fa fa-angle-down"></i>
-                    </x-nav-link>
-                </x-slot>
+                    @if(isset($categories[$mainCategory->id]) && count($categories[$mainCategory->id]) > 0)
+                        <!-- Category Dropdown -->
+                        <div class="hidden sm:flex sm:items-center sm:ms-10 relative" x-data="{ open: false }">
+                            <x-dropdown align="left" width="48">
+                                <x-slot name="trigger">
+                                    <x-nav-link href="{{ route('categories.show', $mainCategory->slug) }}" @click.prevent="!open">
+                                        {{ $mainCategory->name }} <i class="ms-2 fa fa-angle-down"></i>
+                                    </x-nav-link>
+                                </x-slot>
 
-                <x-slot name="content" x-show="open" @click.away="open = false">
-                    <x-dropdown-link href="{{ route('categories.show', $mainCategory->slug) }}">
-                        Sve iz: {{ $mainCategory->name }}
-                    </x-dropdown-link>
+                                <x-slot name="content" x-show="open" @click.away="open = false">
+                                    <x-dropdown-link href="{{ route('categories.show', $mainCategory->slug) }}">
+                                        Sve iz: {{ $mainCategory->name }}
+                                    </x-dropdown-link>
 
-                    @foreach($categories[$mainCategory->id] ?? [] as $subcategory)
-                        <x-dropdown-link href="{{ route('categories.show', $subcategory->slug) }}">
-                            {{ $subcategory->name }}
-                        </x-dropdown-link>
-                    @endforeach
-                </x-slot>
-            </x-dropdown>
-        </div>
-    @else
-        <!-- Single Category Link (No Dropdown) -->
-        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-            <x-nav-link href="{{ route('categories.show', $mainCategory->slug) }}">
-                {{ $mainCategory->name }}
-            </x-nav-link>
-        </div>
-    @endif
-@endforeach
-
-
-
-                @if (Auth::check() && Auth::user()->role === 'admin')
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
-                @endif
-                
+                                    @foreach($categories[$mainCategory->id] ?? [] as $subcategory)
+                                        <x-dropdown-link href="{{ route('categories.show', $subcategory->slug) }}">
+                                            {{ $subcategory->name }}
+                                        </x-dropdown-link>
+                                    @endforeach
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+                    @else
+                        <!-- Single Category Link (No Dropdown) -->
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <x-nav-link href="{{ route('categories.show', $mainCategory->slug) }}">
+                                {{ $mainCategory->name }}
+                            </x-nav-link>
+                        </div>
+                    @endif
+                @endforeach
             </div>
 
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-               
-                @if (Auth::check())
-                <!-- Settings Dropdown -->
-                <div class="ms-3 relative">
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                                <button class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                    <img class="h-8 w-8 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+            <!-- Search and Account Management -->
+            <div class="flex items-center ml-auto">
+                <!-- Search Dropdown -->
+                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                    <div class="ms-3 relative">
+                        <x-dropdown align="right" width="64">
+                            <x-slot name="trigger" @click="open = true">
+                                <button class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                                    <i class="fa fa-search"></i>
                                 </button>
-                            @else
-                                <span class="inline-flex rounded-md">
-                                    <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
-                                        {{ Auth::user()->name }}
+                            </x-slot>
 
-                                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                        </svg>
-                                    </button>
-                                </span>
-                            @endif
-                        </x-slot>
-
-                        <x-slot name="content">
-                            <!-- Account Management -->
-                            <div class="block px-4 py-2 text-xs text-gray-400">
-                                {{ __('Manage Account') }}
-                            </div>
-
-                            <x-dropdown-link href="{{ route('profile.show') }}">
-                                {{ __('Profile') }}
-                            </x-dropdown-link>
-
-                            <x-dropdown-link href="{{ route('dashboard') }}">
-                                {{ __('Dashboard') }}
-                            </x-dropdown-link>
-
-                            @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                                <x-dropdown-link href="{{ route('api-tokens.index') }}">
-                                    {{ __('API Tokens') }}
-                                </x-dropdown-link>
-                            @endif
-
-                            <div class="border-t border-gray-200"></div>
-
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}" x-data>
-                                @csrf
-
-                                <x-dropdown-link href="{{ route('logout') }}"
-                                         @click.prevent="$root.submit();">
-                                    {{ __('Log Out') }}
-                                </x-dropdown-link>
-                            </form>
-                        </x-slot>
-                    </x-dropdown>
+                            <x-slot name="content">
+                                <!-- Search Component -->
+                                <div class="p-4" style="width: 350px !important;">
+                                    <x-search></x-search>
+                                </div>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
                 </div>
-                @else
-                <!-- Display these links for guest (not logged-in) users -->
-                <a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</a>
-                <a href="{{ route('register') }}" class="ml-4 font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</a>
-                @endif
+
+                <!-- Account Management -->
+                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                    @if (Auth::check())
+                        <!-- Settings Dropdown -->
+                        <div class="ms-3 relative">
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                                        <button class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
+                                            <img class="h-8 w-8 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                                        </button>
+                                    @else
+                                        <span class="inline-flex rounded-md">
+                                            <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
+                                                {{ Auth::user()->name }}
+
+                                                <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    @endif
+                                </x-slot>
+
+                                <x-slot name="content">
+                                    <!-- Account Management -->
+                                    <div class="block px-4 py-2 text-xs text-gray-400">
+                                        {{ __('Manage Account') }}
+                                    </div>
+
+                                    <x-dropdown-link href="{{ route('profile.show') }}">
+                                        {{ __('Profile') }}
+                                    </x-dropdown-link>
+
+                                    @if (Auth::check() && Auth::user()->role === 'admin')
+                                        <x-dropdown-link href="{{ route('dashboard') }}">
+                                            {{ __('Dashboard') }}
+                                        </x-dropdown-link>
+                                    @endif
+
+                                    @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
+                                        <x-dropdown-link href="{{ route('api-tokens.index') }}">
+                                            {{ __('API Tokens') }}
+                                        </x-dropdown-link>
+                                    @endif
+
+                                    <div class="border-t border-gray-200"></div>
+
+                                    <!-- Authentication -->
+                                    <form method="POST" action="{{ route('logout') }}" x-data>
+                                        @csrf
+
+                                        <x-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
+                                            {{ __('Log Out') }}
+                                        </x-dropdown-link>
+                                    </form>
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+                    @else
+                        <!-- Display these links for guest (not logged-in) users -->
+                        <a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</a>
+                        <a href="{{ route('register') }}" class="ml-4 font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</a>
+                    @endif
+                </div>
             </div>
 
             <!-- Hamburger -->
@@ -143,7 +153,6 @@
         </div>
     </div>
     
-            
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
@@ -152,51 +161,41 @@
             </x-responsive-nav-link>
         </div>
         @if (Auth::check())
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-   
-            <div class="flex items-center px-4">
-                @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                    <div class="shrink-0 me-3">
-                        <img class="h-10 w-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                    </div>
-                @endif
+            <!-- Responsive Settings Options -->
+            <div class="pt-4 pb-1 border-t border-gray-200">
+                <div class="flex items-center px-4">
+                    @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                        <div class="shrink-0 me-3">
+                            <img class="h-10 w-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                        </div>
+                    @endif
 
-                <div>
-                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    <div>
+                        <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                        <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    </div>
+                </div>
+
+                <div class="mt-3 space-y-1">
+                    <!-- Account Management -->
+                    <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
+                        {{ __('Profile') }}
+                    </x-responsive-nav-link>
+
+                    <!-- Authentication -->
+                    <form method="POST" action="{{ route('logout') }}" x-data>
+                        @csrf
+
+                        <x-responsive-nav-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
+                            {{ __('Log Out') }}
+                        </x-responsive-nav-link>
+                    </form>
                 </div>
             </div>
-
-            <div class="mt-3 space-y-1">
-                <!-- Account Management -->
-                <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}" x-data>
-                    @csrf
-
-                    <x-responsive-nav-link href="{{ route('logout') }}"
-                                   @click.prevent="$root.submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-
-                
-            </div>
-            
-       
-        </div>
-
         @else
-                <!-- Display these links for guest (not logged-in) users -->
-                <x-responsive-nav-link href="{{ route('login') }}">Log in</a></x-responsive-nav-link>
-                <x-responsive-nav-link href="{{ route('register') }}">Register</a></x-responsive-nav-link>
-                @endif
-       
+            <!-- Display these links for guest (not logged-in) users -->
+            <x-responsive-nav-link href="{{ route('login') }}">Log in</x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('register') }}">Register</x-responsive-nav-link>
+        @endif
     </div>
-    
 </nav>
