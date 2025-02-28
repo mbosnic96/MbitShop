@@ -6,6 +6,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,7 +24,10 @@ Route::get('/', function () {
 })->name('home');
 
 // Category route (public)
-Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
+Route::get('/categories/{slug}', function ($slug) {
+    return view('categories.show', ['slug' => $slug]);
+})->name('categories.show');
+
 Route::post('/search', [CategoryController::class, 'search']);
 
 
@@ -77,3 +81,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
 
 
+Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
+Route::delete('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
