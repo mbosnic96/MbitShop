@@ -4,7 +4,7 @@
         @csrf
         <div class="modal-content w-50">
             <span class="close close-modal" data-modal="products-edit">&times;</span>
-            <h2>Izmeni proizvod</h2>
+            <h2>Izmjeni proizvod</h2>
             <div class="modal-body">
                 <div class="mb-4">
                     <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Naziv: (obavezno)</label>
@@ -161,7 +161,7 @@
             <div class="modal-footer">
                 <button type="button" data-modal="products-edit"
                     class="px-4 py-2 bg-gray-600 text-white rounded-md close-modal">Zatvori</button>
-                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Spremi izmene</button>
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Sačuvaj</button>
             </div>
         </div>
     </form>

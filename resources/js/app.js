@@ -4,6 +4,9 @@ import Swal from 'sweetalert2';
 
 window.Swal = Swal;  // Make SweetAlert2 globally available
 
+import Alpine from 'alpinejs';
+import './toastr'; // This will import toastr.js and make it available globally
+
 
 document.addEventListener('DOMContentLoaded', function () {
     

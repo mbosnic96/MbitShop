@@ -28,7 +28,7 @@ Route::get('/categories/{slug}', function ($slug) {
     return view('categories.show', ['slug' => $slug]);
 })->name('categories.show');
 
-Route::post('/search', [CategoryController::class, 'search']);
+
 
 
 // Admin Routes - Protected by 'checkRole:admin' middleware
@@ -79,8 +79,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
-
-
-Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
-Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
-Route::delete('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
+Route::post('/cart/add/', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'showCart'])->name('cart.index');
+Route::delete('/cart/remove/{productId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::put('/cart/update/{productId}', [CartController::class, 'update'])->name('cart.update');

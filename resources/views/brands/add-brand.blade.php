@@ -4,7 +4,7 @@
         @csrf
         <div class="modal-content w-25">
             <span class="close" data-modal="add">&times;</span>
-            <h2>Dodaj brend</h2>
+            <h2>Dodaj brand</h2>
             <div class="modal-body">
                 <div class="mb-4">
                     <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Brand:</label>

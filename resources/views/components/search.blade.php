@@ -21,7 +21,7 @@
         });
 
         function fetchFilteredProducts(query) {
-            fetch('/search', {
+            fetch('/api/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

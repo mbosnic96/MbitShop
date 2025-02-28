@@ -24,6 +24,97 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'brands','categories'));
     }
 
+    
+    public function show(Request $request, $slug)
+    {
+        try {
+            $category = Category::where('slug', $slug)->with(['children'])->firstOrFail();
+            $filterOptions = $this->initializeFilterOptions($category);
+            $products = $this->getFilteredProducts($category, $request);
+    
+            return response()->json([
+                'category' => $category,
+                'filter_options' => $filterOptions,
+                'products' => $products,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+
+    private function initializeFilterOptions($category)
+    {
+        $baseQuery = Product::whereIn('category_id', $this->getCategoryIds($category));
+    
+        return [
+            'brands' => Brand::whereHas('products', function($query) use ($category) {
+                $query->whereIn('category_id', $this->getCategoryIds($category));
+            })->get(),
+            'processors' => $baseQuery->pluck('processor')->unique()->filter()->values(),
+            'ram_sizes' => $baseQuery->pluck('ram_size')->unique()->filter()->values()->reject(fn($value) => is_null($value)),
+            'storages' => $baseQuery->pluck('storage')->unique()->filter()->values()->reject(fn($value) => is_null($value)),
+            'screen_sizes' => $baseQuery->pluck('screen_size')->unique()->filter()->values()->reject(fn($value) => is_null($value)),
+            'graphics_cards' => $baseQuery->pluck('graphics_card')->unique()->filter()->values()->reject(fn($value) => is_null($value)),
+        ];
+    }
+    
+
+    private function getCategoryIds($category)
+    {
+        return $category->children->pluck('id')->push($category->id);
+    }
+
+    private function getFilteredProducts($category, $request)
+    {
+        return Product::whereIn('category_id', $this->getCategoryIds($category))
+            ->when($request->selected_brands, fn($q) => $q->whereIn('brand_id', explode(',', $request->selected_brands)))
+            ->when($request->selected_processors, fn($q) => $q->whereIn('processor', explode(',', $request->selected_processors)))
+            ->when($request->selected_ram, fn($q) => $q->whereIn('ram_size', explode(',', $request->selected_ram)))
+            ->when($request->selected_storage, fn($q) => $q->whereIn('storage', explode(',', $request->selected_storage)))
+            ->when($request->selected_screen_sizes, fn($q) => $q->whereIn('screen_size', explode(',', $request->selected_screen_sizes)))
+            ->when($request->selected_graphics, fn($q) => $q->whereIn('graphics_card', explode(',', $request->selected_graphics)))
+            ->where('price', '<=', $request->max_price ?? 5000)
+            ->with('brand')
+            ->paginate($request->per_page ?? 15);
+    }
+    
+
+    
+
+    public function search(Request $request)
+    {
+        $query = Product::query();
+        if ($request->filled('search')) {
+            $searchTerms = explode(' ', $request->search); // Razbijamo pretragu na reči
+        
+            $query->where(function ($q) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $searchTerm = '%' . $term . '%';
+                    $q->orWhere('name', 'LIKE', $searchTerm)
+                      ->orWhere('description', 'LIKE', $searchTerm)
+                      ->orWhere('model', 'LIKE', $searchTerm)
+                      ->orWhereHas('brand', function ($q) use ($searchTerm) { 
+                          $q->where('name', 'LIKE', $searchTerm);
+                      }) 
+                      ->orWhereHas('category', function ($q) use ($searchTerm) { 
+                          $q->where('name', 'LIKE', $searchTerm);
+                      });
+                }
+            });
+        }
+        
+        
+        
+    
+        // Fetch products with brand
+        $products = $query->with('brand')->get(); // Ensure brand is included
+    
+        return response()->json($products);
+    }
+    
 
 
     /**

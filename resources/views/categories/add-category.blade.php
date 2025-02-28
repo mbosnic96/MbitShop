@@ -35,7 +35,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" data-modal="add-category" class="px-4 py-2 bg-gray-600 text-white rounded-md close-modal">Zatvori</button>
-                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Dodaj kategoriju</button>
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Sačuvaj</button>
             </div>
         </div>
     </form>

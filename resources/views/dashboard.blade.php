@@ -6,7 +6,7 @@
     <!-- Tabs -->
     <div class="flex flex-col">
             <div>
-            @livewire('cart')
+            @include('cart.index')
 
         </div> <!-- Closing max-w-7xl -->
     </div> <!-- Closing py-12 -->
