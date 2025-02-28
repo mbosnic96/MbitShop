@@ -46,7 +46,7 @@ Route::middleware(['checkRole:admin'])->group(function () {
     Route::delete('delete-product/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
     // Brand Routes
-    Route::get('dashboard/brands', [BrandController::class, 'index'])->name('brands.index');
+    Route::get('dashboard/brands', [BrandController::class, 'show'])->name('brands.index');
     Route::get('add-brand', [BrandController::class, 'create'])->name('brands.create');
     Route::post('store-brand', [BrandController::class, 'store'])->name('brands.store');
     Route::post('edit-brand', [BrandController::class, 'edit'])->name('brands.edit');

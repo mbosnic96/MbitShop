@@ -182,7 +182,7 @@
         <button @click="addToCart(product.id)" 
     class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 focus:outline-none">
     <i class="fa fa-shopping-cart mr-2"></i>
-    Add to Cart
+    Kupi odmah!
 </button>
 
     </div>
@@ -276,7 +276,7 @@
                 },
 
                 async addToCart(productId) {
-    console.log('Šaljem product_id:', productId); // 👀 Prikazuje ID proizvoda pre slanja
+  
 
     const response = await fetch('/cart/add', {
         method: 'POST',
@@ -289,11 +289,11 @@
 
     const responseData = await response.json().catch(() => null);
 
-    console.log('Odgovor servera:', responseData); // 👀 Prikazuje odgovor servera
+   
 
     if (response.ok) {
         // Use Toastr for success notification
-        toastr.success(responseData.message, 'Success');
+        toastr.success(responseData.message, 'Dodano u košaricu');
     } else {
         // Use Toastr for error notification
         toastr.error(responseData?.message || 'Nepoznata greška', 'Error');

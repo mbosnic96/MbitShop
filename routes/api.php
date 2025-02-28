@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\BrandController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,5 +25,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route to get all products from all categories
 Route::get('/products/filter/{slug}', [ProductController::class, 'show']);
 Route::post('/search', [ProductController::class, 'search']);
-
+Route::get('/dashboard/brands', [BrandController::class, 'index']);
+Route::delete('/dashboard/brands/{id}', [BrandController::class, 'destroy']);
 

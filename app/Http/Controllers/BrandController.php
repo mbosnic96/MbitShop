@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Brand;
 use Illuminate\Http\Request;
-use DB;
+use App\Models\Brand;
+use Illuminate\Support\Facades\Http;
 
 class BrandController extends Controller
 {
@@ -13,18 +13,7 @@ class BrandController extends Controller
      */
     public function index()
     {
-        //
-        $brands = Brand::paginate(10);
-        return view('brands.index', compact('brands'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-        return view('brands.add-brand');
+        return Brand::paginate(2); 
     }
 
     /**
@@ -35,53 +24,59 @@ class BrandController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
         ]);
-    
+
         // Create a new brand using Eloquent
-        Brand::create([
+        $brand = Brand::create([
             'name' => trim($validatedData['name']),
         ]);
-    
-        return redirect()->back()->with('message', 'Brend uspešno dodat!');
+
+        // Return success message
+        return response()->json([
+            'message' => 'Brend uspešno dodat!',
+            'brand' => $brand
+        ], 201);
     }
-    
 
     /**
      * Display the specified resource.
      */
-    public function show(Brand $brand)
+    public function show(Request $request)
     {
-        //
+        // Pass the data to the view
+        return view('brands.index');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Update the specified resource in storage.
      */
-    public function edit(Brand $brand)
-    {
-        return response()->json($brand);
-    }
-    
     public function update(Request $request, Brand $brand)
     {
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
-        
+
         $brand->update([
             'name' => $request->name,
         ]);
-    
-        return redirect()->back()->with('message', 'Brend uspješno izmjenjen!');
+
+        // Return success message
+        return response()->json([
+            'message' => 'Brend uspješno izmjenjen!',
+            'brand' => $brand
+        ]);
     }
-    
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $brand = Brand::findOrFail($id);
         $brand->delete();
-        return redirect()->back()->with('message', 'Brend uspješno obrisan!');
+
+        // Return success message
+        return response()->json([
+            'message' => 'Brend uspješno obrisan!'
+        ]);
     }
 }

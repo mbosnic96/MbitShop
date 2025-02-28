@@ -21,3 +21,17 @@
 
 <!-- Button to open Add Brand Modal -->
 <button class="my-2 px-4 py-2 bg-green-500 text-white rounded open-modal" data-modal-id="add-brand">Dodaj brend</button>
+
+
+<script>
+    async function storeBrand(name) {
+    try {
+        const response = await axios.post('/brands', { name });
+
+        // Show success message with Toastr
+        toastr.success(response.data.message, 'Success');
+    } catch (error) {
+        toastr.error('Došlo je do greške prilikom dodavanja brenda.', 'Error');
+    }
+}
+</script>
