@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 
 class ProductController extends Controller
@@ -18,12 +19,28 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['brand', 'category'])->paginate(10);
-        $brands = Brand::all();
-        $categories = Category::all();
-        return view('products.index', compact('products', 'brands','categories'));
+       return Product::with(['brand:id,name', 'category:id,name'])->paginate(10);
     }
 
+      /**
+     * Web view
+     */
+    public function dasboardIndex()
+    {
+        $brands = Brand::all();
+        $categories = Category::all();
+        return view('products.index', compact( 'brands','categories'));
+    }
+
+
+    public function modalData($id)
+    {
+        $product = Product::with(['brand:id,name', 'category:id,name'])->findOrFail($id); // Fetch the brand by ID
+        return response()->json($product); // Return the brand as JSON
+    }
+      /**
+     * Display products catalog by category
+     */
     
     public function show(Request $request, $slug)
     {
@@ -44,7 +61,9 @@ class ProductController extends Controller
         }
     }
     
-
+  /**
+     * initialize filters
+     */
     private function initializeFilterOptions($category)
     {
         $baseQuery = Product::whereIn('category_id', $this->getCategoryIds($category));
@@ -61,12 +80,17 @@ class ProductController extends Controller
         ];
     }
     
-
+  /**
+     *  get category ids
+     */
     private function getCategoryIds($category)
     {
         return $category->children->pluck('id')->push($category->id);
     }
 
+      /**
+     * get filtered products
+     */
     private function getFilteredProducts($category, $request)
     {
         return Product::whereIn('category_id', $this->getCategoryIds($category))
@@ -83,7 +107,9 @@ class ProductController extends Controller
     
 
     
-
+  /**
+     * Search all products
+     */
     public function search(Request $request)
     {
         $query = Product::query();
@@ -107,146 +133,158 @@ class ProductController extends Controller
         }
         
         
-        
-    
-        // Fetch products with brand
-        $products = $query->with('brand')->get(); // Ensure brand is included
+        $products = $query->with('brand')->get(); 
     
         return response()->json($products);
     }
     
 
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-       
-    }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'stock_quantity' => 'required|integer',
-        ]);
-    
-        $categoryId = $request->input('category');
-        $brandId = $request->input('brand');
-        $slug = strtolower(str_replace(' ', '-', $request->name));
-        $slug .= '-' . Str::random(4); // Generates a random string of 4 characters
+public function store(Request $request)
+{
+    // Validate the request data
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'price' => 'required|numeric',
+        'stock_quantity' => 'required|integer',
+    ]);
+    // Generate a unique slug
+    $slug = strtolower(str_replace(' ', '-', $request->name));
+    $slug .= '-' . Str::random(4); // Append a random string for uniqueness
 
-        
-        // Handle image uploading
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                if ($file->isValid()) {
-                    $imagePaths[] = $file->store('products', 'local');
-                } else {
-                    return redirect()->back()->withErrors(['image' => 'One or more files are not valid.']);
-                }
+    $productFolderName = $slug;
+    $productFolderPath = "products/{$productFolderName}";
+
+    // Create the folder if it doesn't exist
+    if (!Storage::disk('public')->exists($productFolderPath)) {
+        Storage::disk('public')->makeDirectory($productFolderPath);
+    }
+
+    // Handle image uploading
+    $imagePaths = [];
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $file) {
+            if ($file->isValid()) {
+                // Keep the original file name
+                $originalName = $file->getClientOriginalName();
+                $imagePaths[] = $file->storeAs($productFolderPath, $originalName, 'public');
+            } else {
+                return response()->json([
+                    'message' => 'One or more files are not valid.',
+                ], 422); // Return validation error
             }
-        } else {
-            // If no images are uploaded, set an empty array or null
-            $imagePaths = [];
         }
-    
-        // Create product with default values for optional fields
-        Product::create([
-            'name' => $request->name,
-            'slug' => $slug,
-            'description' => $request->description ?? '', // Set empty string if not provided
-            'price' => $request->price,
-            'stock_quantity' => $request->stock_quantity,
-            'brand' => $request->brand ?? '', // Set empty string if not provided
-            'model' => $request->model ?? '', // Set empty string if not provided
-            'processor' => $request->processor ?? '', // Set empty string if not provided
-            'ram_size' => $request->ram_size ?: null, // Set empty string if not provided
-            'storage' => $request->storage ?: null,  // Set empty string if not provided
-            'graphics_card' => $request->graphics_card ?? '', // Set empty string if not provided
-            'operating_system' => $request->operating_system ?? '', // Set empty string if not provided
-            'category' => $request->category ?? '', // Set empty string if not provided
-            'image' => json_encode($imagePaths), // Store image paths or empty array
-            'category_id' => $categoryId,
-            'brand_id' => $brandId,
-        ]);
-    
-        return redirect()->back()->with('message', 'Proizvod uspješno dodan!');
     }
+
+    // Create the product
+    $product = Product::create([
+        'name' => $request->name,
+        'slug' => $slug,
+        'description' => $request->description ?? '', 
+        'price' => $request->price,
+        'stock_quantity' => $request->stock_quantity,
+        'brand' => $request->brand ?? '', 
+        'model' => $request->model ?? '',
+        'processor' => $request->processor ?? '', 
+        'ram_size' => $request->ram_size ?: null, 
+        'storage' => $request->storage ?: null,  
+        'graphics_card' => $request->graphics_card ?? '', 
+        'operating_system' => $request->operating_system ?? '', 
+        'category' => $request->category ?? '', 
+        'image' => json_encode($imagePaths), 
+        'category_id' => $request->category,
+        'brand_id' => $request->brand
+    ]);
+
+    return response()->json([
+        'message' => 'Product created successfully!',
+        'product' => $product,
+    ], 201); // HTTP 201: Created
+}
+
     
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        
-    }
-    
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'stock_quantity' => 'required|integer',
-        ]);
-    
-        $categoryId = $request->input('category');
-        $brandId = $request->input('brand');
-        $slug = strtolower(str_replace(' ', '-', $request->name));
-        $slug .= '-' . Str::random(4); // Generates a random string of 4 characters
 
-        
-        // Handle image uploading (optional)
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                if ($file->isValid()) {
-                    $imagePaths[] = $file->store('products', 'local');
-                } else {
-                    return redirect()->back()->withErrors(['image' => 'One or more files are not valid.']);
-                }
-            }
-        } else {
-            // If no new image, we retain the old image paths
-            $product = Product::findOrFail($id);
-            $imagePaths = json_decode($product->image, true); // Retain old image paths
-        }
-    
-        // Perform the update
-        $product = Product::findOrFail($id);
-        $product->update([
-            'name' => $request->name,
-            'slug' => $slug,
-            'description' => $request->description ?? '', // Set empty string if not provided
-            'price' => $request->price ?? 0, // Default to 0 if not provided
-            'stock_quantity' => $request->stock_quantity ?? 0, // Default to 0 if not provided
-            'brand' => $request->brand ?? '', // Set empty string if not provided
-            'model' => $request->model ?? '', // Set empty string if not provided
-            'processor' => $request->processor ?? '', // Set empty string if not provided
-            'ram_size' => $request->ram_size ?: null, // Set to null if not provided or empty string
-            'storage' => $request->storage ?: null, // Set to null if not provided or empty string
-            'graphics_card' => $request->graphics_card ?? '', // Set empty string if not provided
-            'operating_system' => $request->operating_system ?? '', // Set empty string if not provided
-            'category' => $request->category ?? '', // Set empty string if not provided
-            'image' => json_encode($imagePaths), // Store image paths or empty array
-            'category_id' => $categoryId,
-            'brand_id' => $brandId,
-        ]);
-   //    dd($request->all()); 
-        
-        return redirect()->back()->with('message', 'Proizvod uspješno dodan!');
-    }
+     public function update(Request $request, $id)
+     {
+         // Validate the request data
+         $request->validate([
+             'name' => 'required|string|max:255',
+             'price' => 'required|numeric',
+             'stock_quantity' => 'required|integer',
+         ]);
+     
+         // Find the product
+         $product = Product::findOrFail($id);
+         $categoryId = $request->input('category');
+         $brandId = $request->input('brand');
+     
+         // Generate a unique slug
+         $slug = strtolower(str_replace(' ', '-', $request->name));
+         $slug .= '-' . Str::random(4);
+         
+         // Create the product folder name
+         $productFolderName =$slug;
+         $productFolderPath = "products/{$productFolderName}";
+     
+         // Create the folder if it doesn't exist
+         if (!Storage::disk('public')->exists($productFolderPath)) {
+             Storage::disk('public')->makeDirectory($productFolderPath);
+         }
+     
+         $imagePaths = json_decode($product->image, true) ?? []; 
+
+         if ($request->hasFile('images')) {     
+             // Upload new images
+             foreach ($request->file('images') as $file) {
+                 if ($file->isValid()) {
+                     // Keep the original file name
+                     $originalName = $file->getClientOriginalName();
+                     
+                     // Append the new image path to the existing array
+                     $imagePaths[] = $file->storeAs($productFolderPath, $originalName, 'public');
+                 } else {
+                     return response()->json([
+                         'message' => 'One or more files are not valid.',
+                     ], 422); // Return validation error
+                 }
+             }
+         }
+     
+         // Update the product
+         $product->update([
+             'name' => $request->name,
+             'slug' => $slug,
+             'description' => $request->description ?? '', // Set empty string if not provided
+             'price' => $request->price,
+             'stock_quantity' => $request->stock_quantity,
+             'brand' => $request->brand ?? '', 
+             'model' => $request->model ?? '', 
+             'processor' => $request->processor ?? '', 
+             'ram_size' => $request->ram_size ?: null, 
+             'storage' => $request->storage ?: null, 
+             'graphics_card' => $request->graphics_card ?? '',
+             'operating_system' => $request->operating_system ?? '', 
+             'category' => $request->category ?? '', 
+             'image' => json_encode($imagePaths), 
+             'category_id' => $categoryId,
+             'brand_id' => $brandId,
+         ]);
+     
+         // Return a JSON response
+         return response()->json([
+             'message' => 'Product updated successfully!',
+             'product' => $product,
+         ], 200); // HTTP 200: OK
+     }
     
 
     /**
@@ -257,6 +295,8 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product->delete();
 
-        return redirect()->route('products.index');
+        return response()->json([
+            'message' => 'Proizvod uspješno obrisan!'
+        ]);
     }
 }

@@ -1,9 +1,9 @@
 <!-- Add Category Modal -->
 <div id="add-category" class="modal">
-    <form method="POST" action="{{ route('categories.store') }}">
+    <form method="POST" action="/api/dashboard/categories">
         @csrf
         <div class="modal-content w-25">
-            <span class="close" data-modal="add-category">&times;</span>
+            <span class="close close-modal" data-modal="add-category">&times;</span>
             <h2>Dodaj kategoriju</h2>
             <div class="modal-body">
                 <div class="mb-4">

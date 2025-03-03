@@ -171,7 +171,11 @@
                     <template x-for="product in products.data" :key="product.id">
                         <div class="bg-white p-4 rounded-md shadow-md box">
                             <div>
-                                <img :src="product.image" :alt="product.name" class="h-48 w-96 object-cover">
+                            <img :src="product.image && JSON.parse(product.image).length > 0 ? '../storage/' + JSON.parse(product.image)[0] : '../storage/MbitShopLogo.png'" 
+     :alt="product.name" 
+     class="h-48 w-96 object-cover">
+
+
                                 <div>
                                     <h2 class="text-gray-800" x-text="product.name"></h2>
                                     <p class="text-gray-600" x-text="product.brand?.name"></p>
@@ -278,7 +282,7 @@
                 async addToCart(productId) {
   
 
-    const response = await fetch('/cart/add', {
+    const response = await fetch('/api/cart/add', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

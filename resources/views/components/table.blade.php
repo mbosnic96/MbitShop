@@ -1,95 +1,171 @@
-@props(['data', 'columns', 'routePrefix', 'actions'])
-
-<table class="min-w-full table-fixed">
-    <thead>
-        <tr class="bg-gray-200">
-            @foreach($columns as $column)
-                <th class="px-4 py-2 text-left">{{ ucwords(str_replace('_', ' ', $column)) }}</th>
-            @endforeach
-            <th class="px-4 py-2">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($data as $item)
-            <tr class="border-b">
-                @foreach($columns as $column)
-                    <td class="px-4 py-2 truncate max-w-[150px] overflow-hidden text-ellipsis"
-                        title="{{ is_object($item->$column) ? $item->$column->name : $item->$column }}">
-                        @if(is_object($item->$column))
-                            {{ Str::limit($item->$column->name ?? 'N/A', 20, '...') }}
-                        @else
-                            {{ Str::limit($item->$column, 20, '...') }}
-                        @endif
-                    </td>
-                @endforeach
-                <td class="px-4 py-2 text-center">
-                    @foreach($actions as $action)
-                        @if($action['route'] === 'edit')
-                            <button id="{{ $item->id }}"
-                                class="open-modal px-2 py-2 text-white bg-yellow-500 rounded-full w-10 h-10 hover:bg-yellow-600"
-                                data-modal-id="{{ $routePrefix }}-edit" data-id="{{ $item->id }}" data-all='@json($item)'>
-                                <i class="fa fa-pencil"></i>
-                            </button>
-                        @elseif($action['route'] === 'show')
-                            <!-- Show action will generate the URL based on the item slug -->
-                            <a href="{{ route($routePrefix . '.' . $action['route'], $item->slug) }}" 
-                               class="inline-block px-2 py-2 text-white bg-{{ $action['color'] }}-500 rounded-full w-10 h-10 hover:bg-{{ $action['color'] }}-600">
-                                <i class="fa fa-eye"></i>
-                            </a>
-                        @else
-                            <form action="{{ route($routePrefix . '.' . $action['route'], $item) }}"
-                                method="{{ $action['route'] === 'destroy' ? 'POST' : 'GET' }}" style="display: inline;"
-                                class="delete-form">
-                                @csrf
-                                @if($action['route'] === 'destroy')
-                                    @method('DELETE')
-                                @endif
-
-                                <button type="submit"
-                                    class="px-2 py-2 text-white bg-{{ $action['color'] }}-500 rounded-full w-10 h-10 hover:bg-{{ $action['color'] }}-600 delete-button">
-                                    {!! $action['label'] !!}
-                                </button>
-                            </form>
-                        @endif
-                    @endforeach
-                </td>
+<div x-show="data.length > 0">
+    <table class="table min-w-full table-auto border-collapse">
+        <thead>
+            <tr class="bg-gray-100">
+                <template x-for="column in columns" :key="column">
+                    <th class="px-4 py-2 text-left border-b" x-text="column.charAt(0).toUpperCase() + column.slice(1)">
+                    </th>
+                </template>
+                <th class="px-4 py-2 text-left border-b text-center">Akcije</th>
             </tr>
-        @endforeach
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <template x-for="item in data" :key="item . id">
+                <tr class="odd:bg-white even:bg-gray-50">
+                    <template x-for="column in columns" :key="column">
+                    <td class="px-4 py-2 border-b">
+                        <span x-text="typeof item[column] === 'object' ? item[column]?.name ?? '—' : item[column]"></span>
+                    </td>
+                    </template>
+                    <td class="px-4 py-2 border-b text-center">
+                        <button @click="openModal(item)"
+                            class="open-modal px-2 py-2 text-white bg-yellow-500 rounded-full w-10 h-10 hover:bg-yellow-600">
+                            <i class="fa fa-pencil"></i>
+                        </button>
+                        <button @click="deleteItem(item.id)"
+                            class="px-2 py-2 text-white bg-red-500 rounded-full w-10 h-10 hover:bg-red-600">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
 
-{{-- For debugging --}}
-@if ($data instanceof \Illuminate\Pagination\LengthAwarePaginator)
-    <div class="mt-4">
-        <!-- Pagination Links -->
-        {{ $data->links() }}
+    <!-- Pagination -->
+    <div class="mt-4 flex justify-center">
+        <!-- First Page Button -->
+        <button @click="fetchData(1)" :disabled="page <= 1"
+            class="px-4 py-2 me-2 bg-blue-500 text-white rounded-l disabled:bg-blue-100">
+            <i class="fa fa-angle-double-left"></i>
+        </button>
+
+        <!-- Previous Page Button -->
+        <button @click="fetchData(page - 1)" :disabled="page <= 1"
+            class="px-4 py-2 bg-blue-500 text-white disabled:bg-blue-100">
+            <i class="fa fa-chevron-left"></i>
+        </button>
+
+        <!-- Current Page and Total Pages -->
+        <span class="px-4 py-2" x-text="`${page} of ${lastPage}`"></span>
+
+        <!-- Next Page Button -->
+        <button @click="fetchData(page + 1)" :disabled="page >= lastPage"
+            class="px-4 py-2 me-2 bg-blue-500 text-white disabled:bg-blue-100">
+            <i class="fa fa-chevron-right"></i>
+        </button>
+
+        <!-- Last Page Button -->
+        <button @click="fetchData(lastPage)" :disabled="page >= lastPage"
+            class="px-4 py-2 bg-blue-500 text-white rounded-r disabled:bg-blue-100">
+            <i class="fa fa-angle-double-right"></i>
+        </button>
     </div>
-@else
-    <p>❌ Nemoguće kategorisati listu!</p>
-@endif
+</div>
+
+<!-- No data found -->
+<div x-show="data.length === 0" class="text-center mt-6">
+    <p class="text-lg text-gray-500">Nema podataka.</p>
+</div>
 
 <script>
-    document.querySelectorAll('.delete-button').forEach(button => {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
+    function tableData(apiUrl, columns, modalId, formId) {
+        return {
+            columns: columns,
+            data: [],
+            page: 1,
+            lastPage: 1,
+            modalId: modalId,
+            formId: formId,
 
-            const form = this.closest('form'); 
 
-            // SweetAlert confirmation
-            Swal.fire({
-                title: 'Jeste li sigurni?',
-                text: "Ovu radnju nije moguće poništiti!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Da, briši!',
-                cancelButtonText: 'Otkaži'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit(); 
-                }
-            });
-        });
-    });
+            init() {
+                this.fetchData(this.page);
+                document.querySelector(`#${this.formId}`)?.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitForm(e);
+                });
+            },
+
+            fetchData(page = 1) {
+                this.page = page;
+                const url = `${apiUrl}?page=${page}`;
+
+
+                axios.get(url)
+                    .then(response => {
+
+                        const result = response.data;
+
+
+                        if (result && result.data && Array.isArray(result.data)) {
+                            this.data = result.data; // Set data from the API response
+                            this.lastPage = result.last_page; // Set pagination information
+                        } else {
+                            console.error('Unexpected API response structure:', result);
+                        }
+
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+
+            },
+            openModal(item) {
+
+
+                const url = `${apiUrl}/${item.id}`;
+
+
+                axios.get(url)
+                    .then(response => {
+
+
+                        const fullItemData = response.data;
+
+                        // Open the modal
+                        window.openModal(modalId, fullItemData);
+
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            title: 'Greška!',
+                            text: 'Greška pri čitanju podataka. Pokušajte ponovo.',
+                            icon: 'error',
+                        });
+                    });
+            },
+            deleteItem(id) {
+                // SweetAlert confirmation before deleting
+                Swal.fire({
+                    title: 'Jeste li sigurni?',
+                    text: "Ova se ne može poništiti!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Da',
+                    cancelButtonText: 'Ne'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`${apiUrl}/${id}`)
+                            .then(() => {
+                                this.fetchData(this.page); // Refresh data after deletion
+                                Swal.fire(
+                                    'Obrisano!',
+                                    'Stavka je obrisana.',
+                                    'success'
+                                );
+                            })
+                            .catch(error => {
+                                Swal.fire(
+                                    'Greška!',
+                                    'Greška. Pokušajte ponovo.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            },
+
+        };
+    }
 </script>

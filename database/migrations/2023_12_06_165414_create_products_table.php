@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('graphics_card')->nullable();
             $table->string('operating_system')->nullable();
             $table->timestamps();
-            $table->string('image')->nullable();
+            $table->json('image')->nullable();
         });
     }
 

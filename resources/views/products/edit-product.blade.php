@@ -1,6 +1,6 @@
 <!-- Edit Product Modal -->
 <div id="products-edit" class="modal">
-    <form method="POST" action="{{ route('products.update', ':id') }}" enctype="multipart/form-data">
+    <form method="POST" action="/api/dashboard/products/:id" enctype="multipart/form-data"  id="editProductForm">
         @csrf
         <div class="modal-content w-50">
             <span class="close close-modal" data-modal="products-edit">&times;</span>
@@ -18,14 +18,15 @@
                     <div class="mb-4">
                         <label for="brand" class="block text-gray-700 text-sm font-bold mb-2">Brand:</label>
                         <select name="brand" id="brand"
-                            class="form-select inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full">
-                            <option disabled>Odaberite proizvođača</option>
-                            @foreach($brands as $brand)
-                                <option value="{{ $brand->id }}">
-                                    {{ $brand->name }}
-                                </option>
-                            @endforeach
-                        </select>
+    class="form-select inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full">
+    <option disabled>Odaberite proizvođača</option>
+    @foreach($brands as $brand)
+        <option value="{{ $brand->id }}" {{ old('brand', $product->brand_id ?? '') == $brand->id ? 'selected' : '' }}>
+            {{ $brand->name }}
+        </option>
+    @endforeach
+</select>
+
                         @error('brand') <span class="text-red-500">{{ $message }}</span>@enderror
                     </div>
 
@@ -152,7 +153,7 @@
                         više)</label>
                     <input type="file" name="images[]" id="images" multiple>
 
-                    <div class="grid grid-cols-5 gap-4" id="uploaded-images">
+                    <div class="flex gap-4" id="uploaded-images">
                         <!-- Images will be dynamically inserted here using JavaScript -->
                     </div>
                     @error('images') <span class="text-red-500">{{ $message }}</span>@enderror

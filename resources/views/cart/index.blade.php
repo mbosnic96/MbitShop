@@ -13,10 +13,13 @@
                                     <img :src="item.image" alt="Product Image" class="w-16 h-16 object-cover">
                                 </div>
                                 <!-- Product Details -->
-                                <div class="flex-1">
-                                    <h3 class="text-lg font-medium text-gray-900" x-text="item.name"></h3>
-                                    <p class="text-lg font-semibold text-gray-900 mt-2" x-text="'KM' + item.price"></p>
-                                </div>
+                               <div class="flex-1">
+    <a x-bind:href="'product/'+item.slug" class="block">
+        <h3 class="text-lg font-medium text-gray-900" x-text="item.name"></h3>
+        <p class="text-lg font-semibold text-gray-900 mt-2" x-text="'KM ' + item.price"></p>
+    </a>
+</div>
+
                             </div>
                             <!-- Quantity and Actions -->
                             <div class="mt-4 sm:mt-0 flex items-center space-x-4">
@@ -104,10 +107,27 @@
         shipping: 12.00,
         user: {},
         async init() {
-            const response = await fetch('/cart');
-            const data = await response.json();
-            this.cart = data.cart;
-            this.user = data.user;
+            try {
+                const response = await fetch(`/api/cart`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                      
+                    },
+                    credentials: 'include' // 👈 This ensures cookies are sent
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch cart data');
+                }
+
+                const data = await response.json();
+                this.cart = data.cart;
+                this.user = data.user;
+            } catch (error) {
+                console.error('Error loading cart:', error);
+            }
+        
         },
         get subtotal() {
             return Object.values(this.cart).reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -120,7 +140,7 @@
         },
         async updateQuantity(productId) {
             const product = this.cart[productId];
-            const response = await fetch(`/cart/update/${productId}`, {
+            const response = await fetch(`/api/cart/update/${productId}`, {
                 method: 'PUT',
                 body: JSON.stringify({
                     quantity: product.quantity
@@ -156,7 +176,7 @@
     // If the user confirms, proceed with deletion
     if (result.isConfirmed) {
         try {
-            const response = await fetch(`/cart/remove/${productId}`, {
+            const response = await fetch(`/api/cart/remove/${productId}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content

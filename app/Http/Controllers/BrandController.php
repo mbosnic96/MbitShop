@@ -13,7 +13,12 @@ class BrandController extends Controller
      */
     public function index()
     {
-        return Brand::paginate(2); 
+        return Brand::paginate(10); 
+    }
+
+    public function dasboardIndex()
+    {
+        return view('brands.index');
     }
 
     /**
@@ -33,24 +38,26 @@ class BrandController extends Controller
         // Return success message
         return response()->json([
             'message' => 'Brend uspešno dodat!',
-            'brand' => $brand
+            'brand' => $brand,
         ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Request $request)
-    {
-        // Pass the data to the view
-        return view('brands.index');
-    }
+    public function show($id)
+{
+    $brand = Brand::findOrFail($id); // Fetch the brand by ID
+    return response()->json($brand); // Return the brand as JSON
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Brand $brand)
+    public function update(Request $request, $id)
     {
+        
+        $brand = Brand::findOrFail($id);
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
@@ -62,7 +69,7 @@ class BrandController extends Controller
         // Return success message
         return response()->json([
             'message' => 'Brend uspješno izmjenjen!',
-            'brand' => $brand
+            'brand' => $brand,
         ]);
     }
 

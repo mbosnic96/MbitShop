@@ -11,15 +11,16 @@ class CartController extends Controller
 {
     public function addToCart(Request $request)
     {
-        $productId = $request->input('product_id'); // Dobijanje ID-a iz JSON zahteva
-        
+        $productId = $request->input('product_id'); 
         // Pronalazak proizvoda
-        $product = Product::find($productId); // Koristimo find umesto findOrFail da bismo kontrolisali greške
+        $product = Product::find($productId); 
+
         
         if (!$product) {
             return response()->json(['status' => 'error', 'message' => 'Proizvod nije pronađen!'], 404);
         }
-        
+      
+       
         // Učitavanje korpe iz sesije
         $cart = session()->get('cart', []);
         
@@ -32,6 +33,8 @@ class CartController extends Controller
                 'name' => $product->name,
                 'price' => $product->price,
                 'quantity' => 1,
+                'image' => !empty(json_decode($product->image)) ? asset('storage/' . json_decode($product->image)[0]) : asset('storage/MbitShopLogo.png'),
+                'slug' => $product->slug,
             ];
         }
         
@@ -49,13 +52,22 @@ class CartController extends Controller
     
     public function showCart()
 {
-    $cart = session()->get('cart', []);
-    $user = auth()->user(); // Get the logged-in user
+    try {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
-    return response()->json([
-        'cart' => $cart,
-        'user' => $user,
-    ]);
+        $cart = session()->get('cart', []);
+
+        return response()->json([
+            'cart' => $cart,
+            'user' => $user,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+
 }
 
 public function update(Request $request, $productId)

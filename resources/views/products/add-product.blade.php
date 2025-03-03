@@ -1,6 +1,6 @@
 
 <div id="add-product" class="modal">
-    <form method="POST" action="{{route('products.store')}}" method="POST" enctype="multipart/form-data">
+    <form method="POST" action="/api/dashboard/products" enctype="multipart/form-data">
         @csrf
         <div class="modal-content w-50">
             <span class="close close-modal" data-modal="add-product">&times;</span>
