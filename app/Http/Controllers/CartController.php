@@ -60,9 +60,14 @@ class CartController extends Controller
 
         $cart = session()->get('cart', []);
 
+        $cartCount = array_reduce($cart, function ($carry, $item) {
+            return $carry + $item['quantity'];
+        }, 0);
+
         return response()->json([
             'cart' => $cart,
             'user' => $user,
+            'cartCount' => $cartCount, 
         ]);
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);

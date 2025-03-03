@@ -73,6 +73,17 @@
                         </x-dropdown>
                     </div>
                 </div>
+                @if (Auth::check())
+                <div class="relative flex items-center ml-6" x-data="cartData()" x-init="fetchCart">
+                    <button @click="window.location.href='/dashboard'" class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <i class="fa fa-shopping-bag"></i>
+                        <!-- Badge -->
+                        <span x-show="cartCount > 0" class="absolute top-0 right-0 inline-block px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full transform translate-x-2/4 translate-y-3/4">
+                            <span x-text="cartCount"></span>
+                        </span>
+                    </button>
+                </div>
+                @endif
 
                 <!-- Account Management -->
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -199,3 +210,26 @@
         @endif
     </div>
 </nav>
+
+<script>
+    function cartData() {
+        return {
+            cartCount: 0,
+            fetchCart() {
+                axios.get('/api/cart') // Replace with your API endpoint
+                    .then(response => {
+                        this.cartCount = response.data.cartCount;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching cart:', error);
+                    });
+            },
+            init() {
+            this.fetchCart(); // Fetch cart data on page load
+            setInterval(() => {
+                this.fetchCart(); // Refresh cart data every 5 seconds
+            }, 5000);
+        }
+        };
+    }
+</script>

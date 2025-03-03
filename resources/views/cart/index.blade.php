@@ -82,18 +82,22 @@
 
                 <!-- Buttons at the Bottom of the w-1/4 Div -->
                 <div class="mt-6">
-                    <button 
-                        @click="checkout"
-                        class="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition duration-300"
-                    >
-                        Završi narudžbu!
-                    </button>
-                    <button 
-                        @click="continueShopping"
-                        class="w-full mt-4 px-6 py-3 bg-white text-indigo-600 border border-indigo-600 font-semibold rounded-md hover:bg-indigo-50 transition duration-300"
+                <div class="mt-6">
+    <button 
+        @click="checkout"
+        :disabled="cartCount <= 0"
+        :class="{ 'opacity-50 cursor-not-allowed': cartCount <= 0, 'hover:bg-indigo-700': cartCount > 0 }"
+        class="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-md transition duration-300"
+    >
+        Završi narudžbu!
+    </button>
+</div>
+                    <a href="/" 
+                       
+                        class="w-full mt-4 px-6 py-3 bg-white text-indigo-600 border border-indigo-600 font-semibold rounded-md hover:bg-indigo-50 transition duration-300 inline-block text-center"
                     >
                         Nastavi kupovinu
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -106,6 +110,7 @@
         cart: [],
         shipping: 12.00,
         user: {},
+        cartCount: 0,
         async init() {
             try {
                 const response = await fetch(`/api/cart`, {
@@ -124,10 +129,14 @@
                 const data = await response.json();
                 this.cart = data.cart;
                 this.user = data.user;
+                this.cartCount = data.cartCount;
+                console.log('Cart Count:', this.cartCount); // Debugging
             } catch (error) {
                 console.error('Error loading cart:', error);
             }
-        
+            setInterval(() => {
+                this.init(); // Refresh cart data every 5 seconds
+            }, 5000);
         },
         get subtotal() {
             return Object.values(this.cart).reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -154,6 +163,7 @@
             const data = await response.json();
             if (response.ok) {
                 this.cart = data.cart;
+                this.cartCount = data.cartCount;
             } else {
                 toastr.error(`Dostupno ${data.available_stock} artikala.`, 'Nedovoljno na stanju');
                 product.quantity = data.available_stock;  
@@ -189,6 +199,7 @@
 
             const data = await response.json();
             this.cart = data.cart;
+            this.cartCount = data.cartCount;
 
             // Show success message
             Swal.fire({

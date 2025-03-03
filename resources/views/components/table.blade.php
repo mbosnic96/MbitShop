@@ -109,6 +109,9 @@
                     .catch(error => {
                         console.error('Error fetching data:', error);
                     });
+                    setInterval(() => {
+                this.fetchCart(); // Refresh cart data every 5 seconds
+            }, 5000);
 
             },
             openModal(item) {
@@ -165,6 +168,7 @@
                     }
                 });
             },
+            
 
         };
     }
