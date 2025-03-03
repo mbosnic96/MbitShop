@@ -12,11 +12,11 @@
             </div>
 
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                <x-table :data="$products" :columns="['id', 'name', 'model', 'stock_quantity', 'price', 'brand', 'category', 'processor', 'ram_size', 'storage']" routePrefix="products" :actions="[
-        ['route' => 'show', 'label' => '<i class=\'fa fa-eye\'></i>', 'color' => 'blue'],
-        ['route' => 'edit', 'label' => '<i class=\'fa fa-pencil\'></i>', 'color' => 'yellow'],
-        ['route' => 'destroy', 'label' => '<i class=\'fa fa-trash\'></i>', 'color' => 'red']
-    ]" />
+            <div class="container mx-auto p-6" x-data="tableData('/api/dashboard/products', ['id', 'name', 'model', 'stock_quantity', 'price', 'brand', 'category', 'processor', 'ram_size', 'storage'], 'products-edit', 'editProductForm')">
+                            <x-table></x-table>
+                        </div>
+              
+            </div>
             </div>
         </div> <!-- Closing max-w-7xl -->
     </div> <!-- Closing py-12 --></div>

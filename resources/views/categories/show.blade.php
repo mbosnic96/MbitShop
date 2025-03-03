@@ -1,347 +1,313 @@
-<x-app-layout>
-    <div class="main-color-bg p-8 py-12 text-center absolute w-full left-0 top-[height-of-nav] z-0">
+    <x-app-layout>
+    <div class="w-full" x-data="productFilter()">
+        <!-- Header -->
+        <div class="main-color-bg p-8 py-12 text-center absolute w-full left-0 top-[height-of-nav] z-0">
+            <h1 class="text-white font-bold relative">
+                <a href="/"><i class="fa fa-home"></i></a> <i class="fa fa-chevron-right"></i>
+                <span x-text="category.name"></span>
+            </h1>
+        </div>
 
-        <h1 class="text-white font-bold relative">
-            <a href="{{ route('home') }}"><i class="fa fa-home"></i></a> <i class="fa fa-chevron-right"></i>
-            {{ $category->name }}
+        <!-- Main Content -->
+        <div class="flex p-6 py-12">
+            <!-- Filter Sidebar -->
+            <div class="w-1/6 bg-white p-6 py-12 rounded-lg shadow-md z-10">
+                <div class="mb-4 border-b border-solid border-gray-300">
+                    <h3 class="text-xl font-semibold mb-4">Napredna pretraga</h3>
+                </div>
 
-        </h1>
-    </div>
+                <!-- Price Filter -->
+                <div class="mb-4 border-b border-solid border-gray-300">
+                    <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
+                        @click="priceOpen = !priceOpen">
+                        <span>Cijena</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <div x-show="priceOpen" class="px-6">
+                        <input type="range" 
+                            x-model="maxPrice" 
+                            min="0" 
+                            max="5000" 
+                            step="10" 
+                            class="w-full"
+                            @change="fetchProducts()">
+                        <div class="flex justify-between text-sm mt-2">
+                            <span>0 KM</span>
+                            <span x-text="maxPrice + ' KM'"></span>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="flex p-6 py-12">
+                <!-- Brand Filter -->
+                <div class="mb-4 border-b border-solid border-gray-300">
+                    <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
+                        @click="brandOpen = !brandOpen">
+                        <span>Brand</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <div x-show="brandOpen" class="px-6">
+                        <template x-for="brand in filterOptions.brands" :key="brand.id">
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" 
+                                    :id="'brand_' + brand.id" 
+                                    x-model="selectedBrands"
+                                    :value="brand.id"
+                                    @change="fetchProducts()">
+                                <label :for="'brand_' + brand.id" class="ml-2" x-text="brand.name"></label>
+                            </div>
+                        </template>
+                    </div>
+                </div>
 
-        <!-- Filter Sidebar -->
-        <div class="w-1/6 bg-white p-6 py-12 rounded-lg shadow-md z-10">
-           
-            <div class="mb-4  border-b border-solid border-gray-300"> 
-                <h3 class="text-xl font-semibold mb-4">Napredna pretraga</h3>
+                <!-- Processor Filter -->
+                <div class="mb-4 border-b border-solid border-gray-300">
+                    <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
+                        @click="processorOpen = !processorOpen">
+                        <span>Procesor</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <div x-show="processorOpen" class="px-6">
+                        <template x-for="processor in filterOptions.processors" :key="processor">
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" 
+                                    :id="'processor_' + processor" 
+                                    x-model="selectedProcessors"
+                                    :value="processor"
+                                    @change="fetchProducts()">
+                                <label :for="'processor_' + processor" class="ml-2" x-text="processor"></label>
+                            </div>
+                        </template>
+                    </div>
+                </div>
 
-      
-    
-</div>
+                <!-- RAM Filter -->
+                <div class="mb-4 border-b border-solid border-gray-300">
+                    <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
+                        @click="ramOpen = !ramOpen">
+                        <span>RAM</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <div x-show="ramOpen" class="px-6">
+                        <template x-for="ram in filterOptions.ram_sizes" :key="ram">
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" 
+                                    :id="'ram_' + ram" 
+                                    x-model="selectedRam"
+                                    :value="ram"
+                                    @change="fetchProducts()">
+                                <label :for="'ram_' + ram" class="ml-2" x-text="ram + ' GB'"></label>
+                            </div>
+                        </template>
+                    </div>
+                </div>
 
+                <!-- Storage Filter -->
+                <div class="mb-4 border-b border-solid border-gray-300">
+                    <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
+                        @click="storageOpen = !storageOpen">
+                        <span>HDD/SDD</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <div x-show="storageOpen" class="px-6">
+                        <template x-for="storage in filterOptions.storages" :key="storage">
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" 
+                                    :id="'storage_' + storage" 
+                                    x-model="selectedStorage"
+                                    :value="storage"
+                                    @change="fetchProducts()">
+                                <label :for="'storage_' + storage" class="ml-2" x-text="storage + ' GB'"></label>
+                            </div>
+                        </template>
+                    </div>
+                </div>
 
-            <!-- Brand Filter (Buttons) -->
-            <input type="hidden" id="selected-category" data-filter="category" value="{{ $selectedCategoryId }}">
+                <!-- Screen Size Filter -->
+                <div class="mb-4 border-b border-solid border-gray-300">
+                    <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
+                        @click="screenSizeOpen = !screenSizeOpen">
+                        <span>Veličina ekrana</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <div x-show="screenSizeOpen" class="px-6">
+                        <template x-for="size in filterOptions.screen_sizes" :key="size">
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" 
+                                    :id="'screen_size_' + size" 
+                                    x-model="selectedScreenSizes"
+                                    :value="size"
+                                    @change="fetchProducts()">
+                                <label :for="'screen_size_' + size" class="ml-2" x-text="size + '\"'"></label>
+                            </div>
+                        </template>
+                    </div>
+                </div>
 
-            
-            <div class="mb-4 border-b border-solid border-gray-300">
-                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
-                    data-section="price">
-                    <span>Cijena</span>
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div id="price-section" class="hidden px-6">
-                    <input type="range" id="price-range" min="0" max="5000" step="10" class="w-full"
-                        data-filter="price">
-                    <div class="flex justify-between text-sm mt-2">
-                        <span>0 KM</span>
-                        <span id="price-value">5000 KM</span>
+                <!-- Graphics Card Filter -->
+                <div class="mb-4 border-b border-solid border-gray-300">
+                    <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
+                        @click="graphicsOpen = !graphicsOpen">
+                        <span>Grafička karta</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <div x-show="graphicsOpen" class="px-6">
+                        <template x-for="graphics in filterOptions.graphics_cards" :key="graphics">
+                            <div class="flex items-center mb-2">
+                                <input type="checkbox" 
+                                    :id="'graphics_card_' + graphics" 
+                                    x-model="selectedGraphics"
+                                    :value="graphics"
+                                    @change="fetchProducts()">
+                                <label :for="'graphics_card_' + graphics" class="ml-2" x-text="graphics"></label>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
 
-            <!-- Collapsible Brand Filter -->
-            <div class="mb-4 border-b border-solid border-gray-300">
-                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
-                    data-section="brand">
-                    <span>Brand</span>
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div id="brand-section" class="hidden px-6">
-                    @foreach ($brands as $brand)
-                        <div class="flex items-center mb-2">
-                            <input type="checkbox" id="brand_{{ $brand->id }}" class="filter-checkbox" data-filter="brand"
-                                value="{{ $brand->id }}">
-                            <label for="brand_{{ $brand->id }}" class="ml-2">{{ $brand->name }}</label>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Collapsible Processor Filter -->
-            <div class="mb-4 border-b border-solid border-gray-300">
-                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
-                    data-section="processor">
-                    <span>Procesor</span>
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div id="processor-section" class="hidden px-6">
-                    @foreach ($processors as $processor)
-                        <div class="flex items-center mb-2">
-                            <input type="checkbox" id="processor_{{ $processor }}" class="filter-checkbox"
-                                data-filter="processor" value="{{ $processor }}">
-                            <label for="processor_{{ $processor }}" class="ml-2">{{ $processor }}</label>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Collapsible RAM Filter -->
-            <div class="mb-4 border-b border-solid border-gray-300">
-                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
-                    data-section="ram">
-                    <span>RAM</span>
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div id="ram-section" class="hidden px-6">
-                    @foreach ($ram_sizes as $ram_size)
-                        <div class="flex items-center mb-2">
-                            <input type="checkbox" id="ram_{{ $ram_size }}" class="filter-checkbox" data-filter="ram"
-                                value="{{ $ram_size }}">
-                            <label for="ram_{{ $ram_size }}" class="ml-2">{{ $ram_size }} GB</label>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Collapsible HDD Filter -->
-            <div class="mb-4 border-b border-solid border-gray-300">
-                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
-                    data-section="hdd">
-                    <span>HDD/SDD</span>
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div id="hdd-section" class="hidden px-6">
-                    @foreach ($storages as $storage)
-                        <div class="flex items-center mb-2">
-                            <input type="checkbox" id="hdd_{{ $storage }}" class="filter-checkbox" data-filter="hdd"
-                                value="{{ $storage }}">
-                            <label for="hdd_{{ $storage }}" class="ml-2">{{ $storage }} GB</label>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="mb-4 border-b border-solid border-gray-300">
-                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
-                    data-section="screen_size">
-                    <span>Veličina ekrana</span>
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div id="screen_size-section" class="hidden px-6">
-                    @foreach ($screenSizes as $size)
-                        <div class="flex items-center mb-2">
-                            <input type="checkbox" id="screen_size_{{ $size }}" class="filter-checkbox"
-                                data-filter="screen_size" value="{{ $size }}">
-                            <label for="screen_size_{{ $size }}" class="ml-2">{{ $size }}"</label>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Collapsible Graphics Card Filter -->
-            <div class="mb-4 border-b border-solid border-gray-300">
-                <button class="w-full text-left font-medium text-lg mb-2 focus:outline-none flex justify-between"
-                    data-section="graphics_card">
-                    <span>Grafička karta</span>
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div id="graphics_card-section" class="hidden px-6">
-                    @foreach ($graphics as $graphics_card)
-                        <div class="flex items-center mb-2">
-                            <input type="checkbox" id="graphics_card_{{ $graphics_card }}" class="filter-checkbox"
-                                data-filter="graphics_card" value="{{ $graphics_card }}">
-                            <label for="graphics_card_{{ $graphics_card }}" class="ml-2">{{ $graphics_card }}</label>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Collapsible Price Filter -->
-
-        </div>
-
-        <!-- Product List -->
-        <div id="product-list" class="w-5/6 ml-6 z-10 py-12">
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                @foreach ($products as $product)
-                                <div class="bg-white p-4 rounded-md shadow-md box">
-                                    <div>
-                                        @php
-                                            $images = json_decode($product->image, true);
-                                            $firstImage = !empty($images) && isset($images[0]) ? asset('storage/' . $images[0]) : asset('storage/MbitShopLogo.png');
-                                        @endphp
-
-                                        <img src="{{ $firstImage }}" alt="{{  $product->name  }}" class="h-48 w-96 object-cover">
+            <!-- Product List -->
+            <div class="w-5/6 ml-6 z-10 py-12">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                    <template x-for="product in products.data" :key="product.id">
+                        <div class="bg-white p-4 rounded-md shadow-md box">
+                            <div>
+                            <img :src="product.image && JSON.parse(product.image).length > 0 ? '../storage/' + JSON.parse(product.image)[0] : '../storage/MbitShopLogo.png'" 
+     :alt="product.name" 
+     class="h-48 w-96 object-cover">
 
 
-                                        <div>
-                                            <h2 class="text-gray-800">{{ $product->name }}</h2>
-                                            @if($product->brand->name)
-                                                <p class="text-gray-600"> {{ $product->brand->name ?? '' }}</p>
-                                            @endif
-                                            @if($product->model)
-                                                <p class="text-gray-600">{{ $product->model ?? ''}}</p>
-                                            @endif
-
-                                            <div class="flex flex-col mb-0">
-                                                <p class="text-gray-800 font-semibold">{{ $product->price ?? '' }} KM</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex items-center justify-center mt-4">
-                                            <!-- <button class="bg-blue-500 text-white px-4 py-2 rounded">Vidi detaljno</button> -->
-                                        </div>
-                                    </div>
-                                </div>
-                @endforeach
-            </div>
-            <div class="mt-4">
-        <!-- Pagination Links -->
-       {{ $products->appends(request()->query())->links() }}
+                                <div>
+                                    <h2 class="text-gray-800" x-text="product.name"></h2>
+                                    <p class="text-gray-600" x-text="product.brand?.name"></p>
+                                    <p class="text-gray-600" x-text="product.model"></p>
+                                    <div class="flex flex-col mb-0">
+    <div class="flex justify-between items-center">
+        <p class="text-gray-800 font-semibold" x-text="product.price + ' KM'"></p>
+        <button @click="addToCart(product.id)" 
+    class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 focus:outline-none">
+    <i class="fa fa-shopping-cart mr-2"></i>
+    Kupi odmah!
+</button>
 
     </div>
+</div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="mt-4">
+                    <!-- Pagination -->
+                    <template x-if="products.links">
+                        <div class="flex justify-center">
+                            <template x-for="link in products.links">
+                                <a :href="link.url" 
+                                   class="px-4 py-2 mx-1 rounded"
+                                   :class="{ 'bg-blue-500 text-white': link.active }"
+                                   x-html="link.label"
+                                   @click.prevent="fetchProducts(link.url)"></a>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const filterButtons = document.querySelectorAll('.filter-checkbox');
-            const filterDropdowns = document.querySelectorAll('.filter-dropdown');
-            const priceRange = document.getElementById('price-range');
-            const priceValue = document.getElementById('price-value');
+        function productFilter() {
+            return {
+                category: {},
+                filterOptions: {
+                    brands: [],
+                    processors: [],
+                    ram_sizes: [],
+                    storages: [],
+                    screen_sizes: [],
+                    graphics_cards: [],
+                },
+                products: {
+                    data: [],
+                    links: [],
+                },
+                selectedBrands: [],
+                selectedProcessors: [],
+                selectedRam: [],
+                selectedStorage: [],
+                selectedScreenSizes: [],
+                selectedGraphics: [],
+                maxPrice: 5000,
+                priceOpen: false,
+                brandOpen: false,
+                processorOpen: false,
+                ramOpen: false,
+                storageOpen: false,
+                screenSizeOpen: false,
+                graphicsOpen: false,
+
+                init() {
+                    this.fetchCategoryAndFilters();
+                    this.fetchProducts();
+                },
+
+                async fetchCategoryAndFilters() {
+                    const slug = window.location.pathname.split('/').pop();
+                    const response = await fetch(`/api/products/filter/${slug}`);
+                    const data = await response.json();
+                    this.category = data.category.name;
+                    this.filterOptions = data.filter_options;
+                },
+
+                async fetchProducts(url = null) {
+                    const slug = window.location.pathname.split('/').pop();
+                    const apiUrl = url || `/api/products/filter/${slug}?${this.buildQueryParams()}`;
+                    const response = await fetch(apiUrl);
+                    const data = await response.json();
+                    this.products = data.products;
+                },
+
+                buildQueryParams() {
+                    const params = new URLSearchParams();
+                    if (this.selectedBrands.length) params.append('selected_brands', this.selectedBrands.join(','));
+                    if (this.selectedProcessors.length) params.append('selected_processors', this.selectedProcessors.join(','));
+                    if (this.selectedRam.length) params.append('selected_ram', this.selectedRam.join(','));
+                    if (this.selectedStorage.length) params.append('selected_storage', this.selectedStorage.join(','));
+                    if (this.selectedScreenSizes.length) params.append('selected_screen_sizes', this.selectedScreenSizes.join(','));
+                    if (this.selectedGraphics.length) params.append('selected_graphics', this.selectedGraphics.join(','));
+                    params.append('max_price', this.maxPrice);
+                    return params.toString();
+                },
+
+                async addToCart(productId) {
+  
+
+    const response = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ product_id: productId })
+    });
+
+    const responseData = await response.json().catch(() => null);
+
+   
+
+    if (response.ok) {
+        // Use Toastr for success notification
+        toastr.success(responseData.message, 'Dodano u košaricu');
+    } else {
+        // Use Toastr for error notification
+        toastr.error(responseData?.message || 'Nepoznata greška', 'Error');
+    }
+}
 
 
-            let activeFilters = {};
 
-
-            const sectionButtons = document.querySelectorAll('[data-section]');
-            sectionButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const sectionId = this.getAttribute('data-section');
-                    const section = document.getElementById(`${sectionId}-section`);
-                    section.classList.toggle('hidden');
-                });
-            });
-
-            filterButtons.forEach(button => {
-                button.addEventListener('change', function () {
-                    const filter = this.getAttribute('data-filter');
-                    const value = this.value;
-
-                    if (!activeFilters[filter]) {
-                        activeFilters[filter] = [];
-                    }
-
-                    const index = activeFilters[filter].indexOf(value);
-                    if (index === -1) {
-                        activeFilters[filter].push(value);
-                    } else {
-                        activeFilters[filter].splice(index, 1);
-                    }
-
-                    fetchFilteredProducts();
-                });
-            });
-
-            // Handle dropdown changes
-            filterDropdowns.forEach(dropdown => {
-                dropdown.addEventListener('change', fetchFilteredProducts);
-            });
-
-            priceRange.addEventListener('input', function () {
-                priceValue.textContent = `${this.value} KM`;
-                activeFilters["price"] = ["0", this.value]; 
-                fetchFilteredProducts();
-            });
-
-
-            function getFilters() {
-                const filters = {};
-                const selectedCategory = document.getElementById('selected-category').value;
-                document.querySelectorAll('.filter-checkbox:checked').forEach(input => {
-                    const filterName = input.getAttribute('data-filter');
-                    const filterValue = input.value;
-                    if (!filters[filterName]) filters[filterName] = [];
-                    filters[filterName].push(filterValue);
-                });
-                document.querySelectorAll('.filter-dropdown').forEach(input => {
-                    const filterName = input.getAttribute('data-filter');
-                    const filterValue = input.value;
-                    if (filterValue) {
-                        filters[filterName] = filterValue;
-                    }
-                });
-               
-
-
-                const price = document.getElementById('price-range').value;
-                if (price) {
-                    filters["price"] = ["0",price];
-                }
-
-                if (selectedCategory) {
-                    filters['category'] = selectedCategory;
-                }
-                console.log("Filters before sending:", filters);
-
-                return filters;
-            }
-
-
-
-            function fetchFilteredProducts() {
-                const filters = getFilters();
-                console.log("Active Filters:", filters); // Debugging
-                fetch('/search', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify(filters)
-                })
-                    .then(response => response.json())
-                    .then(products => {
-                        updateProductList(products);
-                    })
-                    .catch(error => console.error('Fetch Error:', error));
-            }
-
-
-            function updateProductList(products) {
-                const productList = document.querySelector('.grid');
-                productList.innerHTML = ''; // Clear existing products
-
-                if (products.length === 0) {
-                    productList.innerHTML = '<p class="col-span-full text-center text-gray-600">Nema artikala.</p>';
-                    return;
-                }
-
-                products.forEach(product => {
-                    let images = JSON.parse(product.image || '[]');
-                    let firstImage = images.length ? `/storage/${images[0]}` : '/storage/MbitShopLogo.png';
-                    let brandName = product.brand ? product.brand.name : ''; // Ensure brand name is handled properly
-                    let model = product.model ? product.model : '';
-                    let productHTML = `
-                        <div class="bg-white p-4 rounded-md shadow-md box">
-                        <div>
-                            <img src="${firstImage}" alt="${product.name}" class="h-48 w-96 object-cover">
-
-                           
-
-                            <div>
-                            <p class="text-gray-600">${brandName}</p>
-                            <p class="text-gray-800">${product.name}</p>
-                            <p class="text-gray-600">${model}</p>
-
-                               
-                            <div class="flex flex-col mb-0"> 
-                                <p class="text-gray-800 font-semibold">${product.price || ''} KM</p>
-                            </div>
-                            </div>
-                            <div class="flex items-center justify-center mt-4">
-                             <!--   <button class="bg-blue-500 text-white px-4 py-2 rounded">Vidi detaljno</button> -->
-                            </div>
-                            </div>
-                        </div>
-                    `;
-
-                    productList.insertAdjacentHTML('beforeend', productHTML);
-                });
-            }
-        });
+              
+            };
+        }
     </script>
 </x-app-layout>

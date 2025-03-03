@@ -4,6 +4,9 @@ import Swal from 'sweetalert2';
 
 window.Swal = Swal;  // Make SweetAlert2 globally available
 
+import Alpine from 'alpinejs';
+import './toastr'; // This will import toastr.js and make it available globally
+
 
 document.addEventListener('DOMContentLoaded', function () {
     
@@ -14,8 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const productData = JSON.parse(this.getAttribute('data-all')) ?? ''; // Parse JSON
             console.log(productData);
 
-            // Example: Show the brand and category in the modal
-            openModal(modalId, productData); // Open modal with full product data
+            
+            openModal(modalId, productData);
         });
     });
 
@@ -28,70 +31,107 @@ document.addEventListener('DOMContentLoaded', function () {
             Object.keys(data).forEach(key => {
                 let inputField = modal.querySelector(`[name="${key}"]`);
                 if (inputField) {
-                    inputField.value = data[key] ?? '';  // Set value for each form field
+                    inputField.value = data[key] ?? '';  
                 }
             });
-            if(data.brand || data.category){
-            if (data.brand) {
-                const brandSelect = modal.querySelector('[name="brand"]');
-                if (brandSelect) {
-                    // Set the selected option for the brand
-                    brandSelect.value = data.brand.id; // Dynamically set the brand ID
+    
+            // Handle brand and category fields
+            if (data.brand || data.category) {
+                if (data.brand) {
+                    const brandSelect = modal.querySelector('[name="brand"]');
+                    if (brandSelect) {
+                        brandSelect.value = data.brand.id; // Dynamically set the brand ID
+                    }
+                }
+    
+                if (data.category) {
+                    const categoryInput = modal.querySelector('[name="category"]');
+                    const categoryDisplay = modal.querySelector('.dropdown-header span');
+    
+                    if (categoryInput) {
+                        categoryInput.value = data.category.id;
+                    }
+                    if (categoryDisplay) {
+                        categoryDisplay.textContent = data.category.name;
+                    }
                 }
             }
     
-            // Dynamically populate the 'category' field if 'category' exists in data
-            if (data.category) {
-                const categoryInput = modal.querySelector('[name="category"]');
-                const categoryDisplay = modal.querySelector('.dropdown-header span');
-
-                if (categoryInput) {
-                    categoryInput.value = data.category.id;
+            // Handle images
+            if (data.image) {
+                let images = [];
+                try {
+                    images = JSON.parse(data.image);
+                } catch (error) {
+                    console.error('Error parsing images:', error);
                 }
-                if (categoryDisplay) {
-                    categoryDisplay.textContent = data.category.name;
+    
+                const imageContainer = modal.querySelector('#uploaded-images');
+                if (imageContainer) {
+    
+                    images.forEach(image => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = '/storage/' + image; 
+                        imgElement.alt = image;
+                        imgElement.classList.add('w-16', 'h-16', 'object-cover', 'mt-2');
+                        imageContainer.appendChild(imgElement);
+                    });
                 }
             }
-
-            const images = JSON.parse(data.image);
-            console.log(images);
-            // Get the container to display images
-            const imageContainer = document.getElementById('uploaded-images');
-            
-            // Dynamically create <img> elements for each image
-            images.forEach(image => {
-                const imgElement = document.createElement('img');
-                imgElement.src = '/storage/' + image;  // Assuming images are stored in the public disk
-                imgElement.alt = image;
-                imgElement.classList.add('h-50', 'max-w-full', 'rounded-lg');
-                imageContainer.appendChild(imgElement);
-            });
-        }
     
-
             // Update form action dynamically for editing
             let form = modal.querySelector('form');
-            if (form && data.id) {
-                let actionUrl = form.getAttribute('action').replace(':id', data.id);
-                form.setAttribute('action', actionUrl);
-            } else {
-                form.setAttribute('action', form.getAttribute('action').replace(':id', ''));
+            if (form) {
+                if (data.id) {
+                    form.action = form.action.replace(':id', data.id);
+                } else {
+                    form.action = form.action.replace(':id', '');
+                }
+    
+               
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault(); // Prevent default form submission
+    
+                    const formData = new FormData(form);
+                    const url = form.getAttribute('action');
+    
+                    axios.post(url, formData)
+                        .then(response => {
+                            // Show success toastr message
+                            toastr.success(response.data.message, {
+                                closeButton: true,
+                                progressBar: true,
+                                positionClass: 'toast-top-right',
+                            });
+    
+                            closeModal(modalId);
+                            
+                        })
+                        .catch(error => {
+                            // Show error toastr message
+                            toastr.error(error.response?.data?.message || 'Desila se greška!', 'Error!', {
+                                closeButton: true,
+                                progressBar: true,
+                                positionClass: 'toast-top-right',
+                            });
+                        });
+                });
+                
             }
-            document.querySelector('form').addEventListener('submit', function (e) {
-                const categoryInput = this.querySelector('input[name="category"]');
-                console.log('Final Category Value Before Submission:', categoryInput.value);
-            });
-
+    
+            // Show the modal
             modal.classList.add('show');
             modalContent.classList.add('show');
             document.body.classList.add('modal-open');
+        } else {
+            console.error('Modal or modal content not found!');
         }
     };
 
     // Close modal event listener
     document.querySelectorAll('.close-modal').forEach(button => {
         button.addEventListener('click', function () {
-            const modalId = button.getAttribute('data-modal');  // Get modal ID from button
+            const modalId = button.getAttribute('data-modal'); 
             closeModal(modalId);
         });
     });
@@ -125,24 +165,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Close modal event listener
-    document.querySelectorAll('.close-modal').forEach(button => {
-        button.addEventListener('click', function () {
-            const modalId = button.getAttribute('data-modal');  // Get modal ID from button
-            closeModal(modalId);
-        });
-    });
-
-    
-    // Auto-hide session message after 3 seconds
-    const message = document.getElementById('session-message');
-    if (message) {
-        setTimeout(() => {
-            message.style.display = 'none';
-        }, 3000);
-    }
-
-
     
 
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
@@ -175,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Ensure hidden input field gets updated correctly
                 if (categoryInput) {
                     categoryInput.value = selectedValue;
-                    console.log('Updated Category:', categoryInput.value); // Debugging
                 } else {
                     console.error('Hidden input for category not found!');
                 }
@@ -183,6 +204,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
     
-  
     
+   
 });

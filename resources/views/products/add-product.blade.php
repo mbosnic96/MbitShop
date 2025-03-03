@@ -1,6 +1,6 @@
 
 <div id="add-product" class="modal">
-    <form method="POST" action="{{route('products.store')}}" method="POST" enctype="multipart/form-data">
+    <form method="POST" action="/api/dashboard/products" enctype="multipart/form-data">
         @csrf
         <div class="modal-content w-50">
             <span class="close close-modal" data-modal="add-product">&times;</span>
@@ -152,7 +152,7 @@
             <div class="modal-footer">
                 <button type="button" data-modal="add-product"
                     class="px-4 py-2 bg-gray-600 text-white rounded-md close-modal">Zatvori</button>
-                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Dodaj proizvod</button>
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Sačuvaj</button>
             </div>
         </div>
     </form>

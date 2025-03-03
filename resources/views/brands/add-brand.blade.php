@@ -1,10 +1,10 @@
 <!-- Add Brand Modal -->
 <div id="add-brand" class="modal">
-    <form method="POST" action="{{ route('brands.store') }}">
+    <form method="POST" action="/api/dashboard/brands" id="addBrandForm">
         @csrf
         <div class="modal-content w-25">
-            <span class="close" data-modal="add">&times;</span>
-            <h2>Dodaj brend</h2>
+            <span class="close close-modal" data-modal="add-brand">&times;</span>
+            <h2>Dodaj brand</h2>
             <div class="modal-body">
                 <div class="mb-4">
                     <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Brand:</label>
@@ -21,3 +21,4 @@
 
 <!-- Button to open Add Brand Modal -->
 <button class="my-2 px-4 py-2 bg-green-500 text-white rounded open-modal" data-modal-id="add-brand">Dodaj brend</button>
+

@@ -16,7 +16,9 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "alpinejs": "^3.14.8",
         "font-awesome": "^4.7.0",
-        "sweetalert2": "^11.10.1"
+        "sweetalert2": "^11.10.1",
+        "toastr": "^2.1.4"
     }
 }

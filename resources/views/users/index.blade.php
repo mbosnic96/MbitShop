@@ -7,7 +7,7 @@
     <div class="flex flex-col py-12">
             <div>
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                <x-table :data="$users" :columns="['id', 'name','role']" routePrefix="users" :actions="[
+                <x-table-main :data="$users" :columns="['id', 'name','role']" routePrefix="users" :actions="[
         ['route' => 'destroy', 'label' => '<i class=\'fa fa-trash\'></i>', 'color' => 'red']
     ]" />
             </div>
