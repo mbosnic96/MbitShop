@@ -7,6 +7,19 @@ window.Swal = Swal;  // Make SweetAlert2 globally available
 import Alpine from 'alpinejs';
 import './toastr'; // This will import toastr.js and make it available globally
 
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: import.meta.env.VITE_PUSHER_APP_KEY,   // Use VITE_ variables with import.meta.env
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    forceTLS: true
+});
+
+
 
 document.addEventListener('DOMContentLoaded', function () {
     
@@ -22,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Function to open the modal
     window.openModal = function (modalId, data) {
         var modal = document.getElementById(modalId);
         var modalContent = modal.querySelector('.modal-content');
@@ -32,6 +44,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 let inputField = modal.querySelector(`[name="${key}"]`);
                 if (inputField) {
                     inputField.value = data[key] ?? '';  
+                }
+              
+
+                let spanField = modal.querySelector(`#${key.replace('.', '_')}`); // Fix for nested keys
+                if (spanField) {
+                    spanField.textContent = data[key] ?? '';
                 }
             });
     
@@ -68,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
                 const imageContainer = modal.querySelector('#uploaded-images');
                 if (imageContainer) {
-    
                     images.forEach(image => {
                         const imgElement = document.createElement('img');
                         imgElement.src = '/storage/' + image; 
@@ -88,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.action = form.action.replace(':id', '');
                 }
     
-               
                 form.addEventListener('submit', function (e) {
                     e.preventDefault(); // Prevent default form submission
     
@@ -105,7 +121,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             });
     
                             closeModal(modalId);
-                            
                         })
                         .catch(error => {
                             // Show error toastr message
@@ -116,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             });
                         });
                 });
-                
             }
     
             // Show the modal
@@ -207,3 +221,24 @@ document.addEventListener('DOMContentLoaded', function () {
     
    
 });
+
+
+window.Echo.channel('orders')
+    .listen('OrderCanceled', (event) => {
+        Swal.fire({
+            title: 'Narudžba otkazana!',
+            text: `Korisnik ${event.user_name} je otkazao narudžbu #${event.order_id}`,
+            icon: 'warning'
+        });
+        console.log(event.message);
+    });
+
+
+    window.Echo.channel('orders')
+    .listen('OrderPlaced', (event) => {
+        Swal.fire({
+            title: 'Nova narudžba!',
+            text: `Korisnik ${event.user_name} je napravio narudžbu #${event.order_id} sa ukupnim iznosom od ${event.total_price} HRK.`,
+            icon: 'success'
+        });
+    });

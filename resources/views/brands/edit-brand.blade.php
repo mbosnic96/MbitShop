@@ -1,12 +1,12 @@
 <div id="editBrandModal" class="modal">
-    <form method="POST" action="/api/dashboard/brands/:id" id="editBrandForm">
+    <form method="PUT" action="/api/dashboard/brands/:id" id="editBrandForm">
         @csrf
-        @method('POST') <!-- Add this for Laravel to recognize the update request -->
+        @method('PUT') 
         <div class="modal-content w-25">
             <span class="close close-modal" data-modal="editBrandModal">&times;</span>
             <h2>Izmjeni brand</h2>
             <div class="modal-body">
-                <input type="hidden" name="id"> <!-- Hidden field for brand ID -->
+                <input type="hidden" name="id">
                 <div class="mb-4">
                     <label for="edit-name" class="block text-gray-700 text-sm font-bold mb-2">Brand:</label>
                     <input name="name" type="text" id="edit-name" class="form-input rounded-md shadow-sm w-full" required>

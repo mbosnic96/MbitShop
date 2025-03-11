@@ -226,9 +226,7 @@
             },
             init() {
             this.fetchCart(); // Fetch cart data on page load
-            setInterval(() => {
-                this.fetchCart(); // Refresh cart data every 5 seconds
-            }, 5000);
+        
         }
         };
     }

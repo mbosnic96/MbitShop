@@ -1,5 +1,5 @@
 <div id="categories-edit" class="modal">
-    <form method="POST" action="/api/dashboard/categories/:id" id="editCategoryForm">
+    <form method="PUT" action="/api/dashboard/categories/:id" id="editCategoryForm">
         @csrf
 
         <div class="modal-content w-25">

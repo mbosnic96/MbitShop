@@ -18,6 +18,8 @@
     "dependencies": {
         "alpinejs": "^3.14.8",
         "font-awesome": "^4.7.0",
+        "laravel-echo": "^2.0.2",
+        "pusher-js": "^8.4.0",
         "sweetalert2": "^11.10.1",
         "toastr": "^2.1.4"
     }

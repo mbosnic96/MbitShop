@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BrandController;
@@ -45,13 +46,15 @@ Route::middleware(['checkRole:admin'])->group(function () {
 
     // Category Routes
     Route::get('dashboard/categories', [CategoryController::class, 'dasboardIndex'])->name('categories.index');
+
+    
+   // Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('dashboard.orders');
 });
 
 // Customer Routes - Protected by 'checkRole:customer' middleware
 Route::middleware(['checkRole:customer'])->group(function () {
-    // Your customer routes can go here
-    // For example:
-    // Route::get('/customer', 'CustomerController@index');
+   
+ //   Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('dashboard.orders');
 });
 
 // Authenticated User Routes
@@ -59,4 +62,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('dashboard.orders');
 });

@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
             'country' => 'Bosna i Hercegovina',
             'phone_number' => '+387603004395',
             'credit_card' => null, 
-            'role' => 'admin', // Assuming admin role
+            'role' => 'admin', 
         ]);
     }
 }

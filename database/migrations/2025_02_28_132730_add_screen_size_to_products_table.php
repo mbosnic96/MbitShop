@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('screen_size')->nullable();  
+            $table->unsignedBigInteger('screen_size')->nullable();  
         });
     }
     
