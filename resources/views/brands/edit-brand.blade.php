@@ -1,5 +1,5 @@
 <div id="editBrandModal" class="modal">
-    <form method="PUT" action="/api/dashboard/brands/:id" id="editBrandForm">
+    <form method="POST" action="/api/dashboard/brands/:id" id="editBrandForm">
         @csrf
         @method('PUT') 
         <div class="modal-content w-25">

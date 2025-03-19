@@ -7,6 +7,8 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\NotificationController;
+
 
 
 /*
@@ -60,7 +62,6 @@ Route::get('cart', [CartController::class, 'showCart']);
 Route::delete('cart/remove/{productId}', [CartController::class, 'remove']);
 Route::put('cart/update/{productId}', [CartController::class, 'update']);
 Route::get('dashboard/orders', [OrderController::class, 'index']);
-Route::middleware('auth:sanctum')->get('/dashboard/my-orders', [OrderController::class, 'myOrders']);
 
 
 //Route::get('/dashboard/orders/{id}', [OrderController::class, 'show']);
@@ -71,5 +72,5 @@ Route::post('/dashboard/orders/{id}/status', [OrderController::class, 'updateSta
 Route::put('dashboard/orders/{id}', [OrderController::class, 'approveOrder']);
 Route::post('dashboard/orders/{orderId}/cancel', [OrderController::class, 'cancelOrder']);
 
-
-
+Route::get('/notifications', [NotificationController::class, 'index']);
+Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead']);

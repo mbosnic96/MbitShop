@@ -30,7 +30,7 @@
 
                                 <x-slot name="content" x-show="open" @click.away="open = false">
                                     <x-dropdown-link href="{{ route('categories.show', $mainCategory->slug) }}">
-                                        Sve iz: {{ $mainCategory->name }}
+                                        Prikaži sve
                                     </x-dropdown-link>
 
                                     @foreach($categories[$mainCategory->id] ?? [] as $subcategory)
@@ -84,6 +84,56 @@
                     </button>
                 </div>
                 @endif
+
+              
+
+                <div x-data="notificationData()" x-init="fetchNotifications()" class="relative">
+    <!-- Notifications Button -->
+    <button @click="open = !open" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full relative">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <!-- Notification Count Badge (Red Circle) -->
+        <span x-show="unreadCount > 0" class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1.5 text-xs">
+            <span x-text="unreadCount"></span>
+        </span>
+    </button>
+
+    <!-- Notifications Dropdown -->
+    <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+        <!-- Dropdown Header -->
+        <div class="p-4 border-b bg-gray-50">
+            <h3 class="text-lg font-semibold text-gray-800">Notifications</h3>
+            <p class="text-sm text-gray-500" x-text="`${unreadCount} unread`"></p>
+        </div>
+
+        <!-- Notifications List -->
+        <ul :class="showAll ? 'max-h-96 overflow-y-auto' : 'max-h-60 overflow-y-auto'" class="divide-y divide-gray-100">
+            <template x-for="notification in (showAll ? notifications : notifications.slice(0, 5))">
+            <li @click="redirectToOrder(notification.data.order_number, notification.id)" class="p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200">
+    <div class="flex items-start space-x-3">
+        <!-- User Photo -->
+        <img :src="'../storage/'+notification.data.user_photo" alt="User Photo" class="h-10 w-10 rounded-full object-cover">
+        <!-- Notification Content -->
+        <div class="flex-1">
+            <p :class="notification.read_at ? 'text-gray-500' : 'text-gray-900'" class="text-sm font-medium" x-text="notification.data.message"></p>
+            <p class="text-xs text-gray-500 mt-1" x-text="formatDate(notification.created_at)"></p>
+        </div>
+        <!-- Unread Indicator -->
+        <div x-show="!notification.read_at" class="w-2 h-2 bg-blue-500 rounded-full"></div>
+    </div>
+</li>
+            </template>
+        </ul>
+
+        <!-- Dropdown Footer -->
+        <div class="p-4 border-t bg-gray-50">
+            <button @click="showAll = !showAll" class="text-sm text-blue-600 hover:text-blue-500">
+                <span x-text="showAll ? 'Show Less' : 'View All'"></span>
+            </button>
+        </div>
+    </div>
+</div>
 
                 <!-- Account Management -->
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -230,4 +280,61 @@
         }
         };
     }
+    function notificationData() {
+    return {
+        notifications: [], // Array to store notifications
+        unreadCount: 0, // Count of unread notifications
+        open: false, // Controls the visibility of the notifications dropdown
+        showAll: false, // Controls whether to show all notifications or just the first 5
+
+        // Fetch notifications from the backend
+        fetchNotifications() {
+            fetch('/api/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data); // Log the API response
+                    this.notifications = data.unread.concat(data.read);
+                    this.unreadCount = data.unread_count;
+                })
+                .catch(error => {
+                    console.error('Error fetching notifications:', error);
+                });
+        },
+
+        // Redirect to the orders page with the order ID
+        redirectToOrder(order_number, notificationId) {
+            // Mark the notification as read
+            this.markAsRead(notificationId, () => {
+                // Redirect to the orders page after marking as read
+                window.location.href = `http://mbit.ba/dashboard/orders?search=${order_number}`;
+            });
+        },
+
+        // Mark a notification as read
+        markAsRead(id, callback) {
+            fetch(`/api/notifications/read/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add CSRF token
+                },
+            })
+            .then(() => {
+                // Refresh the notifications list
+                this.fetchNotifications();
+                // Execute the callback (e.g., redirect)
+                if (callback) callback();
+            })
+            .catch(error => {
+                console.error('Error marking notification as read:', error);
+            });
+        },
+
+        // Format date for display
+        formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString(); // Customize date format as needed
+        }
+    };
+}
 </script>

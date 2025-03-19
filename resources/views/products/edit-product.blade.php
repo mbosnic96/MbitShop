@@ -1,6 +1,7 @@
 <!-- Edit Product Modal -->
 <div id="products-edit" class="modal">
-    <form method="PUT" action="/api/dashboard/products/:id" enctype="multipart/form-data" id="editProductForm">
+    <form method="POST" action="/api/dashboard/products/:id" enctype="multipart/form-data" id="editProductForm">
+    @method('PUT')
         @csrf
         <div class="modal-content w-50">
             <span class="close close-modal" data-modal="products-edit">&times;</span>

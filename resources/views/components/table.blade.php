@@ -112,7 +112,7 @@
 
 
 <script>
-    function tableData(apiUrl, columns, modalId, formId) {
+function tableData(apiUrl, columns, modalId, formId) {
     return {
         columns: columns,
         data: [],  // Data for the current page
@@ -127,6 +127,14 @@
         userRole: null,  // For role-based checks
 
         init() {
+            // Read the search query parameter from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchParam = urlParams.get('search');
+            if (searchParam) {
+                this.searchTerm = searchParam; // Set the search term
+                this.applyFilter(); // Apply the filter automatically
+            }
+
             this.fetchData(this.page);  // Fetch initial data
             this.userRole = document.querySelector('meta[name="user-role"]').getAttribute('content');  // Get user role from meta tag
             document.querySelector(`#${this.formId}`)?.addEventListener('submit', (e) => {
@@ -165,6 +173,9 @@
             this.page = 1;  // Reset to the first page when applying a new filter
             this.fetchData(this.page);
         },
+
+     
+
 
             openModal(item) {
                 axios.get(`${apiUrl}/${item.id}`)
@@ -274,19 +285,19 @@
                         Swal.fire('Otkazano!', response.data.message, 'success');
                         this.fetchData(this.page); // Refresh the data
                     } else {
-                        Swal.fire('Greška!', 'Nešto nije u redu. Pokušajte ponovo.', 'error');
+                        Swal.fire({
+                            title: 'Greška!',
+                            text: response.data.message,
+                            icon: 'error'
+                        });
                     }
                 })
                 .catch(error => {
                     let errorMessage = 'Došlo je do greške. Pokušajte ponovo.';
 
-                    if (error.response) {
-                        if (error.response.status === 403) {
-                            errorMessage = error.response.data.message || 'Nemate dozvolu za ovu radnju.';
-                        } else if (error.response.data.message) {
-                            errorMessage = error.response.data.message;
-                        }
-                    }
+if (error.response && error.response.data) {
+    errorMessage = error.response.data.error || error.response.data.message || errorMessage;
+}
 
                     Swal.fire('Greška!', errorMessage, 'error');
                 });

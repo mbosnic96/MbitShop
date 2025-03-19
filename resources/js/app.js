@@ -7,19 +7,6 @@ window.Swal = Swal;  // Make SweetAlert2 globally available
 import Alpine from 'alpinejs';
 import './toastr'; // This will import toastr.js and make it available globally
 
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
-
-window.Pusher = Pusher;
-
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: import.meta.env.VITE_PUSHER_APP_KEY,   // Use VITE_ variables with import.meta.env
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-    forceTLS: true
-});
-
-
 
 document.addEventListener('DOMContentLoaded', function () {
     
@@ -43,13 +30,16 @@ document.addEventListener('DOMContentLoaded', function () {
             Object.keys(data).forEach(key => {
                 let inputField = modal.querySelector(`[name="${key}"]`);
                 if (inputField) {
-                    inputField.value = data[key] ?? '';  
-                }
-              
-
-                let spanField = modal.querySelector(`#${key.replace('.', '_')}`); // Fix for nested keys
-                if (spanField) {
-                    spanField.textContent = data[key] ?? '';
+                    // Check if it's a select dropdown
+                    if (inputField.tagName === 'SELECT') {
+                        let option = inputField.querySelector(`option[value="${data[key]}"]`);
+                        if (option) {
+                            option.selected = true;
+                        }
+                    } else {
+                        // For other input fields
+                        inputField.value = data[key] ?? '';
+                    }
                 }
             });
     
@@ -60,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (brandSelect) {
                         brandSelect.value = data.brand.id; // Dynamically set the brand ID
                     }
+                  
                 }
     
                 if (data.category) {
@@ -222,23 +213,3 @@ document.addEventListener('DOMContentLoaded', function () {
    
 });
 
-
-window.Echo.channel('orders')
-    .listen('OrderCanceled', (event) => {
-        Swal.fire({
-            title: 'Narudžba otkazana!',
-            text: `Korisnik ${event.user_name} je otkazao narudžbu #${event.order_id}`,
-            icon: 'warning'
-        });
-        console.log(event.message);
-    });
-
-
-    window.Echo.channel('orders')
-    .listen('OrderPlaced', (event) => {
-        Swal.fire({
-            title: 'Nova narudžba!',
-            text: `Korisnik ${event.user_name} je napravio narudžbu #${event.order_id} sa ukupnim iznosom od ${event.total_price} HRK.`,
-            icon: 'success'
-        });
-    });

@@ -6,7 +6,7 @@
             <div class="flex flex-col py-6">
 
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="container mx-auto p-6" x-data="tableData('{{ auth()->user()->role === 'admin' ? '/api/dashboard/orders' : '/api/dashboard/my-orders' }}', ['id', 'order_number', 'total_price', 'status', 'shipping_address'])">
+                    <div class="container mx-auto p-6" x-data="tableData('/api/dashboard/orders', ['id', 'order_number', 'total_price', 'status', 'shipping_address'])">
                         <x-table></x-table>
                     </div>
                 </div>

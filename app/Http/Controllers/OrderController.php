@@ -3,27 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Notifications\OrderCancelledNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
 use App\Models\User;
-use App\Notifications\NewOrderNotification;
+use App\Notifications\OrderNotification;
 use App\Mail\OrderApprovedMail;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Events\OrderCanceled;
-use App\Events\OrderPlaced;
 
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
     
-      
         // Get the status filter from the request (e.g., ?status=na%20čekanju)
         $statusFilters = $request->query('status', []);
     
@@ -35,7 +32,7 @@ class OrderController extends Controller
         // Get the search term from the request (e.g., ?search=123)
         $searchTerm = $request->query('search', '');
     
-        // Start building the query for all orders
+        // Start building the query
         $ordersQuery = Order::with('items.product');
     
         // Apply status filter if any status is provided
@@ -48,15 +45,20 @@ class OrderController extends Controller
             $ordersQuery->where('order_number', 'like', '%' . $searchTerm . '%');
         }
     
+        // If the user is not an admin, filter orders to only show their own
+        if ($user->role !== 'admin') {
+            $ordersQuery->where('user_id', $user->id);
+        }
+    
         // Sort orders by status, prioritizing 'na čekanju'
         $ordersQuery->orderByRaw("
-        CASE
-            WHEN status = 'na čekanju' THEN 1
-            WHEN status = 'u obradi' THEN 2
-        WHEN status = 'otkazano' THEN 3
-        ELSE 4
-        END
-    ");
+            CASE
+                WHEN status = 'na čekanju' THEN 1
+                WHEN status = 'u obradi' THEN 2
+                WHEN status = 'otkazano' THEN 3
+                ELSE 4
+            END
+        ");
     
         // Paginate the results
         $orders = $ordersQuery->paginate(10);
@@ -68,6 +70,7 @@ class OrderController extends Controller
             'total' => $orders->total(),
         ]);
     }
+    
     
     public function dasboardIndex()
     {
@@ -103,7 +106,7 @@ class OrderController extends Controller
                 'subtotal' => $subtotal, // Add subtotal to the order
                 'shipping' => $shipping, // Add shipping cost to the order
                 'total_price' => $totalPrice, // Add total price to the order
-                'shipping_address' => "{$user->address}, {$user->city}, {$user->country}",
+                'shipping_address' => "{$user->name},{$user->phone_number}, {$user->address}, {$user->city}, {$user->country}",
             ]);
 
 
@@ -120,11 +123,15 @@ class OrderController extends Controller
 
             DB::commit();
 
-            broadcast(new OrderPlaced($order));
+            /**
+             * bug here
+             */
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new OrderNotification($order));
+            }
 
-            // Notify admin (via event, email, or dashboard alert)
-            Notification::route('mail', config('mail.from.address'))->notify(new NewOrderNotification($order));
-
+           
             return response()->json(['success' => true, 'message' => 'Order placed successfully!', 'order' => $order]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -133,60 +140,7 @@ class OrderController extends Controller
     }
 
 
-    public function myOrders(Request $request)
-{
-    $user = auth()->user();
-
-    if (!$user) {
-        return response()->json(['error' => 'User not authenticated'], 401);
-    }
-
-    // Get the status filter from the request (e.g., ?status=na%20čekanju)
-    $statusFilters = $request->query('status', []);
-
-    // If status is a string (single value), convert it to an array
-    if (!is_array($statusFilters)) {
-        $statusFilters = [$statusFilters];
-    }
-
-    // Get the search term from the request (e.g., ?search=123)
-    $searchTerm = $request->query('search', '');
-
-    // Start building the query
-    $ordersQuery = Order::where('user_id', $user->id)
-        ->with('items.product');
-
-    // Apply status filter if any status is provided
-    if (!empty($statusFilters)) {
-        $ordersQuery->whereIn('status', $statusFilters);
-    }
-
-    // Apply search filter if a search term is provided
-    if (!empty($searchTerm)) {
-        $ordersQuery->where('order_number', 'like', '%' . $searchTerm . '%');
-    }
-
-    // Sort orders by status, prioritizing 'na čekanju'
-    $ordersQuery->orderByRaw("
-    CASE
-        WHEN status = 'na čekanju' THEN 1
-        WHEN status = 'u obradi' THEN 2
-        WHEN status = 'otkazano' THEN 3
-        ELSE 4
-    END
-");
-
-    // Paginate the results
-    $orders = $ordersQuery->paginate(10);
-
-    return response()->json([
-        'data' => $orders->items(),
-        'last_page' => $orders->lastPage(),
-        'current_page' => $orders->currentPage(),
-        'total' => $orders->total(),
-    ]);
-}
-
+  
     public function updateStatus(Request $request, $orderId)
 {
     $order = Order::findOrFail($orderId);
@@ -263,29 +217,55 @@ public function approveOrder($orderId)
 
     public function cancelOrder($orderId)
     {
-       $user = auth()->user();
+        $user = auth()->user();
         $userName = $user->name;
         $order = Order::with(['user', 'items.product'])->findOrFail($orderId);
-     
+    
+        // Check if the order is already cancelled
+        if ($order->status === 'otkazano') {
+            return response()->json(['error' => 'Narudžba je već otkazana.'], 400);
+        }
+    
+        // Handle admin cancellation
         if ($user->role === 'admin') {
             $order->status = 'otkazano';
             $order->save();
+    
+            // Notify admin
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new OrderCancelledNotification($order));
+            }
+    
+            // Notify customer
+            $order->user->notify(new OrderCancelledNotification($order));
+    
             return response()->json(['message' => 'Narudžba je otkazana.']);
         }
     
-        if ($user->role === 'customer' && $order->status !== 'poslano') {
+        // Handle customer cancellation
+        if ($user->role === 'customer') {
+            if ($order->status === 'poslano') {
+                return response()->json(['error' => 'Ne možete otkazati poslanu narudžbu.'], 400);
+            }
+    
             $order->status = 'otkazano';
             $order->save();
-        }
-        \Log::info('Broadcasting OrderCanceled Event', ['order_id' => $order->id]);
-            // Emitovanje eventa kako bi admin dobio notifikaciju
-            broadcast(new OrderCanceled('Hello from Laravel!'));
+    
+            // Notify customer
+            $order->user->notify(new OrderCancelledNotification($order));
+    
+            // Notify admin
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new OrderCancelledNotification($order));
+            }
     
             return response()->json(['message' => 'Narudžba je otkazana.']);
-     //   }
+        }
     
-   //     return response()->json(['error' => 'Nemate dozvolu za otkazivanje ove narudžbe.'], 403);
+        return response()->json(['error' => 'Nemate dozvolu za otkazivanje ove narudžbe.'], 403);
     }
-
+    
 
 }
