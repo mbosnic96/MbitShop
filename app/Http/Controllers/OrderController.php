@@ -191,7 +191,7 @@ class OrderController extends Controller
   
     public function inProgress(Order $order)
 {
-    return response()->json(['success' => true, 'message' => 'Status narudžbe je ažuriran.']);
+    return response()->json(['success' => true, 'message' => 'Narudžba je u obradi.']);
 }
 
 
