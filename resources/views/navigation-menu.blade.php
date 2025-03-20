@@ -113,7 +113,10 @@
             <li @click="redirectToOrder(notification.data.order_number, notification.id)" class="p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200">
     <div class="flex items-start space-x-3">
         <!-- User Photo -->
-        <img :src="'../storage/'+notification.data.user_photo" alt="User Photo" class="h-10 w-10 rounded-full object-cover">
+        <img :src="notification.data.user_photo ? '../storage/' + notification.data.user_photo : '../storage/MbitShopLogo.png'"
+     alt="User Photo"
+     class="h-10 w-10 rounded-full object-cover">
+
         <!-- Notification Content -->
         <div class="flex-1">
             <p :class="notification.read_at ? 'text-gray-500' : 'text-gray-900'" class="text-sm font-medium" x-text="notification.data.message"></p>

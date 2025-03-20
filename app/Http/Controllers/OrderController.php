@@ -139,22 +139,64 @@ class OrderController extends Controller
         }
     }
 
+    public function checkStatus(Request $request, $orderId, $status)
+    {
+        $user = auth()->user();
+        // Fetch the order
+        $order = Order::findOrFail($orderId);
+
+        // Validate the requested status change
+        switch ($status) {
+            case 'u obradi':
+                if (in_array($order->status, ['otkazano', 'poslano'])) {
+                    return response()->json(['error' => 'Narudžba otkazana ili poslana, nemoguće vratiti status.'], 400);
+                }
+                break;
+
+            case 'poslano':
+                if (in_array($order->status, ['otkazano', 'na čekanju', 'u obradi'])) {
+                    return response()->json(['error' => 'Ne možete označiti kao poslano. Provjerite status narudžbe'], 400);
+                }
+                break;
+
+            case 'otkazano':
+                // Prevent canceling an order if its status is already 'poslano'
+                if ($user->role === 'customer' && $order->status === 'poslano' || $order->status === 'otkazano') {
+                    return response()->json(['error' => 'Ne možete otkazati narudžbu.'], 400);
+                }
+    
+                break;
+
+            default:
+                return response()->json(['error' => 'Nevažeći status'], 400);
+        }
+
+        // If all checks pass, update the status
+        $order->status = $status;
+        $order->save();
+
+        // Call the appropriate function based on status
+        switch ($status) {
+            case 'u obradi':
+                return $this->inProgress($order);
+            case 'poslano':
+                return $this->approveOrder($order);
+            case 'otkazano':
+                return $this->cancelOrder($order, $user);
+            default:
+                return response()->json(['error' => 'Invalid status'], 400);
+        }
+    }
 
   
-    public function updateStatus(Request $request, $orderId)
+    public function inProgress(Order $order)
 {
-    $order = Order::findOrFail($orderId);
-    $order->status = $request->status;
-    $order->save();
-
     return response()->json(['success' => true, 'message' => 'Status narudžbe je ažuriran.']);
 }
 
 
-public function approveOrder($orderId)
+public function approveOrder(Order $order)
 {
-    // Fetch the order with relationships
-    $order = Order::with(['user', 'items.product'])->findOrFail($orderId);
 
     // Calculate subtotal, shipping, and total_price (do not save to database)
     $subtotal = $order->items->sum(function ($item) {
@@ -163,10 +205,6 @@ public function approveOrder($orderId)
 
     $shipping = $subtotal > 99 ? 0 : 12.00;
     $totalPrice = $subtotal + $shipping;
-
-    // Update the order status (only save the status)
-    $order->status = 'poslano';
-    $order->save();
 
     // Pass the calculated values to the PDF view
     $pdf = PDF::loadView('orders.pdf', [
@@ -215,42 +253,15 @@ public function approveOrder($orderId)
         return $pdf->download("order_{$orderId}.pdf");
     }
 
-    public function cancelOrder($orderId)
+    public function cancelOrder(Order $order, $user)
     {
-        $user = auth()->user();
-        $userName = $user->name;
-        $order = Order::with(['user', 'items.product'])->findOrFail($orderId);
-    
-        // Check if the order is already cancelled
-        if ($order->status === 'otkazano') {
-            return response()->json(['error' => 'Narudžba je već otkazana.'], 400);
-        }
-    
+        
         // Handle admin cancellation
-        if ($user->role === 'admin') {
-            $order->status = 'otkazano';
-            $order->save();
-    
-            // Notify admin
-            $admins = User::where('role', 'admin')->get();
-            foreach ($admins as $admin) {
-                $admin->notify(new OrderCancelledNotification($order));
-            }
-    
-            // Notify customer
-            $order->user->notify(new OrderCancelledNotification($order));
-    
-            return response()->json(['message' => 'Narudžba je otkazana.']);
+        if ($user->role !== 'admin' && $order->user_id !== $user->id) {
+            return response()->json(['error' => 'Nemate dozvolu za otkazivanje ove narudžbe.'], 403);
         }
-    
-        // Handle customer cancellation
-        if ($user->role === 'customer') {
-            if ($order->status === 'poslano') {
-                return response()->json(['error' => 'Ne možete otkazati poslanu narudžbu.'], 400);
-            }
-    
-            $order->status = 'otkazano';
-            $order->save();
+        $order->status = 'otkazano';
+        $order->save();
     
             // Notify customer
             $order->user->notify(new OrderCancelledNotification($order));
@@ -262,10 +273,8 @@ public function approveOrder($orderId)
             }
     
             return response()->json(['message' => 'Narudžba je otkazana.']);
-        }
     
-        return response()->json(['error' => 'Nemate dozvolu za otkazivanje ove narudžbe.'], 403);
-    }
+}
     
 
 }

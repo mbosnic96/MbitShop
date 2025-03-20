@@ -67,10 +67,7 @@ Route::get('dashboard/orders', [OrderController::class, 'index']);
 //Route::get('/dashboard/orders/{id}', [OrderController::class, 'show']);
 Route::post('/checkout', [OrderController::class, 'checkout']);
 Route::get('dashboard/orders/{orderId}/pdf', [OrderController::class, 'downloadPDF']);
-Route::post('/dashboard/orders/{id}/status', [OrderController::class, 'updateStatus']);
-
-Route::put('dashboard/orders/{id}', [OrderController::class, 'approveOrder']);
-Route::post('dashboard/orders/{orderId}/cancel', [OrderController::class, 'cancelOrder']);
+Route::put('/dashboard/orders/{id}/{status}', [OrderController::class, 'checkStatus']);
 
 Route::get('/notifications', [NotificationController::class, 'index']);
 Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead']);

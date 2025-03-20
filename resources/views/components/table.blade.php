@@ -210,7 +210,7 @@ function tableData(apiUrl, columns, modalId, formId) {
             },
 
             downloadPDF(orderId) {
-                axios.get(`/api/dashboard/orders/${orderId}/pdf`, { responseType: 'blob' })
+                axios.get(`${apiUrl}/${orderId}/pdf`, { responseType: 'blob' })
                     .then(response => {
                         const blob = new Blob([response.data], { type: 'application/pdf' });
                         const objectURL = window.URL.createObjectURL(blob);
@@ -234,38 +234,67 @@ function tableData(apiUrl, columns, modalId, formId) {
                     cancelButtonText: 'Ne'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        axios.post(`${apiUrl}/${orderId}/status`, { status: 'u obradi' })
-                            .then(() => {
-                                this.fetchData(this.page);  // Re-fetch data after status change
-                                Swal.fire('Uspješno!', 'Narudžba je prebačena u obradu.', 'success');
-                            })
-                            .catch(() => {
-                                Swal.fire('Greška!', 'Došlo je do greške. Pokušajte ponovo.', 'error');
-                            });
-                    }
-                });
-            },
-            approveOrder(orderId) {
-            Swal.fire({
-                title: 'Jeste li sigurni?',
-                text: "Ovim označavate narudžbu poslanom i obavještavate korisnika da je narudžba poslana!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Da',
-                cancelButtonText: 'Ne'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.put(`${apiUrl}/${orderId}`, { status: 'poslano' })
-                        .then(() => {
-                            this.fetchData(this.page);  // Re-fetch data after status change
-                            Swal.fire('Uspješno!', 'Narudžba je označena kao poslana.', 'success');
-                        })
-                        .catch(() => {
-                            Swal.fire('Greška!', 'Došlo je do greške. Pokušajte ponovo.', 'error');
+            axios.put(`${apiUrl}/${orderId}/u%20obradi`, { status: 'u obradi' })
+                .then(response => {  // Fixed the incorrect response handler
+                    if (response.status === 200 && response.data.message) {
+                        Swal.fire('Odobreno!', response.data.message, 'success');
+                        this.fetchData(this.page); // Refresh the data
+                    } else {
+                        Swal.fire({
+                            title: 'Greška!',
+                            text: response.data.message,
+                            icon: 'error'
                         });
-                }
-            });
-        },
+                    }
+                })
+                .catch(error => {
+                    let errorMessage = 'Došlo je do greške. Pokušajte ponovo.';
+                    
+                    if (error.response && error.response.data) {
+                        errorMessage = error.response.data.error || error.response.data.message || errorMessage;
+                    }
+
+                    Swal.fire('Greška!', errorMessage, 'error');
+                });
+        }
+    });
+},
+            approveOrder(orderId) {
+    Swal.fire({
+        title: 'Jeste li sigurni?',
+        text: "Ovim označavate narudžbu poslanom i obavještavate korisnika da je narudžba poslana!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Da',
+        cancelButtonText: 'Ne'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            axios.put(`${apiUrl}/${orderId}/poslano`, { status: 'poslano' })
+                .then(response => {  // Fixed the incorrect response handler
+                    if (response.status === 200 && response.data.message) {
+                        Swal.fire('Odobreno!', response.data.message, 'success');
+                        this.fetchData(this.page); // Refresh the data
+                    } else {
+                        Swal.fire({
+                            title: 'Greška!',
+                            text: response.data.message,
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(error => {
+                    let errorMessage = 'Došlo je do greške. Pokušajte ponovo.';
+                    
+                    if (error.response && error.response.data) {
+                        errorMessage = error.response.data.error || error.response.data.message || errorMessage;
+                    }
+
+                    Swal.fire('Greška!', errorMessage, 'error');
+                });
+        }
+    });
+},
+
         canceledOrder(orderId) {
     Swal.fire({
         title: 'Jeste li sigurni?',
@@ -279,7 +308,7 @@ function tableData(apiUrl, columns, modalId, formId) {
     }).then((result) => {
         if (result.isConfirmed) {
             // Proceed with the cancellation (make the API request)
-            axios.post(`/api/dashboard/orders/${orderId}/cancel`)
+            axios.put(`${apiUrl}/${orderId}/otkazano`, { status: 'otkazano' })
                 .then(response => {
                     if (response.status === 200 && response.data.message) {
                         Swal.fire('Otkazano!', response.data.message, 'success');
