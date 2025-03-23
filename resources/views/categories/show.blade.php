@@ -179,18 +179,30 @@
                                 <div>
                                     <h2 class="text-gray-800" x-text="product.name"></h2>
                                     <p class="text-gray-600" x-text="product.brand?.name"></p>
-                                    <p class="text-gray-600" x-text="product.model"></p>
                                     <div class="flex flex-col mb-0">
     <div class="flex justify-between items-center">
-        <p class="text-gray-800 font-semibold" x-text="product.price + ' KM'"></p>
+        <!-- Old Price (crossed out) only if discount > 0 -->
+        <template x-if="product.discount > 0">
+            <p class="text-gray-600 line-through" x-text="product.price + ' KM'"></p>
+        </template>
+        
+          <!-- New Price (highlighted) with proper decimal formatting -->
+          <p 
+            :class="product.discount > 0 ? 'text-red-500 font-semibold' : 'text-gray-700 font-semibold'" 
+            x-text="product.discount > 0 
+                ? (product.price - (product.price * product.discount / 100)).toFixed(2) + ' KM' 
+                : product.price + ' KM'">
+        </p>
+        
         <button @click="addToCart(product.id)" 
-    class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 focus:outline-none">
-    <i class="fa fa-shopping-cart mr-2"></i>
-    Kupi odmah!
-</button>
-
+            class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 focus:outline-none">
+            <i class="fa fa-shopping-cart mr-2"></i>
+            Kupi
+        </button>
     </div>
 </div>
+
+
 
                                 </div>
                             </div>

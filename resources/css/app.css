@@ -172,3 +172,7 @@
 .parent-category.active .toggle-icon {
     transform: rotate(180deg);
 }
+
+.full-img img{
+    height: 82%;
+}

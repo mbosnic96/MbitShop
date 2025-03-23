@@ -83,7 +83,7 @@
                     <div class="mt-6">
                         <button 
                             @click="checkout"
-                            :disabled="cartCount <= 0"
+                            :disabled="cartCount <= 0 || !isUserInfoValid"
                             :class="{ 'opacity-50 cursor-not-allowed': cartCount <= 0, 'hover:bg-indigo-700': cartCount > 0 }"
                             class="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-md transition duration-300"
                         >
@@ -142,9 +142,15 @@
                 },
 
                 async updateQuantity(productId) {
-    // Access the product directly from the cart object
     const product = this.cart[productId];
     if (!product) return;
+
+    // Klijentska validacija
+    if (product.quantity > product.stock_quantity) {
+        product.quantity = product.stock_quantity;
+        toastr.warning(`Na stanju je samo ${product.stock_quantity} komada.`);
+        return;
+    }
 
     const response = await fetch(`/api/cart/update/${productId}`, {
         method: 'PUT',
@@ -155,14 +161,21 @@
         }
     });
 
+    const data = await response.json(); 
+
     if (response.ok) {
-        const data = await response.json();
         this.cart = data.cart;
         this.cartCount = Object.values(this.cart).reduce((acc, item) => acc + item.quantity, 0);
     } else {
-        toastr.error('Greška pri ažuriranju količine.');
+        if (data.message && data.available_stock !== undefined) {
+            product.quantity = data.available_stock; 
+            toastr.warning(`${data.message} Dostupno: ${data.available_stock} kom.`);
+        } else {
+            toastr.error('Greška pri ažuriranju količine.');
+        }
     }
 },
+
 
 async removeFromCart(productId) {
     const result = await Swal.fire({
@@ -207,6 +220,9 @@ async removeFromCart(productId) {
             });
         }
     }
+},
+get isUserInfoValid() {
+    return this.user.name && this.user.country && this.user.city && this.user.address && this.user.phone_number;
 },
 
                 async checkout() {

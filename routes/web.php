@@ -20,10 +20,7 @@ use App\Http\Controllers\CartController;
 */
 
 // Landing - Visible to all
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
-
+Route::get('/', [ProductController::class, 'home'])->name('home');
 // Category route (public)
 Route::get('/categories/{slug}', function ($slug) {
     return view('categories.show', ['slug' => $slug]);
@@ -65,3 +62,4 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('dashboard.orders');
 });
+

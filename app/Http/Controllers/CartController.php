@@ -21,6 +21,7 @@ class CartController extends Controller
         }
       
        
+    $price = $product->price_with_discount;
         // Učitavanje korpe iz sesije
         $cart = session()->get('cart', []);
         
@@ -31,7 +32,7 @@ class CartController extends Controller
             // Dodaj novi proizvod u korpu
             $cart[$productId] = [
                 'name' => $product->name,
-                'price' => $product->price,
+                'price' => $price,
                 'quantity' => 1,
                 'image' => !empty(json_decode($product->image)) ? asset('storage/' . json_decode($product->image)[0]) : asset('storage/MbitShopLogo.png'),
                 'slug' => $product->slug,

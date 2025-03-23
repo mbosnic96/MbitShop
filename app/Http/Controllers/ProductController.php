@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -22,6 +23,32 @@ class ProductController extends Controller
        return Product::with(['brand:id,name', 'category:id,name'])->paginate(10);
     }
 
+
+    public function getPromoProduct()
+    {
+        $product = Product::where('promo', true)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        return response()->json($product);
+    }
+
+    public function latestProducts()
+    {
+        $product = Product::orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
+
+    return response()->json($product);
+    
+    }
+
+    public function home()
+    {    
+        return view('components.welcome');
+    }
+    
       /**
      * Web view
      */
@@ -42,12 +69,18 @@ class ProductController extends Controller
      * Display products catalog by category
      */
     
+    
     public function show(Request $request, $slug)
     {
         try {
             $category = Category::where('slug', $slug)->with(['children'])->firstOrFail();
             $filterOptions = $this->initializeFilterOptions($category);
             $products = $this->getFilteredProducts($category, $request);
+
+            $products->each(function($product) {
+                // Dodajte cenu sa popustom u proizvod
+                $product->price_with_discount = $product->price_with_discount; // Ovo je iz modela
+            });
     
             return response()->json([
                 'category' => $category,
@@ -139,6 +172,30 @@ class ProductController extends Controller
     }
     
 
+    public function mostSoldProducts()
+{
+    $products = OrderItem::select('order_items.product_id', \DB::raw('SUM(order_items.quantity) as total_sold'))
+        ->join('products', 'products.id', '=', 'order_items.product_id') 
+        ->whereNotNull('products.stock_quantity')    ->whereNotNull('products.updated_at') // Ensure updated_at is not null
+        ->where('products.updated_at', '>=', \Carbon\Carbon::now()->subMonth())
+        ->groupBy('order_items.product_id')
+        ->orderByDesc('total_sold')
+        ->with('product') 
+        ->paginate(10);
+
+    return response()->json($products);
+}
+
+    
+
+public function onDiscount()
+{
+    $products = Product::where('discount', '>', 0)
+                                ->orderByDesc('discount') 
+                                ->paginate(10);
+
+    return response()->json($products);
+}
 
 
     /**

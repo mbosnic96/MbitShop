@@ -3,8 +3,13 @@ import './bootstrap';
 import Swal from 'sweetalert2';
 
 window.Swal = Swal;  // Make SweetAlert2 globally available
+import '@splidejs/splide/dist/css/splide.min.css'; // Core CSS
 
-import Alpine from 'alpinejs';
+import Splide from '@splidejs/splide';
+window.Splide = Splide; // <-- OVO je bitno
+
+
+import './splide-jumbotron';
 import './toastr'; // This will import toastr.js and make it available globally
 
 
@@ -212,4 +217,3 @@ document.addEventListener('DOMContentLoaded', function () {
     
    
 });
-

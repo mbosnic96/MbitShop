@@ -39,6 +39,12 @@ Route::put('/dashboard/products/{id}', [ProductController::class, 'update']);
 Route::get('/dashboard/products/{id}', [ProductController::class, 'modalData']);
 Route::delete('/dashboard/products/{id}', [ProductController::class, 'destroy']);
 Route::get('/products/filter/{slug}', [ProductController::class, 'show']);
+Route::get('/products/top-selling-products', [ProductController::class, 'mostSoldProducts']);
+Route::get('/products/on-discount', [ProductController::class, 'onDiscount']);
+Route::get('/products/get-latest-products', [ProductController::class, 'latestProducts']);
+
+Route::get('/products/promo', [ProductController::class, 'getPromoProduct']);
+
 
 //brand apis
 Route::middleware('auth:sanctum')->get('/dashboard/brands', [BrandController::class, 'index']);
@@ -50,6 +56,7 @@ Route::delete('/dashboard/brands/{id}', [BrandController::class, 'destroy']);
 
 //category apis
 Route::get('/dashboard/categories', [CategoryController::class, 'index']);
+Route::get('/categories', [CategoryController::class, 'getHomepageIndex']);
 Route::get('/dashboard/categories/{id}', [CategoryController::class, 'show']);
 Route::post('/dashboard/categories', [CategoryController::class, 'store']);
 Route::put('/dashboard/categories/{id}', [CategoryController::class, 'update']);

@@ -16,6 +16,7 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "@splidejs/splide": "^4.1.4",
         "alpinejs": "^3.14.8",
         "font-awesome": "^4.7.0",
         "laravel-echo": "^2.0.2",

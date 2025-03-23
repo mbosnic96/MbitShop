@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Models\Product;
 use App\Notifications\OrderNotification;
 use App\Mail\OrderApprovedMail;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -117,7 +118,21 @@ class OrderController extends Controller
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                 ]);
+            
+                $product = Product::find($productId);
+            
+                if (!$product) {
+                    throw new \Exception("Proizvod sa ID {$productId} ne postoji.");
+                }
+            
+                if ($product->stock_quantity < $item['quantity']) {
+                    throw new \Exception("Nema dovoljno zaliha za proizvod: {$product->name}");
+                }
+            
+                $product->stock_quantity -= $item['quantity'];
+                $product->save();
             }
+            
 
             session()->forget('cart'); // Clear cart after checkout
 

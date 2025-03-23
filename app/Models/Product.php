@@ -37,4 +37,14 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class,'category_id');
     }
+
+    // U modelu Product
+public function getPriceWithDiscountAttribute()
+{
+    if ($this->discount) {
+        return $this->price - ($this->price * ($this->discount / 100)); // Izračunajte cenu sa popustom
+    }
+    return $this->price; // Ako nema popusta, vratite originalnu cenu
+}
+
 }

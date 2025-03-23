@@ -32,6 +32,16 @@ class CategoryController extends Controller
          return response()->json($category); // Return the brand as JSON
      }
 
+     public function getHomepageIndex(){
+        $categories = Category::with('children')->whereNull('parent_id')->get();
+
+        // Return the categories as JSON
+        return response()->json([
+            'data' => $categories,
+        ]);
+     }
+
+
     /**
      * Store a newly created resource in storage.
      */
