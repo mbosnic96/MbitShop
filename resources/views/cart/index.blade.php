@@ -1,3 +1,12 @@
+<x-app-layout>
+    
+    <div class="flex">
+        @include('dashboard.sidebar')
+        <div class="flex-1 p-6">
+        <!-- Tabs -->
+        <div class="flex flex-col py-6">
+               
+    
     <div class="min-h-screen flex flex-col" x-data="cartData">
         <div class="flex-grow p-6">
             <h2 class="text-3xl font-bold text-gray-900 mb-8">Košarica</h2>
@@ -97,6 +106,14 @@
             </div>
         </div>
     </div>
+
+     
+    </div>
+            </div> <!-- Closing max-w-7xl -->
+        </div> <!-- Closing py-12 --></div>
+    </div> <!-- Closing tab-pane -->
+    </x-app-layout>
+    
 
     <script>
         document.addEventListener('alpine:init', () => {

@@ -9,12 +9,11 @@ import Splide from '@splidejs/splide';
 window.Splide = Splide; // <-- OVO je bitno
 
 
-import './splide-jumbotron';
 import './toastr'; // This will import toastr.js and make it available globally
-
+import Alpine from 'alpinejs';
 
 document.addEventListener('DOMContentLoaded', function () {
-    
+
     // Listen for button clicks with the class 'open-modal'
     document.querySelectorAll('.open-modal').forEach(button => {
         button.addEventListener('click', function () {

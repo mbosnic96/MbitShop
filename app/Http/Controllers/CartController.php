@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
+    public function dasboardIndex()
+    {
+        return view('cart.index');
+    }
     public function addToCart(Request $request)
     {
         $productId = $request->input('product_id'); 

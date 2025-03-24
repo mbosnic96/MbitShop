@@ -291,6 +291,54 @@ public function approveOrder(Order $order)
             return response()->json(['message' => 'Narudžba je otkazana.']);
     
 }
+
+public function getOrderStats()
+{
+    // Current month orders and revenue
+    $currentMonthOrders = Order::whereYear('created_at', now()->year)
+        ->whereMonth('created_at', now()->month)
+        ->get();
+    
+    $currentMonthCount = $currentMonthOrders->count();
+    $currentMonthRevenue = $currentMonthOrders->sum('total_price');
+
+    // Previous month orders and revenue
+    $previousMonthOrders = Order::whereYear('created_at', now()->subMonth()->year)
+        ->whereMonth('created_at', now()->subMonth()->month)
+        ->get();
+        
+    $previousMonthCount = $previousMonthOrders->count();
+    $previousMonthRevenue = $previousMonthOrders->sum('total_price');
+
+    // Calculate percentage changes
+    $countPercentageChange = $this->calculatePercentageChange($previousMonthCount, $currentMonthCount);
+    $revenuePercentageChange = $this->calculatePercentageChange($previousMonthRevenue, $currentMonthRevenue);
+
+    return response()->json([
+        'current_month' => [
+            'count' => $currentMonthCount,
+            'revenue' => $currentMonthRevenue
+        ],
+        'previous_month' => [
+            'count' => $previousMonthCount,
+            'revenue' => $previousMonthRevenue
+        ],
+        'percentage_changes' => [
+            'count' => $countPercentageChange,
+            'revenue' => $revenuePercentageChange
+        ]
+    ]);
+}
+
+private function calculatePercentageChange($previous, $current)
+{
+    if ($previous > 0) {
+        return round((($current - $previous) / $previous) * 100, 2);
+    } elseif ($current > 0) {
+        return 100;
+    }
+    return 0;
+}
     
 
 }

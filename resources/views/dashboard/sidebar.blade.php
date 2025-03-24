@@ -14,7 +14,12 @@
                 </x-responsive-nav-link>
             </li>
             <li>
-                <x-responsive-nav-link href="{{ route('dashboard.orders') }}" :active="request()->routeIs('dashboard.orders')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
+                <x-responsive-nav-link href="{{ route('cart.index') }}" :active="request()->routeIs('cart.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
+                    Moja košarica
+                </x-responsive-nav-link>
+            </li>
+            <li>
+                <x-responsive-nav-link href="{{ route('orders.index') }}" :active="request()->routeIs('orders.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
                     Moje narudžbe
                 </x-responsive-nav-link>
             </li>

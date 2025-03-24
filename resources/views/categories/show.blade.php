@@ -193,12 +193,20 @@
                 ? (product.price - (product.price * product.discount / 100)).toFixed(2) + ' KM' 
                 : product.price + ' KM'">
         </p>
-        
-        <button @click="addToCart(product.id)" 
-            class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 focus:outline-none">
-            <i class="fa fa-shopping-cart mr-2"></i>
-            Kupi
-        </button>
+        <div class="flex mt-4">
+    <!-- Product View Button -->
+    <a :href="'/product/' + (product.slug || '')" 
+       class="flex-1 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-l-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 border-r border-gray-300">
+       Vidi
+    </a>
+    
+    <!-- Add to Cart Button -->
+    <button @click="addToCart(product.id)" 
+            class="flex-1 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-r-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"
+            x-show="product.id">
+       + <i class="fa fa-shopping-cart ml-1"></i>
+    </button>
+</div>
     </div>
 </div>
 

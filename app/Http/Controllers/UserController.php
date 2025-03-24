@@ -47,4 +47,31 @@ class UserController extends Controller
         // If not an admin, return an error message
         return redirect()->back()->with('error', 'You do not have permission to delete users.');
     }
+
+    public function getUserGrowthStats()
+{
+    // Current month new users
+    $currentMonthCount = User::whereYear('created_at', now()->year)
+        ->whereMonth('created_at', now()->month)
+        ->count();
+
+    // Previous month new users
+    $previousMonthCount = User::whereYear('created_at', now()->subMonth()->year)
+        ->whereMonth('created_at', now()->subMonth()->month)
+        ->count();
+
+    // Calculate percentage change
+    $percentageChange = 0;
+    if ($previousMonthCount > 0) {
+        $percentageChange = (($currentMonthCount - $previousMonthCount) / $previousMonthCount) * 100;
+    } elseif ($currentMonthCount > 0) {
+        $percentageChange = 100; // Infinite growth (from 0 to current)
+    }
+
+    return [
+        'current_month' => $currentMonthCount,
+        'previous_month' => $previousMonthCount,
+        'percentage_change' => round($percentageChange, 2)
+    ];
+}
 }

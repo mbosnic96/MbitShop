@@ -40,6 +40,8 @@ Route::middleware(['checkRole:admin'])->group(function () {
     // Brand Routes
     Route::get('dashboard/brands', [BrandController::class, 'dasboardIndex'])->name('brands.index');
     
+    Route::get('dashboard/cart', [CartController::class, 'dasboardIndex'])->name('cart.index');
+    
 
     // Category Routes
     Route::get('dashboard/categories', [CategoryController::class, 'dasboardIndex'])->name('categories.index');
@@ -60,6 +62,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('dashboard.orders');
+    Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('orders.index');
 });
 
+Route::get('/product/{slug}', [ProductController::class, 'view'])->name('product.view');

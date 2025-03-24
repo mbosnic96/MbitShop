@@ -7,8 +7,10 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotificationController;
 
+use App\Services\WeatherService;
 
 
 /*
@@ -37,6 +39,7 @@ Route::get('/dashboard/products', [ProductController::class, 'index']);
 Route::post('/dashboard/products', [ProductController::class, 'store']);
 Route::put('/dashboard/products/{id}', [ProductController::class, 'update']);
 Route::get('/dashboard/products/{id}', [ProductController::class, 'modalData']);
+Route::get('/product/{slug}', [ProductController::class, 'viewData']);
 Route::delete('/dashboard/products/{id}', [ProductController::class, 'destroy']);
 Route::get('/products/filter/{slug}', [ProductController::class, 'show']);
 Route::get('/products/top-selling-products', [ProductController::class, 'mostSoldProducts']);
@@ -69,6 +72,7 @@ Route::get('cart', [CartController::class, 'showCart']);
 Route::delete('cart/remove/{productId}', [CartController::class, 'remove']);
 Route::put('cart/update/{productId}', [CartController::class, 'update']);
 Route::get('dashboard/orders', [OrderController::class, 'index']);
+Route::get('/order-stats', [OrderController::class, 'getOrderStats']);
 
 
 //Route::get('/dashboard/orders/{id}', [OrderController::class, 'show']);
@@ -78,3 +82,11 @@ Route::put('/dashboard/orders/{id}/{status}', [OrderController::class, 'checkSta
 
 Route::get('/notifications', [NotificationController::class, 'index']);
 Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead']);
+
+
+
+Route::get('/dashboard/weather', function(WeatherService $weatherService) {
+    return response()->json($weatherService->getBihacWeather());
+});
+
+Route::get('/user-stats', [UserController::class, 'getUserGrowthStats']);

@@ -59,6 +59,18 @@ class ProductController extends Controller
         return view('products.index', compact( 'brands','categories'));
     }
 
+    public function view()
+    {
+        return view('products.show');
+    }
+
+    public function viewData($slug)
+    {
+        $product = Product::with(['brand:id,name', 'category:id,name'])->where('slug', $slug)->firstOrFail();
+        return response()->json($product);
+    }
+    
+
 
     public function modalData($id)
     {
@@ -78,7 +90,6 @@ class ProductController extends Controller
             $products = $this->getFilteredProducts($category, $request);
 
             $products->each(function($product) {
-                // Dodajte cenu sa popustom u proizvod
                 $product->price_with_discount = $product->price_with_discount; // Ovo je iz modela
             });
     
