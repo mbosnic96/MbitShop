@@ -53,27 +53,27 @@
                         </template>
                         <td class="px-4 py-2 border-b text-center">
                         
-                            <button @click="openModal(item)" x-show="userRole === 'admin' && apiUrl !== '/api/dashboard/orders'"
+                            <button @click="openModal(item)" title="Uredi" x-show="userRole === 'admin' && apiUrl !== '/api/dashboard/orders'"
                                 class="open-modal px-2 py-2 text-white bg-yellow-500 rounded-full w-10 h-10 hover:bg-yellow-600">
                                 <i class="fa fa-pencil"></i>
                             </button>
-                                <button @click="deleteItem(item.id)" x-show="userRole === 'admin' && apiUrl !== '/api/dashboard/orders'"
+                                <button @click="deleteItem(item.id)" title="Briši" x-show="userRole === 'admin' && apiUrl !== '/api/dashboard/orders'"
                                     class="px-2 py-2 text-white bg-red-500 rounded-full w-10 h-10 hover:bg-red-600">
                                     <i class="fa fa-trash"></i>
                                 </button>
-                            <button x-show="userRole === 'admin' && apiUrl === '/api/dashboard/orders'" @click="inProgress(item.id)"
+                            <button x-show="userRole === 'admin' && apiUrl === '/api/dashboard/orders'" title="Prebaci narudžbu u obradu" @click="inProgress(item.id)"
                                 class="px-2 py-2 text-white bg-blue-500 rounded-full w-10 h-10 hover:bg-blue-600">
                                 <i class="fa fa-archive"></i>
                             </button>
-                            <button x-show="userRole === 'admin' && apiUrl === '/api/dashboard/orders'" @click="approveOrder(item.id)"
+                            <button x-show="userRole === 'admin' && apiUrl === '/api/dashboard/orders'" title="Označi kao poslano" @click="approveOrder(item.id)"
                                 class="px-2 py-2 text-white bg-blue-500 rounded-full w-10 h-10 hover:bg-blue-600">
                                 <i class="fa fa-truck"></i>
                             </button>
-                            <button @click="canceledOrder(item.id)" x-show="apiUrl === '/api/dashboard/orders' || apiUrl === '/api/dashboard/my-orders'"
+                            <button @click="canceledOrder(item.id)" title="Otkaži narudžbu" x-show="apiUrl === '/api/dashboard/orders' || apiUrl === '/api/dashboard/my-orders'"
                                     class="px-2 py-2 text-white bg-red-500 rounded-full w-10 h-10 hover:bg-red-600">
                                     <i class="fa fa-times"></i>
                                 </button>
-                            <button x-show="apiUrl === '/api/dashboard/orders' || apiUrl === '/api/dashboard/my-orders'" @click="downloadPDF(item.id)"
+                            <button x-show="apiUrl === '/api/dashboard/orders' || apiUrl === '/api/dashboard/my-orders'" title="Preuzmi PDF narudžbe" @click="downloadPDF(item.id)"
                                 class="px-2 py-2 text-white bg-green-500 rounded-full w-10 h-10 hover:bg-green-600">
                                 <i class="fa fa-download"></i>
                             </button>
