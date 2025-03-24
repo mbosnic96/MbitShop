@@ -170,7 +170,7 @@ class OrderController extends Controller
                 break;
 
             case 'poslano':
-                if (in_array($order->status, ['otkazano', 'na čekanju', 'u obradi'])) {
+                if (in_array($order->status, ['otkazano', 'na čekanju'])) {
                     return response()->json(['error' => 'Ne možete označiti kao poslano. Provjerite status narudžbe'], 400);
                 }
                 break;
@@ -243,7 +243,7 @@ public function approveOrder(Order $order)
     // Send Email to User
     Mail::to($order->user->email)->send(new OrderApprovedMail($order, $pdfPath));
 
-    return response()->json(['success' => true, 'message' => 'Order approved and invoice sent.']);
+    return response()->json(['success' => true, 'message' => 'Narudžba odobrena!']);
 }
     public function downloadPDF($orderId)
     {

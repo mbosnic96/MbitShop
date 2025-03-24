@@ -78,7 +78,7 @@
                 @if (Auth::check())
                 <div class="relative me-2" x-data="cartData()" x-init="fetchCart">
         <!-- Cart Button -->
-        <button @click="window.location.href='/dashboard'" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full relative">
+        <button @click="window.location.href='/dashboard/cart'" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.293 2.293a1 1 0 00.293 1.414L7 17h10m-7 0a2 2 0 104 0m-4 0H7" />
             </svg>
@@ -205,8 +205,8 @@
                         </div>
                     @else
                         <!-- Display these links for guest (not logged-in) users -->
-                        <a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</a>
-                        <a href="{{ route('register') }}" class="ml-4 font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</a>
+                        <a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Prijavi se</a>
+                        <a href="{{ route('register') }}" class="ml-4 font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Registruj se</a>
                     @endif
                 </div>
             </div>
@@ -264,8 +264,8 @@
             </div>
         @else
             <!-- Display these links for guest (not logged-in) users -->
-            <x-responsive-nav-link href="{{ route('login') }}">Log in</x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('register') }}">Register</x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('login') }}">Prijavi se</x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('register') }}">Registruj se</x-responsive-nav-link>
         @endif
     </div>
 </nav>
@@ -314,8 +314,9 @@
         redirectToOrder(order_number, notificationId) {
             // Mark the notification as read
             this.markAsRead(notificationId, () => {
-                // Redirect to the orders page after marking as read
-                window.location.href = `http://mbit.ba/dashboard/orders?search=${order_number}`;
+                const baseUrl = "{{ url('/') }}";
+// Then use:
+window.location.href = `${baseUrl}/dashboard/orders?search=${order_number}`;
             });
         },
 

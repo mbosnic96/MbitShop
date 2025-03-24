@@ -27,6 +27,7 @@ Route::get('/categories/{slug}', function ($slug) {
 })->name('categories.show');
 
 
+    Route::get('product/{slug}', [ProductController::class, 'show'])->name('products.show');
 
 // Admin Routes - Protected by 'checkRole:admin' middleware
 Route::middleware(['checkRole:admin'])->group(function () {
@@ -35,33 +36,26 @@ Route::middleware(['checkRole:admin'])->group(function () {
     Route::delete('dashboard/users/delete/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('dashboard/products', [ProductController::class, 'dasboardIndex'])->name('products.index');
-    Route::get('product/{slug}', [ProductController::class, 'show'])->name('products.show');
 
     // Brand Routes
     Route::get('dashboard/brands', [BrandController::class, 'dasboardIndex'])->name('brands.index');
     
-    Route::get('dashboard/cart', [CartController::class, 'dasboardIndex'])->name('cart.index');
     
 
     // Category Routes
     Route::get('dashboard/categories', [CategoryController::class, 'dasboardIndex'])->name('categories.index');
 
-    
-   // Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('dashboard.orders');
-});
-
-// Customer Routes - Protected by 'checkRole:customer' middleware
-Route::middleware(['checkRole:customer'])->group(function () {
-   
- //   Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('dashboard.orders');
-});
-
-// Authenticated User Routes
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
+});
+
+
+// Authenticated User Routes
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+  
+    Route::get('dashboard/cart', [CartController::class, 'dasboardIndex'])->name('cart.index');
     Route::get('dashboard/orders', [OrderController::class, 'dasboardIndex'])->name('orders.index');
 });
 

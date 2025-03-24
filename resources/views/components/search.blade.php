@@ -40,7 +40,7 @@
             searchResults.innerHTML = ''; // Clear existing results
 
             if (products.length === 0) {
-                searchResults.innerHTML = '<p class="p-2 text-gray-600">No products found.</p>';
+                searchResults.innerHTML = '<p class="p-2 text-gray-600">Nema rezultata.</p>';
                 searchResults.classList.remove('hidden');
                 return;
             }

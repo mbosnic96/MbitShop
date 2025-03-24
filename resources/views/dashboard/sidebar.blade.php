@@ -8,21 +8,25 @@
     </div>
     <div class="h-screen px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
         <ul class="space-y-4">
+        @if (Auth::check() && Auth::user()->role === 'admin')
             <li>
                 <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
                     Dashboard
                 </x-responsive-nav-link>
             </li>
+            @endif
             <li>
                 <x-responsive-nav-link href="{{ route('cart.index') }}" :active="request()->routeIs('cart.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
-                    Moja košarica
+                    Košarica
                 </x-responsive-nav-link>
             </li>
             <li>
                 <x-responsive-nav-link href="{{ route('orders.index') }}" :active="request()->routeIs('orders.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
-                    Moje narudžbe
+                    Narudžbe
                 </x-responsive-nav-link>
             </li>
+            @if (Auth::check() && Auth::user()->role === 'admin')
+          
             <li>
                 <x-responsive-nav-link href="{{ route('products.index') }}"  :active="request()->routeIs('products.index')" class="p-2 text-gray-800 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group tab-button cursor-pointer">
                     Artikli
@@ -43,6 +47,7 @@
                     Korisnici
                 </x-responsive-nav-links>
             </li>
+            @endif
         </ul>
     </div>
 </div>
