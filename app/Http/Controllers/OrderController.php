@@ -53,13 +53,14 @@ class OrderController extends Controller
     
         // Sort orders by status, prioritizing 'na čekanju'
         $ordersQuery->orderByRaw("
-            CASE
-                WHEN status = 'na čekanju' THEN 1
-                WHEN status = 'u obradi' THEN 2
-                WHEN status = 'otkazano' THEN 3
-                ELSE 4
-            END
-        ");
+        CASE
+            WHEN status = 'na čekanju' THEN 1
+            WHEN status = 'u obradi' THEN 2
+            WHEN status = 'poslano' THEN 3
+            ELSE 4
+        END
+    ")->orderBy('id', 'desc');
+    
     
         // Paginate the results
         $orders = $ordersQuery->paginate(10);

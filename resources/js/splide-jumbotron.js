@@ -1,4 +1,6 @@
-        // Function to fetch data from an API
+    
+        document.addEventListener('DOMContentLoaded', () => {
+                // Function to fetch data from an API
         async function fetchData(api) {
             try {
                 const response = await fetch(api);
@@ -16,6 +18,7 @@
             const imageUrl = images.length > 0 ? `storage/${images[0]}` : null;
         
             return `
+              <a href="/product/${item.slug}" class="w-full h-full">
                <li class="splide__slide flex items-center justify-center text-white text-4xl px-3 relative">
     ${imageUrl ? `
         <div class="relative w-full h-full">
@@ -26,7 +29,7 @@
             <span class="text-gray-500">No Image Available</span>
         </div>
     `}
-    <div class="absolute bottom-4 left-4">
+    <div class="absolute bottom-4 left-4 p-4">
         <h1 class="text-xl">${item?.name}</h1>
         ${item.discount > 0 ? `
             <p class="text-white line-through text-sm me-2">$${item.price}</p>
@@ -44,14 +47,14 @@
     ` : ''}
 </p>
 
-        ${item?.description && item?.promo ? `<p class="text-sm">${item.description}</p>` : ''}
-        <a href="/product/${item.slug}" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 text-sm rounded-full hover:bg-blue-600 transition">
-            View
-        </a>
+${item?.description && item?.promo ? `<p class="text-sm">${item.description.split(' ').slice(0, 15).join(' ')}...</p>` : ''}
+
+        
+      
+  </a>
     </div>
+
 </li>
-
-
 
             `;
         }
@@ -220,8 +223,7 @@
         
             // Generate the grid layout based on the number of products
             gridContainer.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <!-- First Row -->
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <div class="flex gap-4">
                         ${productsToDisplay.length > 0 ? `
                             <div class="w-1/4 full-img">
@@ -257,7 +259,6 @@
         }
 
         // Initialize all components
-        document.addEventListener('DOMContentLoaded', () => {
             initMostSoldSlider();
             initTopSellingSlider();
             initLatestProductsGrid();

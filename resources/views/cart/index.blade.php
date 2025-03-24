@@ -3,7 +3,7 @@
             <h2 class="text-3xl font-bold text-gray-900 mb-8">Košarica</h2>
             <div class="flex">
                 <!-- Cart Items (Left Side) -->
-                <div class="w-3/4 bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="w-3/4 bg-white shadow-md overflow-hidden sm:rounded-lg">
                     <ul class="divide-y divide-gray-200 h-[70vh] overflow-y-auto">
                         <template x-for="(item, productId) in cart" :key="productId">
                             <li class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -43,7 +43,7 @@
                 </div>
 
                 <!-- Order Summary (Right Side) -->
-                <div class="w-1/4 bg-white shadow sm:rounded-lg p-6 ml-6 flex flex-col justify-between">
+                <div class="w-1/4 bg-white shadow-md sm:rounded-lg p-6 ml-6 flex flex-col justify-between">
                     <div>
                         <h3 class="text-xl font-semibold text-gray-900 mb-4">Detalji narudžbe</h3>
                         <div class="space-y-4">

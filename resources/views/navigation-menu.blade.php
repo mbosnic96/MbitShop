@@ -55,18 +55,20 @@
             <!-- Search and Account Management -->
             <div class="flex items-center ml-auto">
                 <!-- Search Dropdown -->
-                <div class="hidden sm:flex sm:items-center sm:ms-6">
-                    <div class="ms-3 relative">
+                <div  class="relative me-2">
+                    <div>
                         <x-dropdown align="right" width="64">
                             <x-slot name="trigger" @click="open = true">
-                                <button class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
-                                    <i class="fa fa-search"></i>
+                                <button class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+    </svg>
                                 </button>
                             </x-slot>
 
                             <x-slot name="content">
                                 <!-- Search Component -->
-                                <div class="p-4" style="width: 350px !important;">
+                                <div style="width: 350px !important;">
                                     <x-search></x-search>
                                 </div>
                             </x-slot>
@@ -74,16 +76,18 @@
                     </div>
                 </div>
                 @if (Auth::check())
-                <div class="relative flex items-center ml-6" x-data="cartData()" x-init="fetchCart">
-                    <button @click="window.location.href='/dashboard'" class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
-                        <i class="fa fa-shopping-bag"></i>
-                        <!-- Badge -->
-                        <span x-show="cartCount > 0" class="absolute top-0 right-0 inline-block px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full transform translate-x-2/4 translate-y-3/4">
-                            <span x-text="cartCount"></span>
-                        </span>
-                    </button>
-                </div>
-                @endif
+                <div class="relative me-2" x-data="cartData()" x-init="fetchCart">
+        <!-- Cart Button -->
+        <button @click="window.location.href='/dashboard'" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.293 2.293a1 1 0 00.293 1.414L7 17h10m-7 0a2 2 0 104 0m-4 0H7" />
+            </svg>
+            <!-- Cart Count Badge -->
+            <span x-show="cartCount > 0" class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1.5 text-xs">
+                <span x-text="cartCount"></span>
+            </span>
+        </button>
+    </div>
 
               
 
@@ -137,6 +141,8 @@
         </div>
     </div>
 </div>
+
+@endif
 
                 <!-- Account Management -->
                 <div class="hidden sm:flex sm:items-center sm:ms-6">

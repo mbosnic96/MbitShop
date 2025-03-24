@@ -169,14 +169,14 @@
             <div class="w-5/6 ml-6 z-10 py-12">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                     <template x-for="product in products.data" :key="product.id">
-                        <div class="bg-white p-4 rounded-md shadow-md box">
+                        <div class="bg-white rounded-md shadow-md box">
                             <div>
                             <img :src="product.image && JSON.parse(product.image).length > 0 ? '../storage/' + JSON.parse(product.image)[0] : '../storage/MbitShopLogo.png'" 
      :alt="product.name" 
      class="h-48 w-96 object-cover">
 
 
-                                <div>
+                                <div class="p-4">
                                     <h2 class="text-gray-800" x-text="product.name"></h2>
                                     <p class="text-gray-600" x-text="product.brand?.name"></p>
                                     <div class="flex flex-col mb-0">
@@ -323,3 +323,5 @@
         }
     </script>
 </x-app-layout>
+
+<x-footer></x-footer>
