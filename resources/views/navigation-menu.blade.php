@@ -285,7 +285,9 @@
             },
             init() {
             this.fetchCart(); 
-        
+        setInterval(() => {
+                this.fetchCart(); 
+            }, 2000);
         }
         };
     }
