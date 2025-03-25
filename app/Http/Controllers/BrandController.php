@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Http;
 class BrandController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource for admin
      */
     public function index()
     {
         return Brand::paginate(10); 
     }
-
+    //returns view for dashboard 
     public function dasboardIndex()
     {
         return view('brands.index');
