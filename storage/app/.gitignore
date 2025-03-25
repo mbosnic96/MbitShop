@@ -1,3 +1,8 @@
+!/storage/app/public/banner.webp
+!/storage/app/public/MbitShopLogo.png
+!/storage/app/public/products/*.webp
+!/storage/app/public/**/*.png
+!/storage/app/public/**/*.svg
 *
 !public/
 !.gitignore
