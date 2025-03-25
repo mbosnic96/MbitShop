@@ -23,7 +23,7 @@ class ProductController extends Controller
        return Product::with(['brand:id,name', 'category:id,name'])->paginate(10);
     }
 
-
+    //vraca proizvode na promociji (prvi slider u home)
     public function getPromoProduct()
     {
         $product = Product::where('promo', true)
@@ -33,7 +33,7 @@ class ProductController extends Controller
 
         return response()->json($product);
     }
-
+    //zadnje dodani
     public function latestProducts()
     {
         $product = Product::orderBy('created_at', 'desc')
@@ -44,13 +44,14 @@ class ProductController extends Controller
     
     }
 
+    //home view
     public function home()
     {    
         return view('components.welcome');
     }
     
       /**
-     * Web view
+     * Web view u dashboardu
      */
     public function dasboardIndex()
     {
@@ -59,11 +60,13 @@ class ProductController extends Controller
         return view('products.index', compact( 'brands','categories'));
     }
 
+    //view za proizvode
     public function view()
     {
         return view('products.show');
     }
 
+    //prikaz po slugu
     public function viewData($slug)
     {
         $product = Product::with(['brand:id,name', 'category:id,name'])->where('slug', $slug)->firstOrFail();
@@ -71,14 +74,14 @@ class ProductController extends Controller
     }
     
 
-
+    //podaci u modalu
     public function modalData($id)
     {
         $product = Product::with(['brand:id,name', 'category:id,name'])->findOrFail($id); // Fetch the brand by ID
         return response()->json($product); // Return the brand as JSON
     }
       /**
-     * Display products catalog by category
+     * prikaz unutar kategorija + filteri
      */
     
     
@@ -182,7 +185,7 @@ class ProductController extends Controller
         return response()->json($products);
     }
     
-
+     //najprodavaniji
     public function mostSoldProducts()
 {
     $products = OrderItem::select('order_items.product_id', \DB::raw('SUM(order_items.quantity) as total_sold'))
@@ -198,7 +201,7 @@ class ProductController extends Controller
 }
 
     
-
+//na popustu
 public function onDiscount()
 {
     $products = Product::where('discount', '>', 0)
@@ -227,12 +230,12 @@ public function store(Request $request)
     $productFolderName = $slug;
     $productFolderPath = "products/{$productFolderName}";
 
-    // Create the folder if it doesn't exist
+    // kreira folder za slike i sprema ih, te kao json u db
     if (!Storage::disk('public')->exists($productFolderPath)) {
         Storage::disk('public')->makeDirectory($productFolderPath);
     }
 
-    // Handle image uploading
+    
     $imagePaths = [];
     if ($request->hasFile('images')) {
         foreach ($request->file('images') as $file) {
@@ -243,12 +246,12 @@ public function store(Request $request)
             } else {
                 return response()->json([
                     'message' => 'One or more files are not valid.',
-                ], 422); // Return validation error
+                ], 422); 
             }
         }
     }
 
-    // Create the product
+    
     $product = Product::create([
         'name' => $request->name,
         'slug' => $slug,
@@ -274,7 +277,7 @@ public function store(Request $request)
     return response()->json([
         'message' => 'Product created successfully!',
         'product' => $product,
-    ], 201); // HTTP 201: Created
+    ], 201); 
 }
 
     
@@ -298,15 +301,15 @@ public function store(Request $request)
          $categoryId = $request->input('category');
          $brandId = $request->input('brand');
      
-         // Generate a unique slug
+         
          $slug = strtolower(str_replace(' ', '-', $request->name));
          $slug .= '-' . Str::random(4);
          
-         // Create the product folder name
+         
          $productFolderName =$slug;
          $productFolderPath = "products/{$productFolderName}";
      
-         // Create the folder if it doesn't exist
+         
          if (!Storage::disk('public')->exists($productFolderPath)) {
              Storage::disk('public')->makeDirectory($productFolderPath);
          }
@@ -314,27 +317,25 @@ public function store(Request $request)
          $imagePaths = json_decode($product->image, true) ?? []; 
 
          if ($request->hasFile('images')) {     
-             // Upload new images
              foreach ($request->file('images') as $file) {
                  if ($file->isValid()) {
-                     // Keep the original file name
                      $originalName = $file->getClientOriginalName();
                      
-                     // Append the new image path to the existing array
+                     
                      $imagePaths[] = $file->storeAs($productFolderPath, $originalName, 'public');
                  } else {
                      return response()->json([
                          'message' => 'One or more files are not valid.',
-                     ], 422); // Return validation error
+                     ], 422);
                  }
              }
          }
      
-         // Update the product
+         
          $product->update([
              'name' => $request->name,
              'slug' => $slug,
-             'description' => $request->description ?? '', // Set empty string if not provided
+             'description' => $request->description ?? '',
              'price' => $request->price,
              'stock_quantity' => $request->stock_quantity,
              'brand' => $request->brand ?? '', 
@@ -373,6 +374,7 @@ public function store(Request $request)
             'message' => 'Proizvod uspješno obrisan!'
         ]);
     }
+    //brise sliku
 
     public function deleteImage(Product $product, Request $request)
     {
@@ -382,7 +384,7 @@ public function store(Request $request)
     
         $imagePath = $request->input('image_path');
     
-        // Get current images array
+        
         $currentImages = json_decode($product->image, true) ?? [];
     
         // Find the image in the array
