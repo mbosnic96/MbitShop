@@ -84,10 +84,7 @@ public function update(Request $request, $productId)
 {
     $quantity = $request->input('quantity');
 
-    // Fetch product from the database
     $product = Product::findOrFail($productId);
-
-    // Check if the requested quantity is available
     if ($quantity > $product->stock_quantity) {
         return response()->json([
             'message' => 'Not enough stock available.',
@@ -95,7 +92,7 @@ public function update(Request $request, $productId)
         ], 400);
     }
 
-    // Update the quantity in the session cart (or your database if applicable)
+    
     $cart = session()->get('cart', []);
     if (isset($cart[$productId])) {
         $cart[$productId]['quantity'] = $quantity;
