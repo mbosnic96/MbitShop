@@ -11,31 +11,30 @@ use DB;
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource for admin
      */
 
      public function index()
      {
          return Category::paginate(10); 
      }
- 
+
+    //returns view
      public function dasboardIndex()
      {
         $categories = Category::all();
          return view('categories.index', compact('categories'));
 
      }
-
+    //data for modal
      public function show($id)
      {
-         $category = Category::findOrFail($id); // Fetch the brand by ID
-         return response()->json($category); // Return the brand as JSON
+         $category = Category::findOrFail($id); 
+         return response()->json($category);
      }
-
+     //data for displaying categories with children only 
      public function getHomepageIndex(){
         $categories = Category::with('children')->whereNull('parent_id')->get();
-
-        // Return the categories as JSON
         return response()->json([
             'data' => $categories,
         ]);
@@ -53,13 +52,12 @@ class CategoryController extends Controller
     
         // Generate slug
         $slug = strtolower(str_replace(' ', '-', $request->name));
-    
-        // Check if slug already exists
+
         if (Category::where('slug', $slug)->exists()) {
             return response()->json(['error' => 'The slug already exists.'], 422);
         }
     
-        // Create category using Eloquent
+        
         $category = Category::create([
             'name' => $request->name,
             'slug' => $slug,  
@@ -77,15 +75,12 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
-    
-        // Generate the slug
         $slug = strtolower(str_replace(' ', '-', $request->name));
     
         if (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
             return response()->json(['error' => 'The slug already exists.'], 422);
         }
     
-        // Update the category
         $category->update([
             'name' => $request->name,
             'slug' => $slug,
