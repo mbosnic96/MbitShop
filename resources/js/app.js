@@ -2,23 +2,23 @@ import './bootstrap';
 // resources/js/app.js
 import Swal from 'sweetalert2';
 
-window.Swal = Swal;  // Make SweetAlert2 globally available
-import '@splidejs/splide/dist/css/splide.min.css'; // Core CSS
+window.Swal = Swal;  
+import '@splidejs/splide/dist/css/splide.min.css'; 
 
 import Splide from '@splidejs/splide';
-window.Splide = Splide; // <-- OVO je bitno
+window.Splide = Splide; 
 
 
-import './toastr'; // This will import toastr.js and make it available globally
+import './toastr'; 
 import Alpine from 'alpinejs';
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Listen for button clicks with the class 'open-modal'
+
     document.querySelectorAll('.open-modal').forEach(button => {
         button.addEventListener('click', function () {
-            const modalId = button.getAttribute('data-modal-id');  // Get modal ID from button
-            const productData = JSON.parse(this.getAttribute('data-all')) ?? ''; // Parse JSON
+            const modalId = button.getAttribute('data-modal-id');  
+            const productData = JSON.parse(this.getAttribute('data-all')) ?? ''; 
             console.log(productData);
 
             
@@ -54,16 +54,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Also update the hidden input
                     const hiddenPromo = modal.querySelector('input[name="promo"][type="hidden"]');
                     if (hiddenPromo) {
-                        hiddenPromo.value = data.promo ? '0' : '1'; // Invert since checkbox will override
+                        hiddenPromo.value = data.promo ? '0' : '1'; 
                     }
                 }
             }
-            // Handle brand and category fields
+            
             if (data.brand || data.category) {
                 if (data.brand) {
                     const brandSelect = modal.querySelector('[name="brand"]');
                     if (brandSelect) {
-                        brandSelect.value = data.brand.id; // Dynamically set the brand ID
+                        brandSelect.value = data.brand.id; 
                     }
                   
                 }
@@ -81,11 +81,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
     
-            // Handle images
+            
             if (data.image) {
                 let images = [];
                 try {
-                    // Parse the JSON string or use as-is if already array
+                    
                     images = Array.isArray(data.image) ? data.image : JSON.parse(data.image);
                 } catch (error) {
                     console.error('Error parsing images:', error);
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
             
                 const imageContainer = modal.querySelector('#uploaded-images');
                 if (imageContainer) {
-                    imageContainer.innerHTML = ''; // Clear existing images
+                    imageContainer.innerHTML = ''; 
                     
                     images.forEach((imagePath, index) => {
                         const imageWrapper = document.createElement('div');
@@ -122,13 +122,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             function deleteImage(imagePath, productId, element) {
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
+                    title: 'Jeste li sigurni?',
+                    text: "Radnju je nemoguće poništiti!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'Da!'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const url = `/dashboard/products/${productId}/images`;
@@ -154,8 +154,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             if (data.success) {
                                 element.remove();
                                 Swal.fire(
-                                    'Deleted!',
-                                    'Your image has been deleted.',
+                                    'Obrisano!',
+                                    'Slika obrisana.',
                                     'success'
                                 );
                                 
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
     
-            // Update form action dynamically for editing
+            
             let form = modal.querySelector('form');
             if (form) {
                 if (data.id) {
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    // Close modal event listener
+    
     document.querySelectorAll('.close-modal').forEach(button => {
         button.addEventListener('click', function () {
             const modalId = button.getAttribute('data-modal'); 
@@ -250,15 +250,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to clear modal data (reset fields and remove images)
     function clearModal(modal) {
-        // Clear all input fields in the modal
+        
         modal.querySelectorAll('input, select').forEach(input => {
             input.value = ''; // Reset field value
         });
 
-        // Clear any dynamically added images
+        
         const imageContainer = modal.querySelector('#uploaded-images');
         if (imageContainer) {
-            imageContainer.innerHTML = ''; // Remove all images from container
+            imageContainer.innerHTML = ''; 
         }
     }
 
