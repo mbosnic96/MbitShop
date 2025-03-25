@@ -275,7 +275,7 @@
         return {
             cartCount: 0,
             fetchCart() {
-                axios.get('/api/cart') // Replace with your API endpoint
+                axios.get('/api/cart') 
                     .then(response => {
                         this.cartCount = response.data.cartCount;
                     })
@@ -284,24 +284,23 @@
                     });
             },
             init() {
-            this.fetchCart(); // Fetch cart data on page load
+            this.fetchCart(); 
         
         }
         };
     }
     function notificationData() {
     return {
-        notifications: [], // Array to store notifications
-        unreadCount: 0, // Count of unread notifications
-        open: false, // Controls the visibility of the notifications dropdown
-        showAll: false, // Controls whether to show all notifications or just the first 5
+        notifications: [], 
+        unreadCount: 0, 
+        open: false, 
+        showAll: false, 
 
-        // Fetch notifications from the backend
+        
         fetchNotifications() {
             fetch('/api/notifications')
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data); // Log the API response
                     this.notifications = data.unread.concat(data.read);
                     this.unreadCount = data.unread_count;
                 })
@@ -310,17 +309,15 @@
                 });
         },
 
-        // Redirect to the orders page with the order ID
+        
         redirectToOrder(order_number, notificationId) {
-            // Mark the notification as read
             this.markAsRead(notificationId, () => {
                 const baseUrl = "{{ url('/') }}";
-// Then use:
 window.location.href = `${baseUrl}/dashboard/orders?search=${order_number}`;
             });
         },
 
-        // Mark a notification as read
+        
         markAsRead(id, callback) {
             fetch(`/api/notifications/read/${id}`, {
                 method: 'POST',
@@ -330,9 +327,7 @@ window.location.href = `${baseUrl}/dashboard/orders?search=${order_number}`;
                 },
             })
             .then(() => {
-                // Refresh the notifications list
                 this.fetchNotifications();
-                // Execute the callback (e.g., redirect)
                 if (callback) callback();
             })
             .catch(error => {
@@ -340,10 +335,10 @@ window.location.href = `${baseUrl}/dashboard/orders?search=${order_number}`;
             });
         },
 
-        // Format date for display
+        
         formatDate(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleString(); // Customize date format as needed
+            return date.toLocaleString(); 
         }
     };
 }
