@@ -47,6 +47,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
     
+            if (data.promo !== undefined) {
+                const promoCheckbox = modal.querySelector('[name="promo"]');
+                if (promoCheckbox) {
+                    promoCheckbox.checked = Boolean(data.promo);
+                    // Also update the hidden input
+                    const hiddenPromo = modal.querySelector('input[name="promo"][type="hidden"]');
+                    if (hiddenPromo) {
+                        hiddenPromo.value = data.promo ? '0' : '1'; // Invert since checkbox will override
+                    }
+                }
+            }
             // Handle brand and category fields
             if (data.brand || data.category) {
                 if (data.brand) {
@@ -74,21 +85,98 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.image) {
                 let images = [];
                 try {
-                    images = JSON.parse(data.image);
+                    // Parse the JSON string or use as-is if already array
+                    images = Array.isArray(data.image) ? data.image : JSON.parse(data.image);
                 } catch (error) {
                     console.error('Error parsing images:', error);
                 }
-    
+            
                 const imageContainer = modal.querySelector('#uploaded-images');
                 if (imageContainer) {
-                    images.forEach(image => {
+                    imageContainer.innerHTML = ''; // Clear existing images
+                    
+                    images.forEach((imagePath, index) => {
+                        const imageWrapper = document.createElement('div');
+                        imageWrapper.className = 'relative inline-block m-2';
+                        
                         const imgElement = document.createElement('img');
-                        imgElement.src = '/storage/' + image; 
-                        imgElement.alt = image;
-                        imgElement.classList.add('w-16', 'h-16', 'object-cover', 'mt-2');
-                        imageContainer.appendChild(imgElement);
+                        imgElement.src = '/storage/' + imagePath;
+                        imgElement.alt = 'Product image ' + (index + 1);
+                        imgElement.className = 'w-24 h-24 object-cover rounded';
+                        
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.innerHTML = '&times;';
+                        deleteBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700';
+                        deleteBtn.title = 'Delete image';
+                        deleteBtn.onclick = (e) => {
+                            e.preventDefault();
+                            deleteImage(imagePath, data.id, imageWrapper);
+                        };
+                        
+                        imageWrapper.appendChild(imgElement);
+                        imageWrapper.appendChild(deleteBtn);
+                        imageContainer.appendChild(imageWrapper);
                     });
                 }
+            }
+
+            function deleteImage(imagePath, productId, element) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const url = `/dashboard/products/${productId}/images`;
+                        
+                        fetch(url, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                image_path: imagePath
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                element.remove();
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Your image has been deleted.',
+                                    'success'
+                                );
+                                
+                                // Update the remaining images in the modal if needed
+                                if (data.remaining_images && data.remaining_images.length === 0) {
+                                    document.getElementById('uploaded-images').innerHTML = '';
+                                }
+                            } else {
+                                throw new Error(data.message || 'Failed to delete image');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error!',
+                                error.message || 'Failed to delete image',
+                                'error'
+                            );
+                        });
+                    }
+                });
             }
     
             // Update form action dynamically for editing

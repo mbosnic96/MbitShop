@@ -148,7 +148,7 @@ class OrderController extends Controller
             }
 
            
-            return response()->json(['success' => true, 'message' => 'Order placed successfully!', 'order' => $order]);
+            return response()->json(['success' => true, 'message' => 'Uspješno naručeno!', 'order' => $order]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
@@ -248,7 +248,6 @@ public function approveOrder(Order $order)
     public function downloadPDF($orderId)
     {
         $order = Order::with(['user', 'items.product'])->findOrFail($orderId);
-
         // Calculate subtotal
         $subtotal = $order->items->sum(function ($item) {
             return $item->quantity * $item->product->price;

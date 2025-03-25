@@ -26,6 +26,9 @@ class Product extends Model
         'updated_at',
         'category_id',
         'image',
+        'promo',
+        'discount',
+        'screen_size',
     ];
 
     public function brand()
@@ -42,9 +45,9 @@ class Product extends Model
 public function getPriceWithDiscountAttribute()
 {
     if ($this->discount) {
-        return $this->price - ($this->price * ($this->discount / 100)); // Izračunajte cenu sa popustom
+        return $this->price - ($this->price * ($this->discount / 100)); 
     }
-    return $this->price; // Ako nema popusta, vratite originalnu cenu
+    return $this->price; 
 }
 
 }

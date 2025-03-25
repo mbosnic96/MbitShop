@@ -1,18 +1,34 @@
 <x-app-layout>
-    
-    <div class="flex">
-        @include('dashboard.sidebar')
-        <div class="flex-1 p-6">
-        <!-- Tabs -->
+    <div class="flex h-screen" x-data="{ sidebarOpen: window.innerWidth >= 768 }" @resize.window="sidebarOpen = window.innerWidth >= 768">
+        <!-- Mobile Sidebar Toggle Button -->
+        <button @click="sidebarOpen = !sidebarOpen" 
+                class="md:hidden fixed z-50 top-[80px] left-0 p-1.5 rounded-r-md bg-gray-800 text-white shadow-lg transition-all duration-300 hover:bg-gray-700"
+                :class="{'left-64': sidebarOpen}">
+            <span x-show="!sidebarOpen" class="text-xs font-bold">>></span>
+            <span x-show="sidebarOpen" class="text-xs font-bold"><<</span>
+        </button>
+
+        <!-- Sidebar - Mobile Overlay -->
+        <div x-show="sidebarOpen && window.innerWidth < 768" 
+             @click="sidebarOpen = false"
+             class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden transition-opacity duration-300">
+        </div>
+
+        <!-- Sidebar Component -->
+        <x-sidebar />
+
+        <!-- Main Content Area -->
+        <div class="flex-1 overflow-y-auto ml-0 transition-all duration-300">
+            <div class="p-6">
         <div class="flex flex-col py-6">
                
     
     <div class="min-h-screen flex flex-col" x-data="cartData">
         <div class="flex-grow p-6">
             <h2 class="text-3xl font-bold text-gray-900 mb-8">Košarica</h2>
-            <div class="flex">
+            <div class="flex flex-col md:flex-row gap-4">
                 <!-- Cart Items (Left Side) -->
-                <div class="w-3/4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+                <div class="w-full sm:w-3/4 bg-white shadow-md overflow-hidden sm:rounded-lg">
                     <ul class="divide-y divide-gray-200 h-[70vh] overflow-y-auto">
                         <template x-for="(item, productId) in cart" :key="productId">
                             <li class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -52,7 +68,7 @@
                 </div>
 
                 <!-- Order Summary (Right Side) -->
-                <div class="w-1/4 bg-white shadow-md sm:rounded-lg p-6 ml-6 flex flex-col justify-between">
+                <div class="w-full sm:w-1/4 bg-white shadow-md sm:rounded-lg p-6 sm:ml-6 flex flex-col justify-between">
                     <div>
                         <h3 class="text-xl font-semibold text-gray-900 mb-4">Detalji narudžbe</h3>
                         <div class="space-y-4">

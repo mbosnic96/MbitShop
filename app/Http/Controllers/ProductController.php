@@ -259,13 +259,16 @@ public function store(Request $request)
         'model' => $request->model ?? '',
         'processor' => $request->processor ?? '', 
         'ram_size' => $request->ram_size ?: null, 
+        'screen_size' => $request->screen_size ?: null, 
         'storage' => $request->storage ?: null,  
         'graphics_card' => $request->graphics_card ?? '', 
         'operating_system' => $request->operating_system ?? '', 
         'category' => $request->category ?? '', 
         'image' => json_encode($imagePaths), 
         'category_id' => $request->category,
-        'brand_id' => $request->brand
+        'brand_id' => $request->brand,
+       'promo' => $request->has('promo'),
+             'discount' => $request->discount ?? 0, 
     ]);
 
     return response()->json([
@@ -338,6 +341,7 @@ public function store(Request $request)
              'model' => $request->model ?? '', 
              'processor' => $request->processor ?? '', 
              'ram_size' => $request->ram_size ?: null, 
+            'screen_size' => $request->screen_size ?: null, 
              'storage' => $request->storage ?: null, 
              'graphics_card' => $request->graphics_card ?? '',
              'operating_system' => $request->operating_system ?? '', 
@@ -345,6 +349,8 @@ public function store(Request $request)
              'image' => json_encode($imagePaths), 
              'category_id' => $categoryId,
              'brand_id' => $brandId,
+             'promo' => $request->has('promo'),
+             'discount' => $request->discount ?? 0, 
          ]);
      
          // Return a JSON response
@@ -366,5 +372,51 @@ public function store(Request $request)
         return response()->json([
             'message' => 'Proizvod uspješno obrisan!'
         ]);
+    }
+
+    public function deleteImage(Product $product, Request $request)
+    {
+        $request->validate([
+            'image_path' => 'required|string'
+        ]);
+    
+        $imagePath = $request->input('image_path');
+    
+        // Get current images array
+        $currentImages = json_decode($product->image, true) ?? [];
+    
+        // Find the image in the array
+        $imageIndex = array_search($imagePath, $currentImages);
+    
+        if ($imageIndex === false) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Image not found in product images'
+            ], 404);
+        }
+    
+        // Remove the image from the array
+        array_splice($currentImages, $imageIndex, 1);
+    
+        try {
+            // Delete the physical file
+            Storage::delete($imagePath);
+    
+            // Update the product's image field
+            $product->image = count($currentImages) > 0 ? json_encode($currentImages) : null;
+            $product->save();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Image deleted successfully',
+                'remaining_images' => $currentImages
+            ]);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting image: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

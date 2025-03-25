@@ -31,7 +31,7 @@
             <ul class="splide__list" x-ref="galleryImages">
               <template x-for="(image, index) in productImages" :key="index">
                 <li class="splide__slide">
-                  <img :src="'/storage/' + image" :alt="product.name || ''" class="w-full h-full object-cover rounded-lg">
+                  <img :src="'/storage/' + image" :alt="product.name || ''" class="w-full h-full object-contain rounded-lg">
                 </li>
               </template>
             </ul>
@@ -44,7 +44,7 @@
             <ul class="splide__list flex gap-4" x-ref="thumbnailSlider">
               <template x-for="(image, index) in productImages" :key="index">
                 <li class="splide__slide">
-                  <img :src="'/storage/' + image" :alt="product.name || ''" class="w-24 h-24 object-cover rounded-lg cursor-pointer">
+                  <img :src="'/storage/' + image" :alt="product.name || ''" class="w-24 h-24 object-contain rounded-lg cursor-pointer">
                 </li>
               </template>
             </ul>

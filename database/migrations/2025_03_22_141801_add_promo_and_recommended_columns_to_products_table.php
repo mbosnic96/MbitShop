@@ -15,8 +15,6 @@ return new class extends Migration
             // Add 'promo' column as a boolean (default: false)
             $table->boolean('promo')->default(false)->after('price');
 
-            // Add 'recommended' column as a boolean (default: false)
-            $table->boolean('recommended')->default(false)->after('promo');
         });
     }
 
@@ -30,7 +28,6 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table) {
             // Drop the columns if the migration is rolled back
             $table->dropColumn('promo');
-            $table->dropColumn('recommended');
         });
     }
 };

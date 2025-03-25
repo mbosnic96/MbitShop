@@ -1,7 +1,23 @@
 <x-app-layout>
-    <div class="flex h-screen">
-        @include('dashboard.sidebar')
-        <div class="flex-1 p-6 overflow-y-auto">
+    <div class="flex h-screen" x-data="{ sidebarOpen: window.innerWidth >= 768 }" @resize.window="sidebarOpen = window.innerWidth >= 768">
+        <!-- Mobile Sidebar Toggle Button -->
+        <button @click="sidebarOpen = !sidebarOpen" 
+                class="md:hidden fixed z-50 top-[80px] left-0 p-1.5 rounded-r-md bg-gray-800 text-white shadow-lg transition-all duration-300 hover:bg-gray-700"
+                :class="{'left-64': sidebarOpen}">
+            <span x-show="!sidebarOpen" class="text-xs font-bold">>></span>
+            <span x-show="sidebarOpen" class="text-xs font-bold"><<</span>
+        </button>
+
+        <!-- Sidebar - Mobile Overlay -->
+        <div x-show="sidebarOpen && window.innerWidth < 768" 
+             @click="sidebarOpen = false"
+             class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden transition-opacity duration-300">
+        </div>
+
+        <!-- Sidebar Component -->
+        <x-sidebar />
+
+        <div class="flex-1 p-6 overflow-y-auto ml-0 transition-all duration-300">
             <div class="min-h-screen bg-gray-100" x-data="dashboard()" x-init="init()">
                 <div class="container mx-auto px-4 py-8">
                     <!-- Header -->
@@ -14,83 +30,84 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <!-- Total Revenue -->
                         <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center justify-between">
-        <div>
-            <p class="text-gray-500">Orders</p>
-            <p class="text-2xl font-bold" x-text="orderStats ? orderStats.current_month.count : 'Loading...'"></p>
-        </div>
-        <div class="p-3 rounded-full bg-green-100 text-green-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-        </div>
-    </div>
-    <div class="mt-4">
-        <span class="text-sm font-semibold" 
-              :class="{
-                  'text-green-500': orderStats && orderStats.percentage_changes.count >= 0,
-                  'text-red-500': orderStats && orderStats.percentage_changes.count < 0
-              }"
-              x-text="orderStats ? (orderStats.percentage_changes.count >= 0 ? '+' : '') + orderStats.percentage_changes.count + '%' : ''">
-        </span>
-        <span class="text-gray-500 text-sm ml-2" 
-              x-text="orderStats ? orderStats.current_month.count + ' orders this month' : ''">
-        </span>
-    </div>
-</div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Orders</p>
+                                    <p class="text-2xl font-bold" x-text="orderStats ? orderStats.current_month.count : 'Loading...'"></p>
+                                </div>
+                                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-sm font-semibold" 
+                                      :class="{
+                                          'text-green-500': orderStats && orderStats.percentage_changes.count >= 0,
+                                          'text-red-500': orderStats && orderStats.percentage_changes.count < 0
+                                      }"
+                                      x-text="orderStats ? (orderStats.percentage_changes.count >= 0 ? '+' : '') + orderStats.percentage_changes.count + '%' : ''">
+                                </span>
+                                <span class="text-gray-500 text-sm ml-2" 
+                                      x-text="orderStats ? orderStats.current_month.count + ' orders this month' : ''">
+                                </span>
+                            </div>
+                        </div>
 
-<!-- Revenue Card -->
-<div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center justify-between">
-        <div>
-            <p class="text-gray-500">Revenue</p>
-            <p class="text-2xl font-bold" x-text="orderStats ? formatCurrency(orderStats.current_month.revenue) : 'Loading...'"></p>
-        </div>
-        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-    </div>
-    <div class="mt-4">
-        <span class="text-sm font-semibold" 
-              :class="{
-                  'text-green-500': orderStats && orderStats.percentage_changes.revenue >= 0,
-                  'text-red-500': orderStats && orderStats.percentage_changes.revenue < 0
-              }"
-              x-text="orderStats ? (orderStats.percentage_changes.revenue >= 0 ? '+' : '') + orderStats.percentage_changes.revenue + '%' : ''">
-        </span>
-        <span class="text-gray-500 text-sm ml-2" 
-              x-text="orderStats ? formatCurrency(orderStats.previous_month.revenue) + ' last month' : ''">
-        </span>
-    </div>
-</div>
-                       <!-- Customers Card -->
-                       <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center justify-between">
-        <div>
-            <p class="text-gray-500">Kupci</p>
-            <p class="text-2xl font-bold" x-text="userStats ? (userStats.current_month + userStats.previous_month) : 'Loading...'"></p>
-        </div>
-        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-        </div>
-    </div>
-    <div class="mt-4">
-        <span class="text-sm font-semibold" 
-              :class="{
-                  'text-green-500': userStats && userStats.percentage_change >= 0,
-                  'text-red-500': userStats && userStats.percentage_change < 0
-              }"
-              x-text="userStats ? (userStats.percentage_change >= 0 ? '+' : '') + userStats.percentage_change + '%' : 'Loading...'">
-        </span>
-        <span class="text-gray-500 text-sm ml-2" 
-              x-text="userStats ? userStats.current_month + ' ovaj mjesec (' + userStats.previous_month + ' prošli mjesec)' : 'Loading...'">
-        </span>
-    </div>
-</div>
+                        <!-- Revenue Card -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Revenue</p>
+                                    <p class="text-2xl font-bold" x-text="orderStats ? formatCurrency(orderStats.current_month.revenue) : 'Loading...'"></p>
+                                </div>
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-sm font-semibold" 
+                                      :class="{
+                                          'text-green-500': orderStats && orderStats.percentage_changes.revenue >= 0,
+                                          'text-red-500': orderStats && orderStats.percentage_changes.revenue < 0
+                                      }"
+                                      x-text="orderStats ? (orderStats.percentage_changes.revenue >= 0 ? '+' : '') + orderStats.percentage_changes.revenue + '%' : ''">
+                                </span>
+                                <span class="text-gray-500 text-sm ml-2" 
+                                      x-text="orderStats ? formatCurrency(orderStats.previous_month.revenue) + ' last month' : ''">
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Customers Card -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Kupci</p>
+                                    <p class="text-2xl font-bold" x-text="userStats ? (userStats.current_month + userStats.previous_month) : 'Loading...'"></p>
+                                </div>
+                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-sm font-semibold" 
+                                      :class="{
+                                          'text-green-500': userStats && userStats.percentage_change >= 0,
+                                          'text-red-500': userStats && userStats.percentage_change < 0
+                                      }"
+                                      x-text="userStats ? (userStats.percentage_change >= 0 ? '+' : '') + userStats.percentage_change + '%' : 'Loading...'">
+                                </span>
+                                <span class="text-gray-500 text-sm ml-2" 
+                                      x-text="userStats ? userStats.current_month + ' ovaj mjesec (' + userStats.previous_month + ' prošli mjesec)' : 'Loading...'">
+                                </span>
+                            </div>
+                        </div>
 
                         <!-- Weather -->
                         <div class="bg-white rounded-lg shadow p-6">
@@ -190,68 +207,67 @@
                         </div>
 
                         <!-- Recent Activity -->
-                        <!-- Recent Activity -->
-<div class="bg-white rounded-lg shadow overflow-hidden flex flex-col" style="max-height: 50vh;">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-800">Notifikacije</h2>
-    </div>
-    <div class="divide-y divide-gray-200 overflow-y-auto flex-1">
-        <template x-for="notification in recentActivities.unread" :key="notification.id">
-            <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150 bg-blue-50">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <img x-show="notification.data.user_photo" 
-                             :src="'/storage/' + notification.data.user_photo" 
-                             class="h-10 w-10 rounded-full object-cover">
-                        <span x-show="!notification.data.user_photo" 
-                              class="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="ml-3 flex-1">
-                        <p class="text-sm font-medium text-gray-900" x-text="notification.data.message"></p>
-                        <div class="flex justify-between items-center mt-1">
-                            <p class="text-xs text-gray-500" x-text="new Date(notification.created_at).toLocaleString()"></p>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                Novo
-                            </span>
+                        <div class="bg-white rounded-lg shadow overflow-hidden flex flex-col" style="max-height: 50vh;">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h2 class="text-lg font-semibold text-gray-800">Notifikacije</h2>
+                            </div>
+                            <div class="divide-y divide-gray-200 overflow-y-auto flex-1">
+                                <template x-for="notification in recentActivities.unread" :key="notification.id">
+                                    <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150 bg-blue-50">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0">
+                                                <img x-show="notification.data.user_photo" 
+                                                     :src="'/storage/' + notification.data.user_photo" 
+                                                     class="h-10 w-10 rounded-full object-cover">
+                                                <span x-show="!notification.data.user_photo" 
+                                                      class="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="ml-3 flex-1">
+                                                <p class="text-sm font-medium text-gray-900" x-text="notification.data.message"></p>
+                                                <div class="flex justify-between items-center mt-1">
+                                                    <p class="text-xs text-gray-500" x-text="new Date(notification.created_at).toLocaleString()"></p>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                        Novo
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                
+                                <!-- Read Notifications -->
+                                <template x-for="notification in recentActivities.read" :key="notification.id">
+                                    <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0">
+                                                <img x-show="notification.data.user_photo" 
+                                                     :src="'/storage/' + notification.data.user_photo" 
+                                                     class="h-10 w-10 rounded-full object-cover">
+                                                <span x-show="!notification.data.user_photo" 
+                                                      class="h-10 w-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="ml-3 flex-1">
+                                                <p class="text-sm font-medium text-gray-900" x-text="notification.data.message"></p>
+                                                <p class="text-xs text-gray-500 mt-1" x-text="new Date(notification.created_at).toLocaleString()"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="px-6 py-3 border-t border-gray-200 bg-gray-50">
+                                <span class="text-sm text-gray-500">
+                                    <span x-text="recentActivities.unread_count"></span> nepročitanih notifikacija
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </template>
-        
-        <!-- Read Notifications -->
-        <template x-for="notification in recentActivities.read" :key="notification.id">
-            <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <img x-show="notification.data.user_photo" 
-                             :src="'/storage/' + notification.data.user_photo" 
-                             class="h-10 w-10 rounded-full object-cover">
-                        <span x-show="!notification.data.user_photo" 
-                              class="h-10 w-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="ml-3 flex-1">
-                        <p class="text-sm font-medium text-gray-900" x-text="notification.data.message"></p>
-                        <p class="text-xs text-gray-500 mt-1" x-text="new Date(notification.created_at).toLocaleString()"></p>
-                    </div>
-                </div>
-            </div>
-        </template>
-    </div>
-    <div class="px-6 py-3 border-t border-gray-200 bg-gray-50">
-        <span class="text-sm text-gray-500">
-            <span x-text="recentActivities.unread_count"></span> nepročitanih notifikacija
-        </span>
-    </div>
-</div>
                     </div>
                 </div>
             </div>
@@ -264,7 +280,6 @@
             currentDateTime: '',
             userStats: null,
             orderStats: null,
-
             stats: {
                 total_revenue: 0,
                 revenue_change: 0,
@@ -311,39 +326,41 @@
                 });
             },
 
-           
-        async fetchOrderStats() {
-            try {
-                const response = await fetch('/api/order-stats');
-                this.orderStats = await response.json();
-            } catch (error) {
-                console.error('Error fetching order stats:', error);
-                this.orderStats = {
-                    current_month: { count: 0, revenue: 0 },
-                    previous_month: { count: 0, revenue: 0 },
-                    percentage_changes: { count: 0, revenue: 0 }
-                };
-            }
-        },
-        formatCurrency(amount) {
-            return new Intl.NumberFormat('bs-BA', {
-                style: 'currency',
-                currency: 'BAM'
-            }).format(amount);
-        },  
+            async fetchOrderStats() {
+                try {
+                    const response = await fetch('/api/order-stats');
+                    this.orderStats = await response.json();
+                } catch (error) {
+                    console.error('Error fetching order stats:', error);
+                    this.orderStats = {
+                        current_month: { count: 0, revenue: 0 },
+                        previous_month: { count: 0, revenue: 0 },
+                        percentage_changes: { count: 0, revenue: 0 }
+                    };
+                }
+            },
+            
+            formatCurrency(amount) {
+                return new Intl.NumberFormat('bs-BA', {
+                    style: 'currency',
+                    currency: 'BAM'
+                }).format(amount);
+            },  
+            
             async fetchUserStats() {
-            try {
-                const response = await fetch('/api/user-stats');
-                this.userStats = await response.json();
-            } catch (error) {
-                console.error('Error fetching user stats:', error);
-                this.userStats = {
-                    current_month: 0,
-                    previous_month: 0,
-                    percentage_change: 0
-                };
-            }
-        },
+                try {
+                    const response = await fetch('/api/user-stats');
+                    this.userStats = await response.json();
+                } catch (error) {
+                    console.error('Error fetching user stats:', error);
+                    this.userStats = {
+                        current_month: 0,
+                        previous_month: 0,
+                        percentage_change: 0
+                    };
+                }
+            },
+            
             async fetchWeather() {
                 try {
                     const response = await fetch('/api/dashboard/weather');

@@ -41,6 +41,8 @@ Route::middleware(['checkRole:admin'])->group(function () {
     Route::get('dashboard/brands', [BrandController::class, 'dasboardIndex'])->name('brands.index');
     
     
+Route::delete('/dashboard/products/{product}/images', [ProductController::class, 'deleteImage'])
+->name('dashboard.products.images.delete');
 
     // Category Routes
     Route::get('dashboard/categories', [CategoryController::class, 'dasboardIndex'])->name('categories.index');

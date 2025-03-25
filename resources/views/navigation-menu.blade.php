@@ -20,7 +20,7 @@
                 @foreach($categories[null] ?? [] as $mainCategory)
                     @if(isset($categories[$mainCategory->id]) && count($categories[$mainCategory->id]) > 0)
                         <!-- Category Dropdown -->
-                        <div class="hidden sm:flex sm:items-center sm:ms-10 relative" x-data="{ open: false }">
+                        <div class="hidden sm:flex sm:items-center sm:ms-5 relative" x-data="{ open: false }">
                             <x-dropdown align="left" width="48">
                                 <x-slot name="trigger">
                                     <x-nav-link href="{{ route('categories.show', $mainCategory->slug) }}" @click.prevent="!open">
@@ -43,7 +43,7 @@
                         </div>
                     @else
                         <!-- Single Category Link (No Dropdown) -->
-                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-5 sm:flex">
                             <x-nav-link href="{{ route('categories.show', $mainCategory->slug) }}">
                                 {{ $mainCategory->name }}
                             </x-nav-link>

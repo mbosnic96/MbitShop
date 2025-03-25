@@ -131,8 +131,8 @@
                     <tr>
                         <td>{{ $item->product->name }}</td>
                         <td>{{ $item->quantity }}</td>
-                        <td>KM{{ number_format($item->product->price, 2) }}</td>
-                        <td>KM{{ number_format($item->quantity * $item->product->price, 2) }}</td>
+                        <td>KM{{ number_format($item->product->price_with_discount, 2) }}</td>
+                        <td>KM{{ number_format($item->quantity * $item->product->price_with_discount, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -141,7 +141,7 @@
         <div class="summary">
             <p><strong>Cijena:</strong> KM{{ number_format($subtotal, 2) }}</p>
             <p><strong>Dostava:</strong> KM{{ number_format($shipping, 2) }}</p>
-            <p><strong>Ukupno:</strong> KM{{ number_format($order->total_price, 2) }}</p>
+            <p><strong>Ukupno:</strong> KM{{ number_format($total_price, 2) }}</p>
         </div>
 
         <!-- Footer -->

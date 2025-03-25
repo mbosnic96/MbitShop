@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
 {
     Schema::table('products', function (Blueprint $table) {
-        $table->decimal('discount', 5, 2)->nullable()->default(0); // Možete koristiti discount kao procenat (npr. 10 za 10%)
+        $table->decimal('discount', 5, 2)->nullable()->default(0); 
     });
 }
 

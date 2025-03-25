@@ -3,18 +3,33 @@
     <form method="POST" action="/api/dashboard/products/:id" enctype="multipart/form-data" id="editProductForm">
     @method('PUT')
         @csrf
-        <div class="modal-content w-50">
+        <div class="modal-content">
             <span class="close close-modal" data-modal="products-edit">&times;</span>
             <h2>Izmjeni proizvod</h2>
             <div class="modal-body">
+                
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="mb-4">
                     <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Naziv: (obavezno)</label>
                     <input name="name" type="text" id="name"
                         class="form-input inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full" required>
                     @error('name') <span class="text-red-500">{{ $message }}</span>@enderror
                 </div>
+                
+                <div class="mb-4 flex items-end">
+        <div class="flex items-center">
+            <input name="promo" type="checkbox" id="promo" value="1" 
+                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+            <label for="promo" class="ml-2 block text-sm text-gray-700 font-bold">
+                Promo proizvod
+            </label>
+        </div>
+        @error('promo') <span class="text-red-500">{{ $message }}</span>@enderror
+    </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <!-- Brand Field -->
                     <div class="mb-4">
                         <label for="brand" class="block text-gray-700 text-sm font-bold mb-2">Brand:</label>
@@ -75,7 +90,7 @@
                     @error('description') <span class="text-red-500">{{ $message }}</span>@enderror
                 </div>
 
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <!-- Model Field -->
                     <div>
                         <label for="model" class="block text-gray-700 text-sm font-bold mb-2">Model:</label>
@@ -126,7 +141,14 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div class="mb-4">
+                        <label for="screen_size" class="block text-gray-700 text-sm font-bold mb-2">Veličina ekrana: (inch)</label>
+                        <input name="screen_size" type="number" id="screen_size" step="0.01" 
+                            class="form-input inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full">
+                        @error('screen_size') <span class="text-red-500">{{ $message }}</span>@enderror
+                    </div>
+
                     <!-- Price Field -->
                     <div class="mb-4">
                         <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Cijena:
@@ -136,6 +158,15 @@
                             step="0.01" required>
                         @error('price') <span class="text-red-500">{{ $message }}</span>@enderror
                     </div>
+
+                    <div class="mb-4">
+                        <label for="discount" class="block text-gray-700 text-sm font-bold mb-2">Popust: (%)</label>
+                        <input name="discount" type="number" id="discount" oninput="this.value = Math.min(100, Math.max(0, this.value))"
+                        step="0.01" min="0" max="100"
+                            class="form-input inline-block mt-1 border-gray-300 focus:border-indigo-300 w-full">
+                        @error('discount') <span class="text-red-500">{{ $message }}</span>@enderror
+                    </div>
+
 
                     <!-- Stock Quantity Field -->
                     <div class="mb-4">

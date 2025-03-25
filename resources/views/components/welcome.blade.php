@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    <div id="most-sold-slider" class="overflow-hidden">
+    <div id="most-sold-slider" class="overflow-hidden py-12 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-500 dark:via-gray-600 dark:to-gray-750">
         <div class="splide h-[80vh] mt-[50px] relative">
             <div class="splide__track h-full">
                 <ul class="splide__list h-full" id="most-sold-slider-list"></ul>
@@ -16,20 +16,23 @@
         <!-- Most Sold Products Slider -->
 
 
-        <!-- Najprodavaniji ovog mjeseca -->
-        <div class="my-8">
-            <h2 class="text-2xl font-bold mb-4 uppercase text-center">Najprodavaniji ovog mjeseca</h2>
-            <div class="grid grid-cols-2 gap-8">
-                <div class="grid grid-cols-3 gap-4" id="recommended-grid-1"></div>
-                <div class="grid grid-cols-3 gap-4" id="recommended-grid-2"></div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Most Sold Products Section - Improved responsiveness -->
+        <div class="my-6 md:my-8">
+            <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 uppercase text-center">Najprodavaniji ovog mjeseca</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4" id="recommended-grid-1"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4" id="recommended-grid-2"></div>
             </div>
         </div>
+    </div>
+
 
     </div>
 
     <!-- Kategorije -->
     <div
-        class="py-12 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-950">
+        class="py-12 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-500 dark:via-gray-600 dark:to-gray-750">
         <h2 class="text-3xl font-bold text-center mb-10 uppercase tracking-wide text-gray-800 dark:text-gray-100">
             Kategorije
         </h2>
@@ -38,17 +41,16 @@
 
     </div>
 
-    <div class="container mx-auto px-8">
-
-        <!-- Akcija -->
-        <div class="my-8">
-            <h2 class="text-2xl font-bold mb-4 uppercase text-center">Akcija</h2>
-            <div id="latest-products-grid"></div>
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Discount Section - Improved responsiveness -->
+        <div class="my-6 md:my-8">
+            <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 uppercase text-center">Akcija</h2>
+            <div id="latest-products-grid" class="grid grid-cols-1 gap-4"></div>
         </div>
     </div>
 
     <!-- Novi artikli -->
-    <div class="py-12 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-950">
+    <div class="py-12 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-500 dark:via-gray-600 dark:to-gray-750">
         <h2 class="text-3xl font-bold text-center mb-10 uppercase tracking-wide text-gray-800 dark:text-gray-100">Novi artikli</h2>
         <div id="top-selling-slider" class="overflow-hidden">
             <div class="splide relative">
@@ -142,7 +144,7 @@
                <li class="splide__slide flex items-center justify-center text-white text-4xl px-3 relative">
     ${imageUrl ? `
         <div class="relative w-full h-full">
-            <img src="${imageUrl}" alt="${item.name}" class="w-full h-full object-cover" style="filter: brightness(50%);"> <!-- Direct brightness filter -->
+            <img src="${imageUrl}" alt="${item.name}" class="w-full h-full object-contain" style="filter: brightness(50%);"> 
         </div>
     ` : `
         <div class="w-full flex items-center justify-center">
@@ -189,7 +191,7 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
             <a href="/product/${product.slug}">
                 <div class="bg-transparent h-full rounded shadow hover:shadow-lg transition-shadow border border-solid border-gray-300">
                     ${imageUrl ? `
-                        <img src="${imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded">
+                        <img src="${imageUrl}" alt="${product.name}" class="w-full h-48 object-contain rounded">
                     ` : `
                         <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
                             <span class="text-gray-500">No Image Available</span>
@@ -229,51 +231,42 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
         }
 
         function renderProductCardBig(item) {
-            const product = item.product ?? item;
-            const images = product?.image ? JSON.parse(product.image) : [];
-            const imageUrl = images.length > 0 ? `storage/${images[0]}` : null;
-        
-            return `
-              <a href="/product/${product.slug}">
-                <div class="bg-transparent h-full rounded shadow hover:shadow-lg transition-shadow border border-solid border-gray-300">
-                    ${imageUrl ? `
-                        <img src="${imageUrl}" alt="${product.name}" class="h-48 w-full object-cover rounded">
-                    ` : `
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <span class="text-gray-500">No Image Available</span>
+                const product = item.product ?? item;
+                const images = product?.image ? JSON.parse(product.image) : [];
+                const imageUrl = images.length > 0 ? `storage/${images[0]}` : null;
+            
+                return `
+                  <a href="/product/${product.slug}">
+                    <div class="bg-transparent h-full rounded shadow hover:shadow-lg transition-shadow border border-solid border-gray-300">
+                        ${imageUrl ? `
+                            <img src="${imageUrl}" alt="${product.name}" class="h-40 md:h-48 w-full object-contain rounded" loading="lazy">
+                        ` : `
+                            <div class="w-full h-40 md:h-48 bg-gray-200 flex items-center justify-center rounded">
+                                <span class="text-gray-500">No Image Available</span>
+                            </div>
+                        `}
+                       <div class="p-2 md:p-4 flex flex-col">
+                            <h3 class="text-sm md:text-lg font-semibold mt-1 md:mt-2 line-clamp-2">${product.name}</h3>
+                            ${product.discount > 0 ? `
+                                <p class="text-gray-600 line-through text-xs md:text-sm me-1 md:me-2">$${product.price}</p>
+                            ` : ''}
+            
+                            <p class="${product.discount > 0 ? 'text-green-500 font-semibold' : 'text-gray-700 font-semibold'} text-sm md:text-base">
+                                $${product.discount > 0 
+                                    ? (product.price - (product.price * product.discount / 100)).toFixed(2) 
+                                    : product.price}
+                                ${product.discount > 0 ? `
+                                    <span class="inline-flex items-center bg-green-500 text-white text-xs font-medium px-2 py-0.5 md:px-4 md:py-1.5 rounded-full dark:bg-green-900 dark:text-green-300 ml-1 md:ml-2">
+                                        ${product.discount}%
+                                    </span>
+                                ` : ''}
+                            </p>
+                            ${item.total_sold !== undefined ? `<p class="text-xs md:text-sm text-gray-500">Ukupno prodano: ${item.total_sold}</p>` : ''}
                         </div>
-                    `}
-                   <div class="flex p-4 flex-col">
-                    <div> <h3 class="text-lg font-semibold mt-2">${product.name}</h3></div>
-                        <!-- Old Price (crossed out) only if discount > 0 -->
-                        ${product.discount > 0 ? `
-                            <p class="text-gray-600 line-through text-sm me-2">$${product.price}</p>
-                        ` : ''}
-        
-                        <!-- New Price (green if discount > 0) -->
-                       <p class="${product.discount > 0 ? 'text-green-500 font-semibold' : 'text-gray-700 font-semibold'}">
-    $${product.discount > 0 
-        ? (product.price - (product.price * product.discount / 100)).toFixed(2) 
-        : product.price}
-    ${product.discount > 0 ? `
-        <span class="inline-flex items-center bg-green-500 text-white text-xs font-medium px-4 py-1.5 rounded-full dark:bg-green-900 dark:text-green-300 ml-2">
-            ${product.discount}%
-        </span>
-    ` : ''}
-</p>
-<div>${item.total_sold !== undefined ? `<p class="text-sm text-gray-500">Ukupno prodano: ${item.total_sold}</p>` : ''}</div>
                     </div>
-                    
-      
-                </div>
-                </a>
-            `;
-        }
-        
-        
-        
-        
-
+                  </a>
+                `;
+            }
         // Initialize Most Sold Products Slider
         async function initMostSoldSlider() {
             const data = await fetchData('/api/products/promo');
@@ -286,7 +279,6 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
                 interval: 3000,
                 pauseOnHover: true,
                 arrows: true,
-                padding: '5rem',
                 pagination: false,
             });
 
@@ -343,15 +335,15 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
         
             // Generate the grid layout based on the number of products
             gridContainer.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-                    <div class="flex gap-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-4">
+                <div class="flex flex-col md:flex-row gap-4">
                         ${productsToDisplay.length > 0 ? `
-                            <div class="w-1/4 full-img">
+                            <div class="w-full sm:w-1/4 full-img">
                                 ${renderProductCardBig(productsToDisplay[0])}
                             </div>
                         ` : ''}
         
-                        <div class="w-3/4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="w-full sm:w-3/4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             ${productsToDisplay.slice(1, 7).map(renderProductCardBig).join('')}
                         </div>
                     </div>

@@ -17,3 +17,15 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+
+/storage/invoices/*
+
+# But keep specific files in other storage directories
+!/storage/app/public/
+/storage/app/public/*
+!/storage/app/public/banner.webp
+!/storage/app/public/MbitShopLogo.png
+!/storage/app/public/**/*.webp
+!/storage/app/public/**/*.png
+!/storage/app/public/**/*.svg
