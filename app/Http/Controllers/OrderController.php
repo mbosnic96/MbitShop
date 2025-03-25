@@ -18,40 +18,33 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
+    //return orders for user or all for admin
     public function index(Request $request)
     {
         $user = auth()->user();
-    
-        // Get the status filter from the request (e.g., ?status=na%20čekanju)
+        //filter i search
         $statusFilters = $request->query('status', []);
     
-        // If status is a string (single value), convert it to an array
         if (!is_array($statusFilters)) {
             $statusFilters = [$statusFilters];
         }
     
-        // Get the search term from the request (e.g., ?search=123)
         $searchTerm = $request->query('search', '');
-    
-        // Start building the query
         $ordersQuery = Order::with('items.product');
-    
-        // Apply status filter if any status is provided
         if (!empty($statusFilters)) {
             $ordersQuery->whereIn('status', $statusFilters);
         }
     
-        // Apply search filter if a search term is provided
         if (!empty($searchTerm)) {
             $ordersQuery->where('order_number', 'like', '%' . $searchTerm . '%');
         }
     
-        // If the user is not an admin, filter orders to only show their own
+        
         if ($user->role !== 'admin') {
             $ordersQuery->where('user_id', $user->id);
         }
     
-        // Sort orders by status, prioritizing 'na čekanju'
+        //raw query i sort
         $ordersQuery->orderByRaw("
         CASE
             WHEN status = 'na čekanju' THEN 1
@@ -62,7 +55,6 @@ class OrderController extends Controller
     ")->orderBy('id', 'desc');
     
     
-        // Paginate the results
         $orders = $ordersQuery->paginate(10);
     
         return response()->json([
@@ -73,12 +65,13 @@ class OrderController extends Controller
         ]);
     }
     
-    
+    //vraća view
     public function dasboardIndex()
     {
         return view('orders.index');
 
     }
+    //checkout narudzbi
     public function checkout(Request $request)
     {
         $user = auth()->user();
@@ -95,7 +88,7 @@ class OrderController extends Controller
         try {
             $subtotal = array_reduce($cart, fn($sum, $item) => $sum + ($item['price'] * $item['quantity']), 0);
 
-            // Calculate shipping (free if subtotal > 100, else 12)
+            // Calculate shipping
             $shipping = $subtotal > 99 ? 0 : 12;
 
             // Calculate total price
@@ -105,9 +98,9 @@ class OrderController extends Controller
             $order = Order::create([
                 'user_id' => $user->id,
                 'order_number' => strtoupper(uniqid('MBit-')),
-                'subtotal' => $subtotal, // Add subtotal to the order
-                'shipping' => $shipping, // Add shipping cost to the order
-                'total_price' => $totalPrice, // Add total price to the order
+                'subtotal' => $subtotal, 
+                'shipping' => $shipping, 
+                'total_price' => $totalPrice, 
                 'shipping_address' => "{$user->name},{$user->phone_number}, {$user->address}, {$user->city}, {$user->country}",
             ]);
 
@@ -139,9 +132,7 @@ class OrderController extends Controller
 
             DB::commit();
 
-            /**
-             * bug here
-             */
+            //notifikacija adminu da ima narudžbu i mail
             $admins = User::where('role', 'admin')->get();
             foreach ($admins as $admin) {
                 $admin->notify(new OrderNotification($order));
@@ -154,14 +145,11 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
+    //provjera statusa, poziva funkcije za obradu i postavlja zastite
     public function checkStatus(Request $request, $orderId, $status)
     {
         $user = auth()->user();
-        // Fetch the order
         $order = Order::findOrFail($orderId);
-
-        // Validate the requested status change
         switch ($status) {
             case 'u obradi':
                 if (in_array($order->status, ['otkazano', 'poslano'])) {
@@ -176,7 +164,6 @@ class OrderController extends Controller
                 break;
 
             case 'otkazano':
-                // Prevent canceling an order if its status is already 'poslano'
                 if ($user->role === 'customer' && $order->status === 'poslano' || $order->status === 'otkazano') {
                     return response()->json(['error' => 'Ne možete otkazati narudžbu.'], 400);
                 }
@@ -187,11 +174,10 @@ class OrderController extends Controller
                 return response()->json(['error' => 'Nevažeći status'], 400);
         }
 
-        // If all checks pass, update the status
         $order->status = $status;
         $order->save();
 
-        // Call the appropriate function based on status
+        // poziva funkciju zavisno od statusa
         switch ($status) {
             case 'u obradi':
                 return $this->inProgress($order);
@@ -213,8 +199,6 @@ class OrderController extends Controller
 
 public function approveOrder(Order $order)
 {
-
-    // Calculate subtotal, shipping, and total_price (do not save to database)
     $subtotal = $order->items->sum(function ($item) {
         return $item->quantity * $item->product->price;
     });
@@ -222,7 +206,7 @@ public function approveOrder(Order $order)
     $shipping = $subtotal > 99 ? 0 : 12.00;
     $totalPrice = $subtotal + $shipping;
 
-    // Pass the calculated values to the PDF view
+    // šalje podatke pdfu
     $pdf = PDF::loadView('orders.pdf', [
         'order' => $order,
         'subtotal' => $subtotal,
@@ -230,17 +214,14 @@ public function approveOrder(Order $order)
         'total_price' => $totalPrice,
     ]);
 
-    // Ensure the invoices directory exists
     $invoiceDirectory = storage_path('invoices');
     if (!file_exists($invoiceDirectory)) {
         mkdir($invoiceDirectory, 0755, true); // Create the directory with proper permissions
     }
 
-    // Save the PDF
+    // Save PDF
     $pdfPath = storage_path("invoices/order_{$order->order_number}.pdf");
     $pdf->save($pdfPath);
-
-    // Send Email to User
     Mail::to($order->user->email)->send(new OrderApprovedMail($order, $pdfPath));
 
     return response()->json(['success' => true, 'message' => 'Narudžba odobrena!']);
@@ -264,24 +245,21 @@ public function approveOrder(Order $order)
             'total_price' => $totalPrice,
         ]);
 
-        // Return the generated PDF as a response
         return $pdf->download("order_{$orderId}.pdf");
     }
 
     public function cancelOrder(Order $order, $user)
     {
         
-        // Handle admin cancellation
+        // admin može otkazati naružbu iako je poslana
         if ($user->role !== 'admin' && $order->user_id !== $user->id) {
             return response()->json(['error' => 'Nemate dozvolu za otkazivanje ove narudžbe.'], 403);
         }
         $order->status = 'otkazano';
         $order->save();
     
-            // Notify customer
             $order->user->notify(new OrderCancelledNotification($order));
     
-            // Notify admin
             $admins = User::where('role', 'admin')->get();
             foreach ($admins as $admin) {
                 $admin->notify(new OrderCancelledNotification($order));
@@ -293,7 +271,7 @@ public function approveOrder(Order $order)
 
 public function getOrderStats()
 {
-    // Current month orders and revenue
+    // koristi se u dashbordu za početni panel
     $currentMonthOrders = Order::whereYear('created_at', now()->year)
         ->whereMonth('created_at', now()->month)
         ->get();
@@ -301,7 +279,7 @@ public function getOrderStats()
     $currentMonthCount = $currentMonthOrders->count();
     $currentMonthRevenue = $currentMonthOrders->sum('total_price');
 
-    // Previous month orders and revenue
+    
     $previousMonthOrders = Order::whereYear('created_at', now()->subMonth()->year)
         ->whereMonth('created_at', now()->subMonth()->month)
         ->get();
@@ -309,7 +287,7 @@ public function getOrderStats()
     $previousMonthCount = $previousMonthOrders->count();
     $previousMonthRevenue = $previousMonthOrders->sum('total_price');
 
-    // Calculate percentage changes
+    
     $countPercentageChange = $this->calculatePercentageChange($previousMonthCount, $currentMonthCount);
     $revenuePercentageChange = $this->calculatePercentageChange($previousMonthRevenue, $currentMonthRevenue);
 
