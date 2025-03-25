@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 class NotificationController extends Controller
 {
+    //returns notifications
     public function index()
     {
         $user = auth()->user();
@@ -21,7 +22,7 @@ class NotificationController extends Controller
             'unread_count' => $unread->count(),
         ]);
     }
-
+    //marks notif as read
     public function markAsRead($id)
     {
         $user = auth()->user();
