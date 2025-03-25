@@ -3,7 +3,7 @@
     <!-- Loading State -->
     <div x-show="loading" class="text-center py-20">
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-      <p class="mt-4 text-gray-600">Loading product details...</p>
+      <p class="mt-4 text-gray-600">Učitavanje sadržaja...</p>
     </div>
 
     <!-- Error State -->
