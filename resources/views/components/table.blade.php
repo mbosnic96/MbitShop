@@ -141,6 +141,9 @@ function tableData(apiUrl, columns, modalId, formId) {
                 e.preventDefault();
                 this.submitForm(e);
             });
+            setInterval(() => {
+                this.fetchData(this.page);
+            }, 2000);
         },
 
         fetchData(page = 1) {
