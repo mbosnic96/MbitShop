@@ -115,28 +115,28 @@
 function tableData(apiUrl, columns, modalId, formId) {
     return {
         columns: columns,
-        data: [],  // Data for the current page
-        filteredData: [],  // Data filtered based on selectedStatus (client-side, if needed)
+        data: [],  
+        filteredData: [],  
         selectedStatus: [],
-        searchTerm: '',  // New property for search term
+        searchTerm: '',  
         page: 1,
         lastPage: 1,
         modalId: modalId,
         formId: formId,
         apiUrl: apiUrl,
-        userRole: null,  // For role-based checks
+        userRole: null,  
 
         init() {
-            // Read the search query parameter from the URL
+            
             const urlParams = new URLSearchParams(window.location.search);
             const searchParam = urlParams.get('search');
             if (searchParam) {
-                this.searchTerm = searchParam; // Set the search term
-                this.applyFilter(); // Apply the filter automatically
+                this.searchTerm = searchParam; 
+                this.applyFilter(); 
             }
 
-            this.fetchData(this.page);  // Fetch initial data
-            this.userRole = document.querySelector('meta[name="user-role"]').getAttribute('content');  // Get user role from meta tag
+            this.fetchData(this.page); 
+            this.userRole = document.querySelector('meta[name="user-role"]').getAttribute('content');  
             document.querySelector(`#${this.formId}`)?.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.submitForm(e);
@@ -145,11 +145,11 @@ function tableData(apiUrl, columns, modalId, formId) {
 
         fetchData(page = 1) {
             this.page = page;
-            // Include selectedStatus and searchTerm in the API request
+            
             const params = {
                 page: page,
-                status: this.selectedStatus,  // Send selected filters to the server
-                search: this.searchTerm,  // Send search term to the server
+                status: this.selectedStatus,  
+                search: this.searchTerm,  
             };
 
             axios.get(apiUrl, { params })
@@ -157,7 +157,7 @@ function tableData(apiUrl, columns, modalId, formId) {
                     const result = response.data;
                     if (result && result.data && Array.isArray(result.data)) {
                         this.data = result.data;
-                        this.filteredData = result.data;  // Update filteredData for client-side use (if needed)
+                        this.filteredData = result.data;  
                         this.lastPage = result.last_page;
                     } else {
                         console.error('Unexpected API response structure:', result);
@@ -169,8 +169,8 @@ function tableData(apiUrl, columns, modalId, formId) {
         },
 
         applyFilter() {
-            // Trigger a new fetch with the updated filter criteria
-            this.page = 1;  // Reset to the first page when applying a new filter
+            
+            this.page = 1;  
             this.fetchData(this.page);
         },
 
