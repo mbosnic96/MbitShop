@@ -225,6 +225,37 @@
     
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+        <!-- Mobile Home Link -->
+<x-responsive-nav-link href="{{ route('home') }}" :active="request()->routeIs('home')">
+    {{ __('Početna') }}
+</x-responsive-nav-link>
+
+<!-- Mobile Categories -->
+@foreach($categories[null] ?? [] as $mainCategory)
+    @if(isset($categories[$mainCategory->id]) && count($categories[$mainCategory->id]) > 0)
+        <!-- Dropdown Menu for Mobile -->
+        <div x-data="{ openCat{{ $mainCategory->id }}: false }">
+            <x-responsive-nav-link href="{{ route('categories.show', $mainCategory->slug) }}" @click.prevent="openCat{{ $mainCategory->id }} = !openCat{{ $mainCategory->id }}">
+                {{ $mainCategory->name }} <i class="ms-1 fa fa-angle-down"></i>
+            </x-responsive-nav-link>
+            <div x-show="openCat{{ $mainCategory->id }}" class="ms-4">
+                <x-responsive-nav-link href="{{ route('categories.show', $mainCategory->slug) }}">
+                    Prikaži sve
+                </x-responsive-nav-link>
+                @foreach($categories[$mainCategory->id] ?? [] as $subcategory)
+                    <x-responsive-nav-link href="{{ route('categories.show', $subcategory->slug) }}">
+                        {{ $subcategory->name }}
+                    </x-responsive-nav-link>
+                @endforeach
+            </div>
+        </div>
+    @else
+        <x-responsive-nav-link href="{{ route('categories.show', $mainCategory->slug) }}">
+            {{ $mainCategory->name }}
+        </x-responsive-nav-link>
+    @endif
+@endforeach
+
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}

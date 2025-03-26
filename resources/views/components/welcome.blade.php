@@ -1,9 +1,9 @@
 <x-app-layout>
 
-    <div id="most-sold-slider" class="overflow-hidden py-12 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-500 dark:via-gray-600 dark:to-gray-750">
+    <div id="promo-slider" class="overflow-hidden py-12 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-500 dark:via-gray-600 dark:to-gray-750">
         <div class="splide h-[80vh] mt-[50px] relative">
             <div class="splide__track h-full">
-                <ul class="splide__list h-full" id="most-sold-slider-list"></ul>
+                <ul class="splide__list h-full" id="promo-slider-list"></ul>
             </div>
 
             <!-- Progress Bar -->
@@ -12,17 +12,14 @@
             </div>
         </div>
     </div>
+
     <div class="container mx-auto px-8">
-        <!-- Most Sold Products Slider -->
-
-
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Most Sold Products Section - Improved responsiveness -->
         <div class="my-6 md:my-8">
             <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 uppercase text-center">Najprodavaniji ovog mjeseca</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4" id="recommended-grid-1"></div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4" id="recommended-grid-2"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4" id="most-sold-grid-1"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4" id="most-sold-grid-2"></div>
             </div>
         </div>
     </div>
@@ -36,26 +33,23 @@
         <h2 class="text-3xl font-bold text-center mb-10 uppercase tracking-wide text-gray-800 dark:text-gray-100">
             Kategorije
         </h2>
-
         <div id="categories-grid" class="dynamic-grid gap-6 auto-rows-fr"></div>
-
     </div>
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Discount Section - Improved responsiveness -->
         <div class="my-6 md:my-8">
             <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 uppercase text-center">Akcija</h2>
-            <div id="latest-products-grid" class="grid grid-cols-1 gap-4"></div>
+            <div id="on-discount-grid" class="grid grid-cols-1 gap-4"></div>
         </div>
     </div>
 
     <!-- Novi artikli -->
     <div class="py-12 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-500 dark:via-gray-600 dark:to-gray-750">
         <h2 class="text-3xl font-bold text-center mb-10 uppercase tracking-wide text-gray-800 dark:text-gray-100">Novi artikli</h2>
-        <div id="top-selling-slider" class="overflow-hidden">
+        <div id="new-products-slider" class="overflow-hidden">
             <div class="splide relative">
                 <div class="splide__track h-full">
-                    <ul class="splide__list h-full" id="top-selling-slider-list"></ul>
+                    <ul class="splide__list h-full" id="new-products-slider-list"></ul>
                 </div>
             </div>
         </div>
@@ -268,12 +262,12 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
                 `;
             }
         // Initialize Most Sold Products Slider
-        async function initMostSoldSlider() {
+        async function initPromoSlider() {
             const data = await fetchData('/api/products/promo');
-            const sliderList = document.getElementById('most-sold-slider-list');
+            const sliderList = document.getElementById('promo-slider-list');
             sliderList.innerHTML = data.map(renderProductSlide).join('');
 
-            const splide = new Splide('#most-sold-slider .splide', {
+            const splide = new Splide('#promo-slider .splide', {
                 type: 'loop',
                 autoplay: true,
                 interval: 3000,
@@ -282,7 +276,7 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
                 pagination: false,
             });
 
-            const bar = document.querySelector('#most-sold-slider .my-slider-progress-bar');
+            const bar = document.querySelector('#promo-slider .my-slider-progress-bar');
             splide.on('mounted move', () => {
                 const end = splide.Components.Controller.getEnd() + 1;
                 const rate = Math.min((splide.index + 1) / end, 1);
@@ -293,12 +287,12 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
         }
 
         // Initialize Top Selling Products Slider
-        async function initTopSellingSlider() {
+        async function newProductsSlider() {
             const data = await fetchData('/api/products/get-latest-products');
-            const sliderList = document.getElementById('top-selling-slider-list');
+            const sliderList = document.getElementById('new-products-slider-list');
             sliderList.innerHTML = data.map(renderProductSlide).join('');
 
-            const splide = new Splide('#top-selling-slider .splide', {
+            const splide = new Splide('#new-products-slider .splide', {
                 type: 'loop',
                 autoplay: true,
                 interval: 5000,
@@ -324,11 +318,11 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
             splide.mount();
         }
 
-        async function initLatestProductsGrid() {
+        async function initOnDiscount() {
             const response = await fetchData('/api/products/on-discount'); // paginated response
             const data = response.data || []; // access actual products
         
-            const gridContainer = document.getElementById('latest-products-grid');
+            const gridContainer = document.getElementById('on-discount-grid');
         
             // Determine the number of products to display (up to 7)
             const productsToDisplay = data.slice(0, 7); // Take up to 7 products
@@ -356,11 +350,11 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
         
 
         // Initialize Recommended Products Grid
-        async function initRecommendedProductsGrid() {
+        async function initMostSold() {
             const response = await fetchData('/api/products/top-selling-products');
             const data = response.data || [];
-            const grid1 = document.getElementById('recommended-grid-1');
-            const grid2 = document.getElementById('recommended-grid-2');
+            const grid1 = document.getElementById('most-sold-grid-1');
+            const grid2 = document.getElementById('most-sold-grid-2');
             
 
             const firstThree = data.slice(0, 3);
@@ -371,10 +365,10 @@ ${item?.description && item?.promo ? `<p class="text-sm">${item.description.spli
         }
 
         // Initialize all components
-            initMostSoldSlider();
-            initTopSellingSlider();
-            initLatestProductsGrid();
-            initRecommendedProductsGrid();
+            initPromoSlider();
+            newProductsSlider();
+            initOnDiscount();
+            initMostSold();
         });
     </script>
 

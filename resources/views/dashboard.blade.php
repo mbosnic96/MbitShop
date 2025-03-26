@@ -32,7 +32,7 @@
                         <div class="bg-white rounded-lg shadow p-6">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500">Orders</p>
+                                    <p class="text-gray-500">Narudžbe</p>
                                     <p class="text-2xl font-bold" x-text="orderStats ? orderStats.current_month.count : 'Loading...'"></p>
                                 </div>
                                 <div class="p-3 rounded-full bg-green-100 text-green-600">
@@ -50,7 +50,7 @@
                                       x-text="orderStats ? (orderStats.percentage_changes.count >= 0 ? '+' : '') + orderStats.percentage_changes.count + '%' : ''">
                                 </span>
                                 <span class="text-gray-500 text-sm ml-2" 
-                                      x-text="orderStats ? orderStats.current_month.count + ' orders this month' : ''">
+                                      x-text="orderStats ? orderStats.current_month.count + ' narudžbi ovog mjeseca' : ''">
                                 </span>
                             </div>
                         </div>
@@ -59,7 +59,7 @@
                         <div class="bg-white rounded-lg shadow p-6">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500">Revenue</p>
+                                    <p class="text-gray-500">Promet</p>
                                     <p class="text-2xl font-bold" x-text="orderStats ? formatCurrency(orderStats.current_month.revenue) : 'Loading...'"></p>
                                 </div>
                                 <div class="p-3 rounded-full bg-blue-100 text-blue-600">
@@ -77,7 +77,7 @@
                                       x-text="orderStats ? (orderStats.percentage_changes.revenue >= 0 ? '+' : '') + orderStats.percentage_changes.revenue + '%' : ''">
                                 </span>
                                 <span class="text-gray-500 text-sm ml-2" 
-                                      x-text="orderStats ? formatCurrency(orderStats.previous_month.revenue) + ' last month' : ''">
+                                      x-text="orderStats ? formatCurrency(orderStats.previous_month.revenue) + ' prošli mjesec' : ''">
                                 </span>
                             </div>
                         </div>
@@ -316,7 +316,7 @@
 
             updateDateTime() {
                 const now = new Date();
-                this.currentDateTime = now.toLocaleString('en-US', {
+                this.currentDateTime = now.toLocaleString('bs-BA', {
                     weekday: 'long',
                     month: 'long',
                     day: 'numeric',

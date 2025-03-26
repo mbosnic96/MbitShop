@@ -13,11 +13,11 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>
-      <h3 class="mt-3 text-lg font-medium text-gray-900">Product not found</h3>
+      <h3 class="mt-3 text-lg font-medium text-gray-900">Proizvod nije pronađen</h3>
       <p x-text="errorMessage" class="mt-2 text-sm text-gray-500"></p>
       <div class="mt-6">
-        <a href="/products" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-          Browse Products
+        <a href="/" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Početna
         </a>
       </div>
     </div>
@@ -74,7 +74,7 @@
             <span class="font-semibold" x-text="product?.brand?.name || ''"></span>
           </div>
           <div x-show="product?.category" class="flex items-center space-x-2">
-            <span class="text-gray-500">Category:</span>
+            <span class="text-gray-500">Kategorija:</span>
             <span class="font-semibold" x-text="product?.category?.name || ''"></span>
           </div>
         </div>
@@ -164,11 +164,11 @@ document.addEventListener('alpine:init', () => {
 
       // Prepare specifications
       this.specifications = [
-        { icon: 'fa-microchip', label: 'Processor', value: this.product.processor || 'N/A' },
+        { icon: 'fa-microchip', label: 'Procesor', value: this.product.processor || 'N/A' },
         { icon: 'fa-hdd-o', label: 'RAM', value: this.product.ram_size || 'N/A', suffix: ' GB' },
-        { icon: 'fa-hdd-o', label: 'Storage', value: this.product.storage || 'N/A', suffix: ' GB' },
+        { icon: 'fa-hdd-o', label: 'Interna memorija', value: this.product.storage || 'N/A', suffix: ' GB' },
         { icon: 'fa-cogs', label: 'OS', value: this.product.operating_system || 'N/A' },
-        { icon: 'fa-desktop', label: 'Screen', value: this.product.screen_size || 'N/A', suffix: ' inches' }
+        { icon: 'fa-desktop', label: 'Ekran', value: this.product.screen_size || 'N/A', suffix: ' inča' }
       ].filter(spec => spec.value && spec.value !== 'N/A');
 
       // Parse images
@@ -190,7 +190,6 @@ document.addEventListener('alpine:init', () => {
         heightRatio: 0.5,
         pagination: false,
         arrows: false,
-        cover: true,
       });
 
       const thumbnails = new Splide('#thumbnail-slider', {
@@ -201,7 +200,6 @@ document.addEventListener('alpine:init', () => {
         gap: 10,
         focus: 'center',
         pagination: false,
-        cover: true,
         dragMinThreshold: {
           mouse: 4,
           touch: 10,
